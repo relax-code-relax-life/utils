@@ -1,0 +1,27 @@
+{
+  "name": "utils",
+  "version": "0.0.1",
+  "description": "Javascript util methods.",
+  "main": "index.js",
+  "scripts": {
+    "test": "karma start karma.conf.js",
+    "build": "webpack --config webpack.config.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/w-wl/utils.git"
+  },
+  "author": "wwl",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/w-wl/utils/issues"
+  },
+  "homepage": "https://github.com/w-wl/utils#readme",
+  "devDependencies": {
+    "jasmine-core": "^2.6.3",
+    "karma": "^1.7.0",
+    "karma-chrome-launcher": "^2.1.1",
+    "karma-jasmine": "^1.1.0",
+    "webpack": "^2.6.1"
+  }
+}
