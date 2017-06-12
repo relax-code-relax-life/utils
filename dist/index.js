@@ -95,14 +95,34 @@ var reg = {
     singleChar: /[\u0020-\u007f|\uff61-\uff9f]/g,
     enterChar: /\n/g,
     htmlEncode: /"|&|'|<|>|[\x00-\x20]|[\x7F-\xFF]/g,
-    camelCase: /-([a-zA-Z])/g
+    //0-32  128-255
+    //ascii: 1字节，包含标准 0-127字符和扩展ascii 128-255字符。 扩展ascii为非标准。
+    //0-31和127为控制字符,    127是删除
+    //32-126为可显字符,     32为空格,48~57为0-9,65~90为A-Z,97-122为a-z，其余为符号。
+    //128-255为扩展字符
+    camelCase: /-([a-zA-Z])/g,
+    query: /(?:[?&])(.*?)=(.*?)(?=&|$|#)/g,
+    dateFmt: /y+|M+|d+|h+|m+|s+|S+/g
 };
+
 
 //signature: obj,start,end
 var call = Function.prototype.call;
 var slice = call.bind(Array.prototype.slice);
 var docEle = document.documentElement;
 var toString = call.bind(Object.prototype.toString);
+//缓存函数。  将函数结果缓存，函数实际只执行一次。
+var cache = function (fn, context) {
+    var result,
+        isExecute; //判断是否执行过fn，不能通过result判断，因为fn有可能返回undefined
+    return function (refresh, ...args) { //第一个参数为 是否强制刷新
+        if (!isExecute || refresh) {
+            !context && (context = this);
+            result = fn.apply(context, args);
+        }
+        return result;
+    }
+};
 
 var copyTxt = (function () {
     var getFakeEle = function () {
@@ -188,6 +208,7 @@ var utils = {
         });
         return result;
     },
+    cache,
     loop(fn, tick, immediate){
         var key = utils.guid('loop');
 
@@ -216,6 +237,48 @@ var utils = {
         }
     },
 
+    //间隔wait执行
+    throttle  (fn, alwaysFn, immediately, wait, context) {//optional:alwaysFn,immediately,context
+        if (typeof alwaysFn !== 'function') {
+            context = wait;
+            wait = immediately;
+            immediately = alwaysFn;
+            alwaysFn = undefined;
+        }
+        if (typeof immediately !== 'boolean') {
+            context = wait;
+            wait = immediately;
+            immediately = false;
+        }
+
+        var timeoutId, args,
+            execFn;
+
+        if (immediately) {
+            execFn = function () {
+                fn.apply(context, args);
+                timeoutId = setTimeout(function () {
+                    timeoutId = undefined;
+                }, wait);
+            }
+        }
+        else {
+            execFn = function () {
+                timeoutId = setTimeout(function () {
+                    fn.apply(context, args);
+                    timeoutId = undefined;
+                }, wait);
+            }
+        }
+
+        return function () {
+            args = arguments;
+            !context && (context = this);
+            alwaysFn && alwaysFn.apply(context, args);
+            if (!timeoutId) execFn();
+        }
+    },
+    //防抖动
     debounce(fn, alwaysFn, immediately, wait, context){//optional:alwaysFn,immediately,context
 
         if (typeof alwaysFn !== 'function') {
@@ -232,28 +295,27 @@ var utils = {
 
         var timeoutId, arg;
 
+        var setTimeout = function (fn) {
+            clearTimeout(timeoutId);
+            timeoutId = setTimeout(fn, wait)
+        };
+
         var execFn;
         if (immediately) {
 
-            var setImmediateTimeoutId = function () {
-                clearTimeout(timeoutId);
-                timeoutId = setTimeout(function () {
-                    timeoutId = undefined
-                }, wait);
-            };
-
             execFn = function () {
                 if (!timeoutId) fn.apply(context, arg);
-                setImmediateTimeoutId();
+                setTimeout(function () {
+                    timeoutId = undefined
+                });
             }
         }
         else {
             execFn = function () {
-                timeoutId && clearTimeout(timeoutId);
-                timeoutId = setTimeout(function () {
+                setTimeout(function () {
                     fn.apply(context, arg);
                     timeoutId = undefined;
-                }, wait);
+                });
             }
         }
 
@@ -278,23 +340,60 @@ var utils = {
         link.dispatchEvent(event);
     },
 
-    queryStr(params){
-        if (params == null) return '';
-        if (typeof params !== 'object') return params + '';
+    /**
+     * 将对象转换为key=val&key1=value1的参数形式
+     * @param params
+     * @param encodeEx {Boolean|Array} 不进行转义。数组形式:[key1,key2,...]，指定特定的key不进行转义
+     * @returns {*}
+     */
+    param(params, encodeEx){
+        if (params == null || typeof params !== 'object') return params || '';
+        var result = [], val, enc = encodeURIComponent;
 
-        var enc = encodeURIComponent;
+        //格式化excludeMap: {key1:bool,key2:bool}
+        var excludeMap = {}, excludeAll = false;
+        if (Array.isArray(encodeEx)) {
+            encodeEx.forEach(function (key) {
+                excludeMap[key] = true;
+            })
+        }
+        else {
+            excludeAll = encodeEx;
+        }
 
-        return utils.map(params, function (val, key) {
+
+        for (var key in params) {
+            val = params[key];
             if (val == null) val = '';
             else if (typeof val === 'object') val = JSON.stringify(val);
-            return enc(key) + '=' + enc(val);
-        }).join('&')
 
+            val = (excludeAll || excludeMap[key]) ? val : enc(val);
+
+            result.push(enc(key) + '=' + val);
+        }
+
+        return result.join('&');
     },
-    resolveUrl(url, param){
-        param = utils.queryStr(param);
+    resolveUrl(url, param, encodeEx){
+        param = utils.param(param, encodeEx);
         return url.replace(reg.resolveUrl, '?$2&' + param + '$3').replace('?&', '?')
     },
+
+    /**
+     *返回代表查询字符串的键值对。函数内部缓存query对象，多次调用该函数，实际只解析一次查询字符串。
+     *@method getQuery
+     *@param [refresh=false] 若存在缓存则直接返回。refresh为true时，无论是否存在缓存对象，都强制重新解析查询字符串。
+     *@return 返回代表当前url中查询字符串的键值对对象。
+     * 用例：
+     * utils.getQuery().id 或者 utils.getQuery(false,'localhost/indexhtml?id=idinfo')
+     */
+    getQuery: cache(function (url) {
+        var q = {}, match;
+        while (match = reg.query.exec(url || location.search)) {
+            q[match[1]] = match[2];
+        }
+        return q;
+    }),
 
     /**
      * 计算字符长度。该方法区分全角字符和半角字符。
@@ -338,6 +437,7 @@ var utils = {
         }
         return true;
     },
+
     /**
      * 转义为html
      * @param txt
@@ -350,10 +450,18 @@ var utils = {
         var code;
         return txt.replace(reg, function (match) {
             code = match.charCodeAt(0);
-            if (code == 32) code = 160; //32:英文空格,转换为160:  &nbsp; html中的空格
-            if (code == 10) return '<br/>';  //转换\n
+            if (code === 32) code = 160; //32:英文空格,转换为160:  &nbsp; html中的空格
+            if (code === 10) return '<br/>';  //转换\n
             return '&#' + code + ';';
         });
+    },
+    htmlDecode(val){
+        if (val == null || val === '') return '';
+        var el = document.createElement('div');
+        el.innerHTML = val;
+        var result = el.innerText;
+        el = null;
+        return result;
     },
 
     /**
@@ -367,6 +475,9 @@ var utils = {
             return letter.toUpperCase();
         });
     },
+
+    //region cookie
+
     /**
      *返回一个指代当前cookie的对象。兼容.NET中的多值cookie。
      *该方法内部缓存一个cookie对象，当多次调用时，只对document.cookie解析一次;
@@ -379,36 +490,26 @@ var utils = {
         utils.getCookie().multiCookie.values.key1;
         }
      */
-    getCookie: (function () {
+    getCookie: cache(function () {
         //str:用于测试的模仿cookie的值,包含多种可能的情况
         //var str = "test=cookie\'s value&one=6&two=2; 2=cookie2; empty; ; mu lti=multiValue&name1=value1&name2=values2";
 
         //将忽略名为空或值为空的cookie
-        function _getCookie() {
-            var c = {},
-                reg = /(?:;\s|^)([^;]*?)=([^;]*)/g,
-                subReg = /([^&]+)=([^&]+)(?:&|$)/g,
-                m, subm,
-                cookie = document.cookie;
-            while (m = reg.exec(cookie)) { //解析cookie //key:m[1]  value:m[2]
-                c[m[1]] = {value: unescape(m[2]), values: null};
-                while (subm = subReg.exec(m[2])) { //存在多值cookie,忽略没有名称的子value
-                    c[m[1]].values = c[m[1]].values || {};
-                    c[m[1]].values[subm[1]] = unescape(subm[2]);
-                }
+        var c = {},
+            reg = /(?:;\s|^)([^;]*?)=([^;]*)/g,
+            subReg = /([^&]+)=([^&]+)(?:&|$)/g,
+            m, subm,
+            cookie = document.cookie;
+        while (m = reg.exec(cookie)) { //解析cookie //key:m[1]  value:m[2]
+            c[m[1]] = {value: unescape(m[2]), values: null};
+            while (subm = subReg.exec(m[2])) { //存在多值cookie,忽略没有名称的子value
+                c[m[1]].values = c[m[1]].values || {};
+                c[m[1]].values[subm[1]] = unescape(subm[2]);
             }
-            return c;
         }
+        return c;
+    }),
 
-        var c;
-        return function (refresh) {
-            if (!c || refresh) {
-                c = _getCookie();
-            }
-            return c;
-        }
-
-    })(),
     /**
      *设置或添加一个cookie
      *@method setCookie
@@ -462,6 +563,8 @@ var utils = {
             (option.secure ? '; secure' : '');
 
         document.cookie = c;
+
+        return utils.getCookie(true)[key];
     },
     /**
      *删除一个cookie,并同时更新缓存cookie对象，即调用adai.getCookie(true);
@@ -474,7 +577,355 @@ var utils = {
         utils.setCookie(key, '', this.extend(option, {expires: {day: -30}}));
         return !(key in utils.getCookie(true));
     },
+    //endregion
+
+    /**
+     * 补齐位数
+     * @method formatDate
+     * @param target {String} 操作的目标字符串
+     * @param len{Number} 要补齐的位数
+     * @param paddingChar {String} 填补的字符
+     * @return {string} 新字符串
+     * 用例：
+     * utils.paddingLeft('1',3,'0');  //001
+     * utils.paddingLeft('12345',3);  //12345
+     */
+    paddingLeft: function (target = '', len, paddingChar) {
+        var result, i, targetLen;
+
+        target += '';
+        len = ~~len;
+
+        targetLen = (target + '').length;
+        if (len <= targetLen) {
+            return target;
+        }
+
+        paddingChar = paddingChar && paddingChar.charAt(0) || ' ';
+
+        result = new Array(len - targetLen).fill(paddingChar);
+        result.push(target);
+
+        return result.join('');
+    },
+
+    //region date
+
+    /**
+     * 日期计算。 日期加减法，返回新的日期对象，对传入的日期对象无影响。
+     * @method dateAdd
+     * @param date {Date} 计算的基准日期
+     * @param config{Number|Object} 配置参数
+     *  {
+                    year: 0,
+                    month: 0,
+                    day: 0,
+                    hour: 0,
+                    min: 0,
+                    sec: 0
+                }
+     *@return {Date} 返回一个新的日期对象。
+     * 用例：
+     * var date=Date.parse('2015/12/1 12:00:00');
+     * utils.dateAdd(date,{ day:-1,month:1,hour:1 });  //2015/12/31 13:00:00
+     * utils.dateAdd(date,31);  //2016/1/1 12:00:00  utils.dateAdd(date,{day:31})的缩写形式
+     */
+    dateAdd: function (date, config) {
+        var
+            //defaultConfig = {
+            //    year: 0,
+            //    month: 0,
+            //    day: 0,
+            //    hour: 0,
+            //    min: 0,
+            //    sec: 0
+            //},
+            methodMap = {
+                year: 'FullYear',
+                month: 'Month',
+                day: 'Date',
+                hour: 'Hours',
+                min: 'Minutes',
+                sec: 'Seconds'
+            };
+
+        if (utils.isUseNum(config)) {
+            config = {day: day};
+        }
+
+        date = new Date(date);
+
+        var method = '';
+        utils.each(methodMap, function (val, name) {
+            if (config[name]) {
+                method = methodMap[name];
+                date['set' + method](date['get' + method]() + config[name]);
+            }
+        });
+        return date;
+
+    },
+    /**
+     * 返回传入日期月份的第一天
+     * @param date {Date}
+     * @return {Date} 返回一个新的日期对象
+     */
+    firstDateInMonth: function (date) {
+        date = new Date(date);
+        date.setDate(1);
+        return date;
+    },
+    /**
+     * 返回传入日期月份的最后一天
+     * @param date
+     * @returns {Date} 返回一个新的日期对象
+     */
+    lastDateInMonth: function (date) {
+        date = new Date(date);
+        date.setMonth(date.getMonth() + 1);
+        date.setDate(0);
+        return date;
+    },
+    /**
+     * 返回传入日期月份的第一周的周一。
+     * @param date
+     * @returns {*|Date}
+     */
+    firstWeekInMonth: function (date) {
+        var firtDate = utils.firstDateInMonth(date);
+        var day = firtDate.getDay();
+        if (day == 0) day = 7;
+        return utils.dateAdd(firtDate, 2 - day);
+    },
+    /**
+     * 返回传入日期月份的最后一周的周日。
+     * @param date
+     * @returns {*|Date}
+     */
+    lastWeekInMonth: function (date) {
+        var lastDate = utils.lastDateInMonth(date);
+        var day = lastDate.getDay();
+        if (day != 0) {
+            lastDate = utils.dateAdd(lastDate, 7 - day);
+        }
+        return lastDate;
+    },
+    /**
+     * 返回开始日期和结束日期的周。计算时忽略时间，只计算日期。
+     * @param startDate ｛Date｝ 开始日期。
+     * @param endDate   {Date} 结束日期
+     * @param splitDay {number} 分割点。对应date.getDay()取值0~6。 例如取周一至周日，则splitDay传入1，取周日至周六，splitDay传入0。
+     * @returns {Array} 返回周的数组。 每一项为：{start:date,end:date,duration:number}
+     * 用例： 获取该月的所有周。
+     * var today=new Date();
+     * utils.formatWeekRange(utils.firstWeekInMonth(today),utils.lastWeekInMonth(today));
+     */
+    formatWeekRange: function (startDate, endDate, splitDay) {
+        var dateGroup = [
+            //{start,end,duration} , ...
+        ];
+        if (!startDate || !endDate) return dateGroup;
+
+        var shiftTmp;
+        if (startDate > endDate) {
+            shiftTmp = endDate;
+            endDate = startDate;
+            startDate = shiftTmp;
+        }
+
+        if (splitDay == undefined) {
+            //分隔日 1代表周一， 周一至周日为一个weekGroup组合。
+            //若要从周日开始 则改为0. 周日至周六
+            //取值： 0 ~ 6
+            splitDay = 1;
+        }
+
+
+        //权重值，用于计算间隔天数
+        var weight = [0, 1, 2, 3, 4, 5, 6]; //初始： 对应 date.getDay();
+        for (var i = 0; i < splitDay; i++) {
+            weight[i] += 7;
+        }
+
+        var dateGroupLast,  //临时变量
+            delta = 1; //i的增量
+
+        var currentDate = new Date(startDate);
+
+        //第一个 分隔日
+        //1 2 3 4 5 6 7 8 9
+        //5为分隔日，4为前一个 dateGroup的end,5为当前dateGroup的start,
+        //找到第一个分隔日后，i的增量变为7,一周，7天后为下一个分隔日
+        while (currentDate < endDate) {
+            if (delta == 1 && currentDate.getDay() == splitDay) {
+                if (+currentDate != +startDate) {
+                    //如果 startDate 不为分隔日
+                    dateGroup.push({
+                        end: new Date(currentDate.getTime() - 86400000) // 86400: 24*60*60*1000
+                    })
+                }
+                dateGroup.push({
+                    start: new Date(currentDate)
+                });
+                delta = 7;
+            }
+            else if (delta == 7) {
+                dateGroupLast = dateGroup.length - 1;
+                dateGroup[dateGroupLast].end = new Date(currentDate.getTime() - 86400000);
+                dateGroup[dateGroupLast].duration = 7;
+                dateGroup.push({
+                    start: new Date(currentDate)
+                })
+            }
+            currentDate.setDate(currentDate.getDate() + delta);
+        }
+
+
+        var len = dateGroup.length;
+
+        if (len === 0) {
+            //startDate ~ endDate 中不存在分隔日。
+            dateGroup = [{
+                start: startDate,
+                end: endDate,
+                duration: weight[endDate.getDay()] - weight[startDate.getDay()] + 1
+            }];
+        }
+        else {
+            //添加dateGroup的首位
+            if (!dateGroup[0].start) {
+                //说明不是从 分隔日 开始的。
+                dateGroup[0].start = startDate;
+                dateGroup[0].duration = weight[dateGroup[0].end.getDay()] - weight[startDate.getDay()] + 1;
+            }
+
+            //添加dateGroup末位
+            dateGroupLast = len - 1;
+            dateGroup[dateGroupLast].end = endDate;
+            dateGroup[dateGroupLast].duration =
+                weight[dateGroup[dateGroupLast].end.getDay()] -
+                weight[dateGroup[dateGroupLast].start.getDay()] + 1;
+        }
+
+        return dateGroup;
+    },
+    /**
+     * 计算开始日期和结束日期共有周六日多少天。计算时忽略时间，只计算日期。
+     * @param startDate {Date} 开始日期
+     * @param endDate {Date} 结束日期
+     * @returns {number} 返回周末总数
+     * 用例：
+     * var start=new Date(2015,8,1);
+     * var end=new Date(2015,8,11);
+     * utils.getWeekendsCount(start,end); //返回2. 2015-8-1至2015-8-11共有两天周末。
+     */
+    getWeekendsCount: function (startDate, endDate) {
+
+        startDate = new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate());
+        endDate = new Date(endDate.getFullYear(), endDate.getMonth(), endDate.getDate());
+
+        var duration = (endDate - startDate) / 86400000 + 1;
+
+        //计算工作日。 eg: 2015-8-1 ~ 2015-8-11 有两天为周六日。 实际工作为9-2=7天
+        var weekendCounts = 0, mod, firstDay, lastDay;
+
+        weekendCounts = Math.floor(duration / 7) * 2; //每7天两个休息日。 最后余出不满7天。
+        mod = duration % 7; //余出的天数
+        if (mod) { //如果存在余出的天数
+            firstDay = startDate.getDay(); //余出天数第一天的星期数和 duration的第一天星期数相同。
+            lastDay = firstDay + mod - 1;         //最后一天星期数。
+            if (firstDay == 0) {
+                //第一天是周日，则余出天数只有 一个休息日
+                weekendCounts++;
+            }
+            else if (firstDay <= 6 && lastDay >= 6) {
+                //第一天在周六或之前,第二天也是周六，1天休息日，第二天周日或以后，2个休息日。
+                weekendCounts += Math.min(lastDay - Math.max(firstDay, 6) + 1, 2);
+            }
+        }
+        return weekendCounts;
+    },
+    //endregion
 };
+
+var dateUtils = {
+    /**
+     * 格式化时间。 支持：年y,月M,天d,时h,分m,秒s,毫秒S。
+     * 年份根据y的数量截取，其他值，只补齐不截取。
+     * @method formatDate
+     * @param date {Date} 日期
+     * @param fmt{String} 格式化字符串
+     * @return {string}
+     * */
+    dateFormat(date, fmt) {
+        if (!fmt) fmt = 'yyyy-MM-dd hh:mm:ss';
+        var map = {
+            y: date.getFullYear(),
+            M: date.getMonth() + 1,
+            d: date.getDate(),
+            h: date.getHours(),
+            m: date.getMinutes(),
+            s: date.getSeconds(),
+            S: date.getMilliseconds()
+        };
+        var tmpResult, type, r = reg.dateFmt;
+        return fmt.replace(r, function (val) {
+            type = val.charAt(0);
+            tmpResult = utils.paddingLeft(map[type], val.length, '0');
+            if (type === 'y') {
+                tmpResult = tmpResult.slice(-val.length, tmpResult.length);
+            }
+            return tmpResult;
+        })
+    },
+    dateParse(str, fmt) {
+        var params = str.split(/\D+/);
+        var match, index = 0, r = reg.dateFmt;
+        var arg = {
+            'y': undefined,
+            'M': undefined,
+            'd': 1,
+            'h': 0,
+            'm': 0,
+            's': 0,
+            'S': 0
+        };
+        while (match = r.exec(fmt)) {
+            arg[match[0].charAt(0)] = ~~params[index++];
+        }
+
+        var year = (new Date()).getFullYear() + '';
+        if (arg.y === undefined) arg.y = year;
+        else  arg.y += '';
+
+        if (arg.y.length < 4) {
+            var i = 4 - arg.y.length;
+            for (; i < 4; i++) {
+                year[i] = arg.y[i];
+            }
+            arg.y = year;
+        }
+        arg.y = ~~arg.y;
+
+        if (arg['M'] === undefined) arg['M'] = 0;
+        else arg['M'] -= 1;
+
+        return new Date(arg.y, arg['M'], arg.d, arg.h, arg.m, arg.s, arg['S']);
+
+    },
+};
+
+
+Object.assign(utils, {
+    cookie: {
+        delete: utils.deleteCookie,
+        set: utils.setCookie,
+        get(name, refresh){
+            var cookie = utils.getCookie(refresh)[name];
+            return cookie && cookie.value;
+        },
+    }
+}, dateUtils);
 
 
 module.exports = utils;
