@@ -3,6 +3,7 @@
  */
 
 const UglifyJSPlugin = require('uglifyjs-webpack-plugin');
+const webpack = require('webpack');
 
 module.exports = {
     entry: {
@@ -11,26 +12,27 @@ module.exports = {
     output: {
         filename: 'index.js',
         path: __dirname + '/dist',
-        library:'utils',
-        libraryTarget:'umd'
+        library: 'utils',
+        libraryTarget: 'umd'
     },
-    watch:true,
+    watch: true,
     module: {
         rules: [
             {
                 test: /\.js$/,
-                loader: "babel-loader" ,
+                loader: "babel-loader",
                 exclude: /node_modules/,
-                options:{
-                    babelrc:true
+                options: {
+                    babelrc: true
                 }
             }
         ]
     },
     plugins: [
         new UglifyJSPlugin({
-            comments:false,
-            beautify:false
-        })
+            comments: false,
+            beautify: false
+        }),
+        new webpack.BannerPlugin('author:wwl')
     ]
 };
