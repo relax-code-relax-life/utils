@@ -7,21 +7,20 @@ var isAndroid = /Android/i.test(userAgent);
 var isWeiXin = /MicroMessenger/.test(userAgent);
 var isIos = /iphone|ipad|ipod|ios/i.test(userAgent);
 
-var reg = {
-    isUrl: /^((https?|ftp):\/\/)?(((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:)*@)?(((\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5]))|((([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.)+(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.?)(:\d*)?)(\/((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)+(\/(([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)*)*)?)?(\?((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)|[\uE000-\uF8FF]|\/|\?)*)?(\#((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)|\/|\?)*)?$/i,
-    resolveUrl: /(\?([^#]*))?(#.*)?\s*$/,
-    singleChar: /[\u0020-\u007f|\uff61-\uff9f]/g,
-    enterChar: /\n/g,
-    htmlEncode: /"|&|'|<|>|[\x00-\x20]|[\x7F-\xFF]/g,
+
+var reg_isUrl = /^((https?|ftp):\/\/)?(((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:)*@)?(((\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5]))|((([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.)+(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.?)(:\d*)?)(\/((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)+(\/(([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)*)*)?)?(\?((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)|[\uE000-\uF8FF]|\/|\?)*)?(\#((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)|\/|\?)*)?$/i,
+    reg_resolveUrl = /(\?([^#]*))?(#.*)?\s*$/,
+    reg_singleChar = /[\u0020-\u007f|\uff61-\uff9f]/g,
+    reg_enterChar = /\n/g,
+    reg_htmlEncode = /"|&|'|<|>|[\x00-\x20]|[\x7F-\xFF]/g,
     //0-32  128-255
     //ascii: 1字节，包含标准 0-127字符和扩展ascii 128-255字符。 扩展ascii为非标准。
     //0-31和127为控制字符,    127是删除
     //32-126为可显字符,     32为空格,48~57为0-9,65~90为A-Z,97-122为a-z，其余为符号。
     //128-255为扩展字符
-    camelCase: /-([a-zA-Z])/g,
-    query: /(?:[?&])(.*?)=(.*?)(?=&|$|#)/g,
-    dateFmt: /y+|M+|d+|h+|m+|s+|S+/g
-};
+    reg_camelCase = /-([a-zA-Z])/g,
+    reg_query = /(?:[?&])(.*?)=(.*?)(?=&|$|#)/g,
+    reg_dateFmt = /y+|M+|d+|h+|m+|s+|S+/g;
 
 
 //signature: obj,start,end
@@ -29,6 +28,19 @@ var call = Function.prototype.call;
 var slice = call.bind(Array.prototype.slice);
 var docEle = document.documentElement;
 var toString = call.bind(Object.prototype.toString);
+var isArray = Array.isArray || function (arr) {
+        return toString(arr) === '[object Array]'
+    };
+var isFunction = function (fn) {
+    return toString(fn) === '[object Function]'
+};
+var isBoolean = function (val) {
+    return typeof val === 'boolean';
+};
+var isNumber = function (val) {
+    return typeof val === 'number'
+};
+
 //缓存函数。  将函数结果缓存，函数实际只执行一次。
 var cache = function (fn, context) {
     var result,
@@ -99,7 +111,7 @@ var utils = {
         else return undefined;
     },
     isUrl(str){
-        return reg.isUrl.test(str);
+        return reg_isUrl.test(str);
     },
     defer(){
         var defer = {};
@@ -110,7 +122,7 @@ var utils = {
         return defer;
     },
     each(obj, fn, context){
-        if (Array.isArray(obj)) return obj.forEach(fn, context);
+        if (isArray(obj)) return obj.forEach(fn, context);
 
         //只遍历自有可枚举属性
         Object.keys(obj).forEach(key => {
@@ -118,7 +130,7 @@ var utils = {
         })
     },
     map(obj, fn, context){
-        if (Array.isArray(obj)) return obj.map(fn, context);
+        if (isArray(obj)) return obj.map(fn, context);
 
         var result = [];
         utils.each(obj, (val, key) => {
@@ -157,13 +169,13 @@ var utils = {
 
     //间隔wait执行
     throttle  (fn, alwaysFn, immediately, wait, context) {//optional:alwaysFn,immediately,context
-        if (typeof alwaysFn !== 'function') {
+        if (!isFunction(alwaysFn)) {
             context = wait;
             wait = immediately;
             immediately = alwaysFn;
             alwaysFn = undefined;
         }
-        if (typeof immediately !== 'boolean') {
+        if (!isBoolean(immediately)) {
             context = wait;
             wait = immediately;
             immediately = false;
@@ -199,13 +211,13 @@ var utils = {
     //防抖动
     debounce(fn, alwaysFn, immediately, wait, context){//optional:alwaysFn,immediately,context
 
-        if (typeof alwaysFn !== 'function') {
+        if (!isFunction(alwaysFn)) {
             context = wait;
             wait = immediately;
             immediately = alwaysFn;
             alwaysFn = undefined;
         }
-        if (typeof immediately !== 'boolean') {
+        if (!isBoolean(immediately)) {
             context = wait;
             wait = immediately;
             immediately = false;
@@ -270,7 +282,7 @@ var utils = {
 
         //格式化excludeMap: {key1:bool,key2:bool}
         var excludeMap = {}, excludeAll = false;
-        if (Array.isArray(encodeEx)) {
+        if (isArray(encodeEx)) {
             encodeEx.forEach(function (key) {
                 excludeMap[key] = true;
             })
@@ -294,7 +306,7 @@ var utils = {
     },
     resolveUrl(url, param, encodeEx){
         param = utils.param(param, encodeEx);
-        return url.replace(reg.resolveUrl, '?$2&' + param + '$3').replace('?&', '?')
+        return url.replace(reg_resolveUrl, '?$2&' + param + '$3').replace('?&', '?')
     },
 
     /**
@@ -307,7 +319,7 @@ var utils = {
      */
     getQuery: cache(function (url) {
         var q = {}, match;
-        while (match = reg.query.exec(url || location.search)) {
+        while (match = reg_query.exec(url || location.search)) {
             q[match[1]] = match[2];
         }
         return q;
@@ -328,8 +340,8 @@ var utils = {
         halfVal = +halfVal;
         enterVal = +enterVal;
 
-        var match = txt.match(reg.singleChar);
-        var matchEnter = txt.match(reg.enterChar);
+        var match = txt.match(reg_singleChar);
+        var matchEnter = txt.match(reg_enterChar);
 
         var lenSingle = match ? match.length : 0;
         var lenEnter = matchEnter ? matchEnter.length : 0;
@@ -366,7 +378,7 @@ var utils = {
             txt = txt + '';
         }
         var code;
-        return txt.replace(reg, function (match) {
+        return txt.replace(reg_htmlEncode, function (match) {
             code = match.charCodeAt(0);
             if (code === 32) code = 160; //32:英文空格,转换为160:  &nbsp; html中的空格
             if (code === 10) return '<br/>';  //转换\n
@@ -389,113 +401,11 @@ var utils = {
      * @returns {string}
      */
     camelCase(...args){
-        return args.join('-').replace(reg.camelCase, function (match, letter) {
+        return args.join('-').replace(reg_camelCase, function (match, letter) {
             return letter.toUpperCase();
         });
     },
 
-    //region cookie
-
-    /**
-     *返回一个指代当前cookie的对象。兼容.NET中的多值cookie。
-     *该方法内部缓存一个cookie对象，当多次调用时，只对document.cookie解析一次;
-     *@method getCookie
-     *@param [refresh] 默认为false,若cookie对象已缓存则直接返回。refresh等于true时，无论是否存在缓存对象，都重新解析cookie并返回。
-     *@return {Object} 返回一个对象，代表当前cookie。该对象有两个属性value和values，当为单值cookie时,values为null。
-     *@example
-     utils.getCookie().cookieName.value;          //单值cookie，获取键为cookieName的cookie的值。
-     if(utils.getCookie().multiCookie.values){    //多值cookie，获取multiCookie中key1的值。
-        utils.getCookie().multiCookie.values.key1;
-        }
-     */
-    getCookie: cache(function () {
-        //str:用于测试的模仿cookie的值,包含多种可能的情况
-        //var str = "test=cookie\'s value&one=6&two=2; 2=cookie2; empty; ; mu lti=multiValue&name1=value1&name2=values2";
-
-        //将忽略名为空或值为空的cookie
-        var c = {},
-            reg = /(?:;\s|^)([^;]*?)=([^;]*)/g,
-            subReg = /([^&]+)=([^&]+)(?:&|$)/g,
-            m, subm,
-            cookie = document.cookie;
-        while (m = reg.exec(cookie)) { //解析cookie //key:m[1]  value:m[2]
-            c[m[1]] = {value: unescape(m[2]), values: null};
-            while (subm = subReg.exec(m[2])) { //存在多值cookie,忽略没有名称的子value
-                c[m[1]].values = c[m[1]].values || {};
-                c[m[1]].values[subm[1]] = unescape(subm[2]);
-            }
-        }
-        return c;
-    }),
-
-    /**
-     *设置或添加一个cookie
-     *@method setCookie
-     *@param key {String} cookie名称
-     *@param value {String} cookie的值。如果传入对象，则设置为多值cookie。
-     *@param option 设置cookie相关属性:
-     option的属性：
-     path:字符串，cookie路径，默认为当前路径。
-     domain:字符串，cookie的域名，默认为当前域名。
-     secure:布尔值，是否加密。默认为false
-     expires:日期类型，cookie的过期时间。默认为session-Cookie;
-     expires:也可传入一个类似{day:num,hour:num,min:num,sec:num}的对象向后递推时间。例如{expires:{day:1}}代表该cookie有效时间为1天。
-     */
-    setCookie(key, value, option) {
-        var c, val = '', name, date, expires;
-
-        if (!key) return;
-
-        key = key + '';
-        if (value == null) value = '';
-
-        if (typeof value === 'object') {//如果传入对象，视为多值cookie
-            for (name in value) {
-                val += name + '=' + escape(value[name]) + '&';
-            }
-            val = val.slice(0, -1);  //去除最后一个&
-        }
-        else {
-            val += escape(value);
-        }
-
-        option = option || {};
-
-        //如果options.expires不是时间，则按照{day:num,hour:num,min:num,sec:num}向后递推时间。
-        if (option.expires && toString(option.expires) !== '[object Date]') {
-            expires = option.expires;
-            date = new Date();
-            date.setTime(date.valueOf() +
-                ( (typeof expires.day === 'number') ? expires.day * 86400 : 0) +
-                ( (typeof expires.hour === 'number') ? expires.hour * 3600 : 0) +
-                ( (typeof expires.min === 'number') ? expires.min * 60 : 0) +
-                ( (typeof expires.sec === 'number') ? expires.sec : 0));
-            option.expires = date;
-        }
-
-
-        c = key + '=' + val +
-            (option.expires ? ';expires=' + option.expires.toUTCString() : '') +
-            (option.path ? '; path=' + option.path : '') +
-            (option.domain ? '; domain=' + option.domain : '') +
-            (option.secure ? '; secure' : '');
-
-        document.cookie = c;
-
-        return utils.getCookie(true)[key];
-    },
-    /**
-     *删除一个cookie,并同时更新缓存cookie对象，即调用adai.getCookie(true);
-     *@method deleteCookie
-     *@param key {String} 要删除的cookie的名称
-     *@param option {Object} 需要传入和设置cookie时相同的option,才能正确删除。
-     *@return {boolean} 是否成功删除cookie,已删除则返回true,未删除false;
-     */
-    deleteCookie: function (key, option) {
-        utils.setCookie(key, '', this.extend(option, {expires: {day: -30}}));
-        return !(key in utils.getCookie(true));
-    },
-    //endregion
 
     /**
      * 补齐位数
@@ -529,6 +439,123 @@ var utils = {
 
 };
 
+
+//region cookie
+
+/**
+ *返回一个指代当前cookie的对象。兼容.NET中的多值cookie。
+ *该方法内部缓存一个cookie对象，当多次调用时，只对document.cookie解析一次;
+ *@method getCookie
+ *@param [refresh] 默认为false,若cookie对象已缓存则直接返回。refresh等于true时，无论是否存在缓存对象，都重新解析cookie并返回。
+ *@return {Object} 返回一个对象，代表当前cookie。该对象有两个属性value和values，当为单值cookie时,values为null。
+ *@example
+ utils.getCookie().cookieName.value;          //单值cookie，获取键为cookieName的cookie的值。
+ if(utils.getCookie().multiCookie.values){    //多值cookie，获取multiCookie中key1的值。
+        utils.getCookie().multiCookie.values.key1;
+        }
+ */
+var getCookie = cache(function () {
+        //str:用于测试的模仿cookie的值,包含多种可能的情况
+        //var str = "test=cookie\'s value&one=6&two=2; 2=cookie2; empty; ; mu lti=multiValue&name1=value1&name2=values2";
+
+        //将忽略名为空或值为空的cookie
+        var c = {},
+            reg = /(?:;\s|^)([^;]*?)=([^;]*)/g,
+            subReg = /([^&]+)=([^&]+)(?:&|$)/g,
+            m, subm,
+            cookie = document.cookie;
+        while (m = reg.exec(cookie)) { //解析cookie //key:m[1]  value:m[2]
+            c[m[1]] = {value: unescape(m[2]), values: null};
+            while (subm = subReg.exec(m[2])) { //存在多值cookie,忽略没有名称的子value
+                c[m[1]].values = c[m[1]].values || {};
+                c[m[1]].values[subm[1]] = unescape(subm[2]);
+            }
+        }
+        return c;
+    }),
+    /**
+     *设置或添加一个cookie
+     *@method setCookie
+     *@param key {String} cookie名称
+     *@param value {String} cookie的值。如果传入对象，则设置为多值cookie。
+     *@param option 设置cookie相关属性:
+     option的属性：
+     path:字符串，cookie路径，默认为当前路径。
+     domain:字符串，cookie的域名，默认为当前域名。
+     secure:布尔值，是否加密。默认为false
+     expires:日期类型，cookie的过期时间。默认为session-Cookie;
+     expires:也可传入一个类似{day:num,hour:num,min:num,sec:num}的对象向后递推时间。例如{expires:{day:1}}代表该cookie有效时间为1天。
+     */
+    setCookie = function (key, value, option) {
+        var c, val = '', name, date, expires;
+
+        if (!key) return;
+
+        key = key + '';
+        if (value == null) value = '';
+
+        if (typeof value === 'object') {//如果传入对象，视为多值cookie
+            for (name in value) {
+                val += name + '=' + escape(value[name]) + '&';
+            }
+            val = val.slice(0, -1);  //去除最后一个&
+        }
+        else {
+            val += escape(value);
+        }
+
+        option = option || {};
+
+        //如果options.expires不是时间，则按照{day:num,hour:num,min:num,sec:num}向后递推时间。
+        if (option.expires && toString(option.expires) !== '[object Date]') {
+            expires = option.expires;
+            date = new Date();
+            date.setTime(date.valueOf() +
+                ( isNumber(expires.day) ? expires.day * 86400 : 0) +
+                ( isNumber(expires.hour) ? expires.hour * 3600 : 0) +
+                ( isNumber(expires.min) ? expires.min * 60 : 0) +
+                ( isNumber(expires.sec) ? expires.sec : 0));
+            option.expires = date;
+        }
+
+
+        c = key + '=' + val +
+            (option.expires ? ';expires=' + option.expires.toUTCString() : '') +
+            (option.path ? '; path=' + option.path : '') +
+            (option.domain ? '; domain=' + option.domain : '') +
+            (option.secure ? '; secure' : '');
+
+        document.cookie = c;
+
+        return getCookie(true)[key];
+    },
+    /**
+     *删除一个cookie,并同时更新缓存cookie对象，即调用adai.getCookie(true);
+     *@method deleteCookie
+     *@param key {String} 要删除的cookie的名称
+     *@param option {Object} 需要传入和设置cookie时相同的option,才能正确删除。
+     *@return {boolean} 是否成功删除cookie,已删除则返回true,未删除false;
+     */
+    deleteCookie = function (key, option) {
+        setCookie(key, '', this.extend(option, {expires: {day: -30}}));
+        return !(key in getCookie(true));
+    };
+
+Object.assign(utils, {
+    getCookie, setCookie, deleteCookie,
+    cookie: {
+        delete: deleteCookie,
+        set: setCookie,
+        get(name, refresh){
+            var cookie = getCookie(refresh)[name];
+            return cookie && cookie.value;
+        },
+    }
+});
+//endregion
+
+
+//region date
 var dateMethodMap = {
     year: 'FullYear',
     month: 'Month',
@@ -558,7 +585,7 @@ var dateUtils = {
             s: date.getSeconds(),
             S: date.getMilliseconds()
         };
-        var tmpResult, type, r = reg.dateFmt;
+        var tmpResult, type, r = reg_dateFmt;
         return fmt.replace(r, function (val) {
             type = val.charAt(0);
             tmpResult = utils.paddingLeft(map[type], val.length, '0');
@@ -570,7 +597,7 @@ var dateUtils = {
     },
     dateParse(str, fmt) {
         var params = str.split(/\D+/);
-        var match, index = 0, r = reg.dateFmt;
+        var match, index = 0, r = reg_dateFmt;
         var arg = {
             'y': undefined,
             'M': undefined,
@@ -584,18 +611,16 @@ var dateUtils = {
             arg[match[0].charAt(0)] = ~~params[index++];
         }
 
-        var year = (new Date()).getFullYear() + '';
+        var year = (new Date()).getFullYear();
+        var argYearStr;
         if (arg.y === undefined) arg.y = year;
-        else  arg.y += '';
-
-        if (arg.y.length < 4) {
-            var i = 4 - arg.y.length;
-            for (; i < 4; i++) {
-                year[i] = arg.y[i];
+        else {
+            argYearStr = arg.y + '';
+            if (argYearStr.length < 4) {
+                argYearStr = (year + '').slice(0, 4 - argYearStr.length) + argYearStr;
+                arg.y = ~~argYearStr;
             }
-            arg.y = year;
         }
-        arg.y = ~~arg.y;
 
         if (arg['M'] === undefined) arg['M'] = 0;
         else arg['M'] -= 1;
@@ -703,9 +728,9 @@ var dateUtils = {
      * @returns {Array} 返回周的数组。 每一项为：{start:date,end:date,duration:number}
      * 用例： 获取该月的所有周。
      * var today=new Date();
-     * utils.formatWeekRange(utils.firstWeekInMonth(today),utils.lastWeekInMonth(today));
+     * utils.weekRange(utils.firstWeekInMonth(today),utils.lastWeekInMonth(today));
      */
-    formatWeekRange: function (startDate, endDate, splitDay) {
+    weekRange: function (startDate, endDate, splitDay) {
         var dateGroup = [
             //{start,end,duration} , ...
         ];
@@ -802,9 +827,9 @@ var dateUtils = {
      * 用例：
      * var start=new Date(2015,8,1);
      * var end=new Date(2015,8,11);
-     * utils.getWeekendsCount(start,end); //返回2. 2015-8-1至2015-8-11共有两天周末。
+     * utils.weekendsCount(start,end); //返回2. 2015-8-1至2015-8-11共有两天周末。
      */
-    getWeekendsCount: function (startDate, endDate) {
+    weekendsCount: function (startDate, endDate) {
 
         startDate = new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate());
         endDate = new Date(endDate.getFullYear(), endDate.getMonth(), endDate.getDate());
@@ -835,18 +860,8 @@ var dateUtils = {
         return weekendCounts;
     },
 };
-
-
-Object.assign(utils, {
-    cookie: {
-        delete: utils.deleteCookie,
-        set: utils.setCookie,
-        get(name, refresh){
-            var cookie = utils.getCookie(refresh)[name];
-            return cookie && cookie.value;
-        },
-    }
-}, dateUtils);
+Object.assign(utils, dateUtils);
+//endregion
 
 
 module.exports = utils;

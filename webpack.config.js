@@ -2,6 +2,7 @@
  * Created by wangweilin on 2017/6/9.
  */
 
+const UglifyJSPlugin = require('uglifyjs-webpack-plugin');
 
 module.exports = {
     entry: {
@@ -13,5 +14,23 @@ module.exports = {
         library:'utils',
         libraryTarget:'umd'
     },
-    watch:true
+    watch:true,
+    module: {
+        rules: [
+            {
+                test: /\.js$/,
+                loader: "babel-loader" ,
+                exclude: /node_modules/,
+                options:{
+                    babelrc:true
+                }
+            }
+        ]
+    },
+    plugins: [
+        new UglifyJSPlugin({
+            comments:false,
+            beautify:false
+        })
+    ]
 };
