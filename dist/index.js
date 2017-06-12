@@ -609,243 +609,15 @@ var utils = {
         return result.join('');
     },
 
-    //region date
+};
 
-    /**
-     * 日期计算。 日期加减法，返回新的日期对象，对传入的日期对象无影响。
-     * @method dateAdd
-     * @param date {Date} 计算的基准日期
-     * @param config{Number|Object} 配置参数
-     *  {
-                    year: 0,
-                    month: 0,
-                    day: 0,
-                    hour: 0,
-                    min: 0,
-                    sec: 0
-                }
-     *@return {Date} 返回一个新的日期对象。
-     * 用例：
-     * var date=Date.parse('2015/12/1 12:00:00');
-     * utils.dateAdd(date,{ day:-1,month:1,hour:1 });  //2015/12/31 13:00:00
-     * utils.dateAdd(date,31);  //2016/1/1 12:00:00  utils.dateAdd(date,{day:31})的缩写形式
-     */
-    dateAdd: function (date, config) {
-        var
-            //defaultConfig = {
-            //    year: 0,
-            //    month: 0,
-            //    day: 0,
-            //    hour: 0,
-            //    min: 0,
-            //    sec: 0
-            //},
-            methodMap = {
-                year: 'FullYear',
-                month: 'Month',
-                day: 'Date',
-                hour: 'Hours',
-                min: 'Minutes',
-                sec: 'Seconds'
-            };
-
-        if (utils.isUseNum(config)) {
-            config = {day: day};
-        }
-
-        date = new Date(date);
-
-        var method = '';
-        utils.each(methodMap, function (val, name) {
-            if (config[name]) {
-                method = methodMap[name];
-                date['set' + method](date['get' + method]() + config[name]);
-            }
-        });
-        return date;
-
-    },
-    /**
-     * 返回传入日期月份的第一天
-     * @param date {Date}
-     * @return {Date} 返回一个新的日期对象
-     */
-    firstDateInMonth: function (date) {
-        date = new Date(date);
-        date.setDate(1);
-        return date;
-    },
-    /**
-     * 返回传入日期月份的最后一天
-     * @param date
-     * @returns {Date} 返回一个新的日期对象
-     */
-    lastDateInMonth: function (date) {
-        date = new Date(date);
-        date.setMonth(date.getMonth() + 1);
-        date.setDate(0);
-        return date;
-    },
-    /**
-     * 返回传入日期月份的第一周的周一。
-     * @param date
-     * @returns {*|Date}
-     */
-    firstWeekInMonth: function (date) {
-        var firtDate = utils.firstDateInMonth(date);
-        var day = firtDate.getDay();
-        if (day == 0) day = 7;
-        return utils.dateAdd(firtDate, 2 - day);
-    },
-    /**
-     * 返回传入日期月份的最后一周的周日。
-     * @param date
-     * @returns {*|Date}
-     */
-    lastWeekInMonth: function (date) {
-        var lastDate = utils.lastDateInMonth(date);
-        var day = lastDate.getDay();
-        if (day != 0) {
-            lastDate = utils.dateAdd(lastDate, 7 - day);
-        }
-        return lastDate;
-    },
-    /**
-     * 返回开始日期和结束日期的周。计算时忽略时间，只计算日期。
-     * @param startDate ｛Date｝ 开始日期。
-     * @param endDate   {Date} 结束日期
-     * @param splitDay {number} 分割点。对应date.getDay()取值0~6。 例如取周一至周日，则splitDay传入1，取周日至周六，splitDay传入0。
-     * @returns {Array} 返回周的数组。 每一项为：{start:date,end:date,duration:number}
-     * 用例： 获取该月的所有周。
-     * var today=new Date();
-     * utils.formatWeekRange(utils.firstWeekInMonth(today),utils.lastWeekInMonth(today));
-     */
-    formatWeekRange: function (startDate, endDate, splitDay) {
-        var dateGroup = [
-            //{start,end,duration} , ...
-        ];
-        if (!startDate || !endDate) return dateGroup;
-
-        var shiftTmp;
-        if (startDate > endDate) {
-            shiftTmp = endDate;
-            endDate = startDate;
-            startDate = shiftTmp;
-        }
-
-        if (splitDay == undefined) {
-            //分隔日 1代表周一， 周一至周日为一个weekGroup组合。
-            //若要从周日开始 则改为0. 周日至周六
-            //取值： 0 ~ 6
-            splitDay = 1;
-        }
-
-
-        //权重值，用于计算间隔天数
-        var weight = [0, 1, 2, 3, 4, 5, 6]; //初始： 对应 date.getDay();
-        for (var i = 0; i < splitDay; i++) {
-            weight[i] += 7;
-        }
-
-        var dateGroupLast,  //临时变量
-            delta = 1; //i的增量
-
-        var currentDate = new Date(startDate);
-
-        //第一个 分隔日
-        //1 2 3 4 5 6 7 8 9
-        //5为分隔日，4为前一个 dateGroup的end,5为当前dateGroup的start,
-        //找到第一个分隔日后，i的增量变为7,一周，7天后为下一个分隔日
-        while (currentDate < endDate) {
-            if (delta == 1 && currentDate.getDay() == splitDay) {
-                if (+currentDate != +startDate) {
-                    //如果 startDate 不为分隔日
-                    dateGroup.push({
-                        end: new Date(currentDate.getTime() - 86400000) // 86400: 24*60*60*1000
-                    })
-                }
-                dateGroup.push({
-                    start: new Date(currentDate)
-                });
-                delta = 7;
-            }
-            else if (delta == 7) {
-                dateGroupLast = dateGroup.length - 1;
-                dateGroup[dateGroupLast].end = new Date(currentDate.getTime() - 86400000);
-                dateGroup[dateGroupLast].duration = 7;
-                dateGroup.push({
-                    start: new Date(currentDate)
-                })
-            }
-            currentDate.setDate(currentDate.getDate() + delta);
-        }
-
-
-        var len = dateGroup.length;
-
-        if (len === 0) {
-            //startDate ~ endDate 中不存在分隔日。
-            dateGroup = [{
-                start: startDate,
-                end: endDate,
-                duration: weight[endDate.getDay()] - weight[startDate.getDay()] + 1
-            }];
-        }
-        else {
-            //添加dateGroup的首位
-            if (!dateGroup[0].start) {
-                //说明不是从 分隔日 开始的。
-                dateGroup[0].start = startDate;
-                dateGroup[0].duration = weight[dateGroup[0].end.getDay()] - weight[startDate.getDay()] + 1;
-            }
-
-            //添加dateGroup末位
-            dateGroupLast = len - 1;
-            dateGroup[dateGroupLast].end = endDate;
-            dateGroup[dateGroupLast].duration =
-                weight[dateGroup[dateGroupLast].end.getDay()] -
-                weight[dateGroup[dateGroupLast].start.getDay()] + 1;
-        }
-
-        return dateGroup;
-    },
-    /**
-     * 计算开始日期和结束日期共有周六日多少天。计算时忽略时间，只计算日期。
-     * @param startDate {Date} 开始日期
-     * @param endDate {Date} 结束日期
-     * @returns {number} 返回周末总数
-     * 用例：
-     * var start=new Date(2015,8,1);
-     * var end=new Date(2015,8,11);
-     * utils.getWeekendsCount(start,end); //返回2. 2015-8-1至2015-8-11共有两天周末。
-     */
-    getWeekendsCount: function (startDate, endDate) {
-
-        startDate = new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate());
-        endDate = new Date(endDate.getFullYear(), endDate.getMonth(), endDate.getDate());
-
-        var duration = (endDate - startDate) / 86400000 + 1;
-
-        //计算工作日。 eg: 2015-8-1 ~ 2015-8-11 有两天为周六日。 实际工作为9-2=7天
-        var weekendCounts = 0, mod, firstDay, lastDay;
-
-        weekendCounts = Math.floor(duration / 7) * 2; //每7天两个休息日。 最后余出不满7天。
-        mod = duration % 7; //余出的天数
-        if (mod) { //如果存在余出的天数
-            firstDay = startDate.getDay(); //余出天数第一天的星期数和 duration的第一天星期数相同。
-            lastDay = firstDay + mod - 1;         //最后一天星期数。
-            if (firstDay == 0) {
-                //第一天是周日，则余出天数只有 一个休息日
-                weekendCounts++;
-            }
-            else if (firstDay <= 6 && lastDay >= 6) {
-                //第一天在周六或之前,第二天也是周六，1天休息日，第二天周日或以后，2个休息日。
-                weekendCounts += Math.min(lastDay - Math.max(firstDay, 6) + 1, 2);
-            }
-        }
-        return weekendCounts;
-    },
-    //endregion
+var dateMethodMap = {
+    year: 'FullYear',
+    month: 'Month',
+    day: 'Date',
+    hour: 'Hours',
+    min: 'Minutes',
+    sec: 'Seconds'
 };
 
 var dateUtils = {
@@ -912,6 +684,237 @@ var dateUtils = {
 
         return new Date(arg.y, arg['M'], arg.d, arg.h, arg.m, arg.s, arg['S']);
 
+    },
+    /**
+     * 日期计算。 日期加减法，返回新的日期对象，对传入的日期对象无影响。
+     * @method dateAdd
+     * @param date {Date} 计算的基准日期
+     * @param config{Number|Object} 配置参数
+     *  {
+                    year: 0,
+                    month: 0,
+                    day: 0,
+                    hour: 0,
+                    min: 0,
+                    sec: 0
+                }
+     *@return {Date} 返回一个新的日期对象。
+     * 用例：
+     * var date=Date.parse('2015/12/1 12:00:00');
+     * utils.dateAdd(date,{ day:-1,month:1,hour:1 });  //2015/12/31 13:00:00
+     * utils.dateAdd(date,31);  //2016/1/1 12:00:00  utils.dateAdd(date,{day:31})的缩写形式
+     */
+    dateAdd: function (date, config) {
+        var
+            //defaultConfig = {
+            //    year: 0,
+            //    month: 0,
+            //    day: 0,
+            //    hour: 0,
+            //    min: 0,
+            //    sec: 0
+            //},
+            methodMap = dateMethodMap;
+
+        if (typeof config === 'number') {
+            config = {day: config};
+        }
+
+        date = new Date(date);
+
+        var method = '';
+        utils.each(methodMap, function (val, name) {
+            if (config[name]) {
+                method = methodMap[name];
+                date['set' + method](date['get' + method]() + ~~config[name]);
+            }
+        });
+        return date;
+
+    },
+    /**
+     * 返回传入日期月份的第一天
+     * @param date {Date}
+     * @return {Date} 返回一个新的日期对象
+     */
+    firstDateInMonth: function (date) {
+        date = new Date(date);
+        date.setDate(1);
+        return date;
+    },
+    /**
+     * 返回传入日期月份的最后一天
+     * @param date
+     * @returns {Date} 返回一个新的日期对象
+     */
+    lastDateInMonth: function (date) {
+        date = new Date(date);
+        date.setMonth(date.getMonth() + 1);
+        date.setDate(0);
+        return date;
+    },
+    /**
+     * 返回传入日期月份的第一周的周一。
+     * @param date
+     * @returns {Date}
+     */
+    firstWeekInMonth: function (date) {
+        var firstDate = utils.firstDateInMonth(date);
+        var day = firstDate.getDay();
+        if (day === 0) day = 7;
+        return utils.dateAdd(firstDate, 1 - day);
+    },
+    /**
+     * 返回传入日期月份的最后一周的周日。
+     * @param date
+     * @returns {Date}
+     */
+    lastWeekInMonth: function (date) {
+        var lastDate = utils.lastDateInMonth(date);
+        var day = lastDate.getDay();
+        if (day !== 0) {
+            lastDate = utils.dateAdd(lastDate, 7 - day);
+        }
+        return lastDate;
+    },
+    /**
+     * 返回开始日期和结束日期的周。计算时忽略时间，只计算日期。
+     * @param startDate ｛Date｝ 开始日期。
+     * @param endDate   {Date} 结束日期
+     * @param splitDay {number} 分割点。对应date.getDay()取值0~6。 例如取周一至周日，则splitDay传入1，取周日至周六，splitDay传入0。
+     * @returns {Array} 返回周的数组。 每一项为：{start:date,end:date,duration:number}
+     * 用例： 获取该月的所有周。
+     * var today=new Date();
+     * utils.formatWeekRange(utils.firstWeekInMonth(today),utils.lastWeekInMonth(today));
+     */
+    formatWeekRange: function (startDate, endDate, splitDay) {
+        var dateGroup = [
+            //{start,end,duration} , ...
+        ];
+        if (!startDate || !endDate) return dateGroup;
+
+        var shiftTmp;
+        if (startDate > endDate) {
+            shiftTmp = endDate;
+            endDate = startDate;
+            startDate = shiftTmp;
+        }
+
+        if (typeof splitDay !== 'number') {
+            //分隔日 1代表周一， 周一至周日为一个weekGroup组合。
+            //若要从周日开始 则改为0. 周日至周六
+            //取值： 0 ~ 6
+            splitDay = 1;
+        }
+
+
+        var dateGroupLast,  //临时变量
+            delta = 1; //i的增量
+
+        var currentDate = new Date(startDate);
+
+        //第一个 分隔日
+        //1 2 3 4 5 6 7 8 9
+        //5为分隔日，4为前一个 dateGroup的end,5为当前dateGroup的start,
+        //找到第一个分隔日后，i的增量变为7,一周，7天后为下一个分隔日
+        while (currentDate < endDate) {
+            if (delta === 1 && currentDate.getDay() === splitDay) {
+                if (+currentDate !== +startDate) {
+                    //如果 startDate 不为分隔日
+                    dateGroup.push({
+                        end: new Date(currentDate.getTime() - 86400000) // 86400: 24*60*60*1000 24h
+                    })
+                }
+                dateGroup.push({
+                    start: new Date(currentDate)
+                });
+                delta = 7;
+            }
+            else if (delta === 7) {
+                dateGroupLast = dateGroup.length - 1;
+                dateGroup[dateGroupLast].end = new Date(currentDate.getTime() - 86400000);
+                dateGroup[dateGroupLast].duration = 7;
+                dateGroup.push({
+                    start: new Date(currentDate)
+                })
+            }
+            currentDate.setDate(currentDate.getDate() + delta);
+        }
+
+
+        //权重值，用于计算间隔天数
+        var weight = [0, 1, 2, 3, 4, 5, 6]; //初始： 对应 date.getDay();
+        for (var i = 0; i < splitDay; i++) {
+            weight[i] += 7;
+        }
+
+
+        var len = dateGroup.length;
+
+        if (len === 0) {
+            //startDate ~ endDate 中不存在分隔日。
+            dateGroup = [{
+                start: startDate,
+                end: endDate,
+                duration: weight[endDate.getDay()] - weight[startDate.getDay()] + 1
+            }];
+        }
+        else {
+            //添加dateGroup的首位
+            if (!dateGroup[0].start) {
+                //说明不是从 分隔日 开始的。
+                dateGroup[0].start = startDate;
+                dateGroup[0].duration = weight[dateGroup[0].end.getDay()] - weight[startDate.getDay()] + 1;
+            }
+
+            //添加dateGroup末位
+            dateGroupLast = len - 1;
+            dateGroup[dateGroupLast].end = endDate;
+            dateGroup[dateGroupLast].duration = weight[dateGroup[dateGroupLast].end.getDay()] -
+                weight[dateGroup[dateGroupLast].start.getDay()] + 1;
+        }
+
+        return dateGroup;
+    },
+    /**
+     * 计算开始日期和结束日期共有周六日多少天。计算时忽略时间，只计算日期。
+     * @param startDate {Date} 开始日期
+     * @param endDate {Date} 结束日期
+     * @returns {number} 返回周末总数
+     * 用例：
+     * var start=new Date(2015,8,1);
+     * var end=new Date(2015,8,11);
+     * utils.getWeekendsCount(start,end); //返回2. 2015-8-1至2015-8-11共有两天周末。
+     */
+    getWeekendsCount: function (startDate, endDate) {
+
+        startDate = new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate());
+        endDate = new Date(endDate.getFullYear(), endDate.getMonth(), endDate.getDate());
+
+        var duration = (endDate - startDate) / 86400000 + 1;
+
+        //计算工作日。 eg: 2015-8-1 ~ 2015-8-11 有两天为周六日。 实际工作为9-2=7天
+        var weekendCounts, mod, firstDay, lastDay;
+
+        weekendCounts = Math.floor(duration / 7) * 2; //每7天两个休息日。 最后余出不满7天。
+
+        mod = duration % 7; //余出的天数
+        if (mod) { //如果存在余出的天数
+            firstDay = startDate.getDay(); //余出天数第一天的星期数和 duration的第一天星期数相同。
+            lastDay = firstDay + mod - 1;         //最后一天星期数。
+            if (firstDay === 0) {
+                //第一天是周日，则余出天数只有 一个休息日
+                weekendCounts++;
+            }
+            else if (firstDay <= 6 && lastDay >= 6) {
+                //第一天在周六或之前,
+                // 第二天是周六，1天休息日，
+                // 第二天周日或以后，2个休息日。
+                // lastDay-6+1 ： 周六到lastDay共几天。 只有1天，则lastDay是周六，超过1天，则有两个休息日。
+                weekendCounts += Math.min(lastDay - Math.max(firstDay, 6) + 1, 2);
+            }
+        }
+        return weekendCounts;
     },
 };
 

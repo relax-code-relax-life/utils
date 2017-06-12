@@ -87,8 +87,8 @@ describe("util_", function () {
                 result: '2017;01;10;03;25;05;666'
             },
             {
-                fmt:'yy;M;d;h;m;s-S',
-                result:'17;1;10;3;25;5-666'
+                fmt: 'yy;M;d;h;m;s-S',
+                result: '17;1;10;3;25;5-666'
             }
         ];
         test.forEach(function (data) {
@@ -97,30 +97,79 @@ describe("util_", function () {
     });
     it('dateParse', function () {
 
-        var test=[
+        var test = [
             [
                 '17,1,10 3:25',
                 'yy,M,d h:m',
-                new Date(2017,0,10,3,25).getTime()
+                new Date(2017, 0, 10, 3, 25).getTime()
             ],
             [
                 '2000,5',
                 'yy,MM',
-                new Date(2000,4).getTime()
+                new Date(2000, 4).getTime()
             ],
             [
                 '1999,13,1/23:23',
                 'yyyy,MM,dd/hh:mm',
-                new Date(1999,12,1,23,23).getTime()
+                new Date(1999, 12, 1, 23, 23).getTime()
             ],
             [
                 '30:30',
                 'h:m',
-                new Date(2017,0,1,30,30).getTime()
+                new Date(2017, 0, 1, 30, 30).getTime()
             ]
         ];
         test.forEach(function (data) {
             expect(utils.dateParse(data[0], data[1]).getTime()).toEqual(data[2]);
         })
-    })
+    });
+    it('firstDateInMonth', function () {
+        var test = [];
+        for (var i = 0; i < 12; i++) {
+            test.push([
+                new Date(2017, i, Math.ceil((Math.random() * 28))),
+                new Date(2017, i, 1)
+            ]);
+        }
+        test.forEach(function (data) {
+            expect(utils.firstDateInMonth(data[0]).getTime()).toEqual(data[1].getTime());
+            expect(utils.firstDateInMonth(data[0]).getDate()).toEqual(1);
+        });
+    });
+    it('lastDateInMonth', function () {
+        var test = [
+            [
+                new Date(2017, 0, 20),
+                new Date(2017, 0, 31)
+            ],
+            [
+                new Date(2017, 9, 20),
+                new Date(2017, 9, 31)
+            ]
+        ];
+
+        test.forEach(function (data) {
+            expect(utils.lastDateInMonth(data[0]).getTime()).toEqual(data[1].getTime());
+        });
+
+    });
+
+    it('firstWeekInMonth', function () {
+        var test = [];
+        for (var i = 0; i < 12; i++) {
+            test.push(  new Date(2017, i, Math.ceil((Math.random() * 28))),);
+        }
+        test.forEach(function (date) {
+            expect(utils.firstWeekInMonth(date).getDay()).toEqual(1);
+        });
+    });
+    it('lastWeekInMonth', function () {
+        var test = [];
+        for (var i = 0; i < 12; i++) {
+            test.push(  new Date(2017, i, Math.ceil((Math.random() * 28))),);
+        }
+        test.forEach(function (date) {
+            expect(utils.lastWeekInMonth(date).getDay()).toEqual(0);
+        });
+    });
 });
