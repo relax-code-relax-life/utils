@@ -40,7 +40,22 @@ var isBoolean = function (val) {
 var isNumber = function (val) {
     return typeof val === 'number'
 };
-var assign = Object.assign;
+var assign = Object.assign || function (tar, ...extend) {
+        extend.forEach((val, key) => {
+            tar[key] = val;
+        });
+        return tar;
+    };
+var fill = function (arr, padding) {
+    if (arr.fill)   return arr.fill(padding);
+    else {
+        for (var i = arr.length - 1; i > -1; i--) {
+            arr[i] = padding;
+        }
+        return arr;
+    }
+};
+
 
 //缓存函数。  将函数结果缓存，函数实际只执行一次。
 var cache = function (fn, context) {
@@ -432,7 +447,7 @@ var utils = {
 
         paddingChar = paddingChar && paddingChar.charAt(0) || ' ';
 
-        result = new Array(len - targetLen).fill(paddingChar);
+        result = fill(new Array(len - targetLen), paddingChar);
         result.push(target);
 
         return result.join('');
