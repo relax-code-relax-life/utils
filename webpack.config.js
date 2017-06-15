@@ -13,7 +13,8 @@ module.exports = {
         filename: 'index.js',
         path: __dirname + '/dist',
         library: 'utils',
-        libraryTarget: 'umd'
+        libraryTarget: 'umd',
+        umdNamedDefine: false
     },
     watch: true,
     module: {
