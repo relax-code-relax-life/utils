@@ -34,6 +34,6 @@ module.exports = {
             comments: false,
             beautify: false
         }),
-        new webpack.BannerPlugin('author:wwl')
+        new webpack.BannerPlugin('https://github.com/w-wl/')
     ]
 };

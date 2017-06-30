@@ -20,7 +20,47 @@ var reg_isUrl = /^((https?|ftp):\/\/)?(((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900
     //128-255为扩展字符
     reg_camelCase = /-([a-zA-Z])/g,
     reg_query = /(?:[?&])(.*?)=(.*?)(?=&|$|#)/g,
-    reg_dateFmt = /y+|M+|d+|h+|m+|s+|S+/g;
+    reg_dateFmt = /y+|M+|d+|h+|m+|s+|S+/g,
+
+    reg_chrome = /Chrome\/(\d+)/,
+    reg_firefox = /Firefox\/(\d+)/,
+    reg_safari = /Safari\/(\d+)/,
+    reg_ie = /MSIE (\d+)/,
+    reg_ie2 = /Trident\/.*; rv:(\d+)/,  //检测ie11+
+    reg_ieEdge = /(Edge\/\d+)/;
+
+var browserVersion = function (reg, ua) {
+    var match = reg.exec(ua || userAgent);
+    return match && match[1];
+};
+//region userAgent
+/*
+ chrome:
+ Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/59.0.3071.115 Safari/537.36
+ Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.103 Safari/537.36
+
+ firefox:
+ Mozilla/5.0 (Macintosh; Intel Mac OS X 10.12; rv:50.0) Gecko/20100101 Firefox/50.0
+ Mozilla/5.0 (Windows NT 6.1; WOW64; rv:53.0) Gecko/20100101 Firefox/53.0
+
+ safari:
+ Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_5) AppleWebKit/603.2.4 (KHTML, like Gecko) Version/10.1.1 Safari/603.2.4
+
+ ie edge:
+ Mozilla/5.0 (Windows NT 10.0; Win64; x64; ServiceUI 9) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/52.0.2743.116 Safari/537.36 Edge/15.15063
+
+ ie11
+ Mozilla/5.0 (Windows NT 6.1; WOW64; Trident/7.0; SLCC2; .NET CLR 2.0.50727; .NET CLR 3.5.30729; .NET CLR 3.0.30729; Media Center PC 6.0; .NET4.0C; .NET4.0E; rv:11.0) like Gecko
+ Mozilla/5.0 (Windows NT 10.0; WOW64; Trident/7.0; Touch; .NET4.0C; .NET4.0E; .NET CLR 2.0.50727; .NET CLR 3.0.30729; .NET CLR 3.5.30729; InfoPath.2; rv:11.0) like Gecko
+ Mozilla/5.0 (Windows NT 6.3; Trident/7.0; rv:11.0) like Gecko
+
+ ie:
+ Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 10.0; WOW64; Trident/7.0; Touch; .NET4.0C; .NET4.0E; .NET CLR 2.0.50727; .NET CLR 3.0.30729; .NET CLR 3.5.30729; InfoPath.2)
+ Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.2; Trident/6.0)
+ Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; Trident/5.0)
+
+ * */
+//endregion
 
 
 //signature: obj,start,end
@@ -128,6 +168,23 @@ var utils = {
     },
     isUrl(str){
         return reg_isUrl.test(str);
+    },
+    /**
+     *
+     * @param ua
+     * @returns {null|string}
+     */
+    isIE(ua){
+        return browserVersion(reg_ie, ua) || browserVersion(reg_ie2, ua) ||browserVersion(reg_ieEdge,ua);
+    },
+    isChrome(ua){
+        return browserVersion(reg_chrome, ua);
+    },
+    isFirefox(ua){
+        return browserVersion(reg_firefox, ua);
+    },
+    isSafari(ua){
+        return (browserVersion(reg_chrome, ua) || browserVersion(reg_ieEdge, ua)) ? null : browserVersion(reg_safari, ua);
     },
     defer(){
         var defer = {};
