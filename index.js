@@ -2,7 +2,10 @@
  * Created by wangweilin on 2017/6/9.
  */
 
-var userAgent = window.navigator.userAgent;
+var isBrowser = window && this === window;
+
+
+var userAgent = isBrowser ? navigator.userAgent : '';
 var isAndroid = /Android/i.test(userAgent);
 var isWeiXin = /MicroMessenger/.test(userAgent);
 var isIos = /iphone|ipad|ipod|ios/i.test(userAgent);
@@ -13,11 +16,12 @@ var reg_isUrl = /^((https?|ftp):\/\/)?(((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900
     reg_singleChar = /[\u0020-\u007f|\uff61-\uff9f]/g,
     reg_enterChar = /\n/g,
     reg_htmlEncode = /"|&|'|<|>|[\x00-\x20]|[\x7F-\xFF]/g,
-    //0-32  128-255
-    //ascii: 1字节，包含标准 0-127字符和扩展ascii 128-255字符。 扩展ascii为非标准。
-    //0-31和127为控制字符,    127是删除
-    //32-126为可显字符,     32为空格,48~57为0-9,65~90为A-Z,97-122为a-z，其余为符号。
-    //128-255为扩展字符
+    reg_htmlDecode = /&#(\d+);|(<br\s*\/\s*>)/g,
+//0-32  128-255
+//ascii: 1字节，包含标准 0-127字符和扩展ascii 128-255字符。 扩展ascii为非标准。
+//0-31和127为控制字符,    127是删除
+//32-126为可显字符,     32为空格,48~57为0-9,65~90为A-Z,97-122为a-z，其余为符号。
+//128-255为扩展字符
     reg_camelCase = /-([a-zA-Z])/g,
     reg_query = /(?:[?&])(.*?)=(.*?)(?=&|$|#)/g,
     reg_dateFmt = /y+|M+|d+|h+|m+|s+|S+/g,
@@ -66,7 +70,6 @@ var browserVersion = function (reg, ua) {
 //signature: obj,start,end
 var call = Function.prototype.call;
 var slice = call.bind(Array.prototype.slice);
-var docEle = document.documentElement;
 var toString = call.bind(Object.prototype.toString);
 var isArray = Array.isArray || function (arr) {
         return toString(arr) === '[object Array]'
@@ -132,6 +135,7 @@ var copyTxt = (function () {
         return ele;
     };
     return function (txt) {
+
         var ele = getFakeEle();
         ele.value = txt;
         ele.select();
@@ -395,7 +399,7 @@ var utils = {
      */
     getQuery: cache(function (url) {
         var q = {}, match;
-        while (match = reg_query.exec(url || location.search)) {
+        while (match = reg_query.exec(url || (isBrowser && location.search) || '')) {
             q[match[1]] = match[2];
         }
         return q;
@@ -938,6 +942,26 @@ assign(utils, {
         },
     }
 }, dateUtils);
+
+//browser special
+if (!isBrowser) {
+    ['isWifi', 'download', 'copyTxt',
+        'getCookie', 'setCookie', 'deleteCookie'].forEach(key => {
+        utils[key] = utils.noop;
+    });
+
+    //对应utils.htmlEncode,只能解密由utils.htmlEncode返回的加密字符串。
+    utils.htmlDecode = function (txt) {
+        txt += '';
+        return txt.replace(reg_htmlDecode, function (match, code, br) {
+            if (br) return '\n';
+            else if (code === '160') {
+                code = 32;
+            }
+            return String.fromCharCode(code);
+        })
+    }
+}
 
 
 module.exports = utils;
