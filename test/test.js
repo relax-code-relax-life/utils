@@ -80,6 +80,10 @@ describe("util_", function () {
         expect(utils.paddingLeft('', 5, '0')).toEqual('00000');
     });
     it('dateFormat', function () {
+
+        expect(utils.dateFormat('')).toEqual('');
+        expect(utils.dateFormat()).toEqual('');
+
         var date = new Date(Date.parse('2017/1/10 3:25:5:666'));
         var test = [
             {

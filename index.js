@@ -80,6 +80,9 @@ var isBoolean = function (val) {
 var isNumber = function (val) {
     return typeof val === 'number'
 };
+var isDate = function (val) {
+    return toString(val) === '[object Date]';
+};
 var assign = Object.assign || function (tar, ...extend) {
         extend.forEach((val, key) => {
             tar[key] = val;
@@ -175,7 +178,7 @@ var utils = {
      * @returns {null|string}
      */
     isIE(ua){
-        return browserVersion(reg_ie, ua) || browserVersion(reg_ie2, ua) ||browserVersion(reg_ieEdge,ua);
+        return browserVersion(reg_ie, ua) || browserVersion(reg_ie2, ua) || browserVersion(reg_ieEdge, ua);
     },
     isChrome(ua){
         return browserVersion(reg_chrome, ua);
@@ -533,6 +536,7 @@ var dateUtils = {
      * @return {string}
      * */
     dateFormat(date, fmt) {
+        if (!isDate(date)) return '';
         if (!fmt) fmt = 'yyyy-MM-dd hh:mm:ss';
         var map = {
             y: date.getFullYear(),
