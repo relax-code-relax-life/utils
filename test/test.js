@@ -161,7 +161,7 @@ describe("util_", function () {
     it('firstWeekInMonth', function () {
         var test = [];
         for (var i = 0; i < 12; i++) {
-            test.push(  new Date(2017, i, Math.ceil((Math.random() * 28))),);
+            test.push(new Date(2017, i, Math.ceil((Math.random() * 28))),);
         }
         test.forEach(function (date) {
             expect(utils.firstWeekInMonth(date).getDay()).toEqual(1);
@@ -170,44 +170,44 @@ describe("util_", function () {
     it('lastWeekInMonth', function () {
         var test = [];
         for (var i = 0; i < 12; i++) {
-            test.push(  new Date(2017, i, Math.ceil((Math.random() * 28))),);
+            test.push(new Date(2017, i, Math.ceil((Math.random() * 28))),);
         }
         test.forEach(function (date) {
             expect(utils.lastWeekInMonth(date).getDay()).toEqual(0);
         });
     });
     it('check browser chrome version', function () {
-        var str='Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/59.0.3071.115 Safari/537.36';
-        var str2='Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.103 Safari/537.36';
+        var str = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/59.0.3071.115 Safari/537.36';
+        var str2 = 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.103 Safari/537.36';
         expect(utils.isChrome(str)).toEqual('59');
         expect(utils.isChrome(str2)).toEqual('51');
         expect(utils.isChrome('12')).toEqual(null);
 
     });
     it('check browser firefox version', function () {
-        var str1='Mozilla/5.0 (Macintosh; Intel Mac OS X 10.12; rv:50.0) Gecko/20100101 Firefox/50.0';
-        var str2='Mozilla/5.0 (Windows NT 6.1; WOW64; rv:53.0) Gecko/20100101 Firefox/53.0';
+        var str1 = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.12; rv:50.0) Gecko/20100101 Firefox/50.0';
+        var str2 = 'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:53.0) Gecko/20100101 Firefox/53.0';
         expect(utils.isFirefox(str1)).toEqual('50');
         expect(utils.isFirefox(str2)).toEqual('53');
     });
     it('check browser safari version', function () {
-        var str1='Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_5) AppleWebKit/603.2.4 (KHTML, like Gecko) Version/10.1.1 Safari/603.2.4';
+        var str1 = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_5) AppleWebKit/603.2.4 (KHTML, like Gecko) Version/10.1.1 Safari/603.2.4';
         //chrome
-        var str2='Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.103 Safari/537.36';
+        var str2 = 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.103 Safari/537.36';
         //edge
-        var str3='Mozilla/5.0 (Windows NT 10.0; Win64; x64; ServiceUI 9) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/52.0.2743.116 Safari/537.36 Edge/15.15063';
+        var str3 = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; ServiceUI 9) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/52.0.2743.116 Safari/537.36 Edge/15.15063';
         expect(utils.isSafari(str1)).toEqual('603');
         expect(utils.isSafari(str2)).toEqual(null);
         expect(utils.isSafari(str3)).toEqual(null);
     });
     it('check browser ie version', function () {
-        var ie10='Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 10.0; WOW64; Trident/7.0; Touch; .NET4.0C; .NET4.0E; .NET CLR 2.0.50727; .NET CLR 3.0.30729; .NET CLR 3.5.30729; InfoPath.2)';
-        var ie10_2='Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.2; Trident/6.0)';
-        var ie9='Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; Trident/5.0)';
-        var ie11_1='Mozilla/5.0 (Windows NT 6.1; WOW64; Trident/7.0; SLCC2; .NET CLR 2.0.50727; .NET CLR 3.5.30729; .NET CLR 3.0.30729; Media Center PC 6.0; .NET4.0C; .NET4.0E; rv:11.0) like Gecko';
-        var ie11_2='Mozilla/5.0 (Windows NT 10.0; WOW64; Trident/7.0; Touch; .NET4.0C; .NET4.0E; .NET CLR 2.0.50727; .NET CLR 3.0.30729; .NET CLR 3.5.30729; InfoPath.2; rv:11.0) like Gecko';
-        var ie11_3='Mozilla/5.0 (Windows NT 6.3; Trident/7.0; rv:11.0) like Gecko';
-        var ie_edge15='Mozilla/5.0 (Windows NT 10.0; Win64; x64; ServiceUI 9) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/52.0.2743.116 Safari/537.36 Edge/15.15063';
+        var ie10 = 'Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 10.0; WOW64; Trident/7.0; Touch; .NET4.0C; .NET4.0E; .NET CLR 2.0.50727; .NET CLR 3.0.30729; .NET CLR 3.5.30729; InfoPath.2)';
+        var ie10_2 = 'Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.2; Trident/6.0)';
+        var ie9 = 'Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; Trident/5.0)';
+        var ie11_1 = 'Mozilla/5.0 (Windows NT 6.1; WOW64; Trident/7.0; SLCC2; .NET CLR 2.0.50727; .NET CLR 3.5.30729; .NET CLR 3.0.30729; Media Center PC 6.0; .NET4.0C; .NET4.0E; rv:11.0) like Gecko';
+        var ie11_2 = 'Mozilla/5.0 (Windows NT 10.0; WOW64; Trident/7.0; Touch; .NET4.0C; .NET4.0E; .NET CLR 2.0.50727; .NET CLR 3.0.30729; .NET CLR 3.5.30729; InfoPath.2; rv:11.0) like Gecko';
+        var ie11_3 = 'Mozilla/5.0 (Windows NT 6.3; Trident/7.0; rv:11.0) like Gecko';
+        var ie_edge15 = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; ServiceUI 9) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/52.0.2743.116 Safari/537.36 Edge/15.15063';
         expect(utils.isIE(ie10)).toEqual('10');
         expect(utils.isIE(ie10_2)).toEqual('10');
         expect(utils.isIE(ie9)).toEqual('9');
@@ -217,4 +217,25 @@ describe("util_", function () {
         expect(utils.isIE(ie_edge15)).toEqual('Edge/15');
 
     });
+
+    it('unique', function () {
+        expect(utils.unique([5, 2, 3, 5, 2])).toEqual([5, 2, 3]);
+        expect(typeof utils.unique([5, 2, 3, '5', 2])[3]).toBe('string');
+        expect(utils.unique([5, 2, 3, '5', 2])).toEqual([5, 2, 3, '5']);
+
+        expect(
+            typeof utils.unique([5, 2, 3, '5', 2].sort(), true)[3]
+        ).toBe('string');
+
+        expect(
+            utils.unique([5, 2, 3, '5', 2].sort(), true)
+        ).toEqual([2, 3, 5, '5']);
+
+        expect(
+            utils.unique([5, 2, 3, '5', 2].sort(), true, function (val) {
+                return parseInt(val)
+            })
+        ).toEqual([2, 3, 5]);
+
+    })
 });

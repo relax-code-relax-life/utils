@@ -218,6 +218,43 @@ var utils = {
         });
         return result;
     },
+    /**
+     * 不改变数组顺序的情况下去重,
+     * @param arr {Array}
+     * @param [isSort] {Boolean} 默认false.
+     *          如果已排序，则和前一个值作恒等比较，如果未排序，则通过includes是否存在。
+     * @param [fn] {Function} map函数。根据fn返回的值做比较。 fn(item,index,arr);
+     * @param [context] {Object} map函数的this值。
+     * @return {Array} 返回新数组。
+     */
+    unique(arr, isSort, fn, context){
+
+        var result = [];
+
+        var mapArr = fn ? arr.map(fn, context) : arr;
+
+        if (isSort) {
+            var pre;
+            mapArr.forEach((item, i) => {
+                if (pre !== item) {
+                    pre = item;
+                    result.push(arr[i]);
+                }
+            });
+        }
+        else {
+            //提前map
+            var mapResult = [];
+            mapArr.forEach(function (item, i) {
+                if (!mapResult.includes(item)) {
+                    mapResult.push(item);
+                    result.push(arr[i]);
+                }
+            });
+        }
+
+        return result;
+    },
     cache,
     loop(fn, tick, immediate){
         var key = utils.guid('loop');
