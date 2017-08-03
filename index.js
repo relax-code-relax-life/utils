@@ -17,6 +17,11 @@ var reg_isUrl = /^((https?|ftp):\/\/)?(((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900
     reg_enterChar = /\n/g,
     reg_htmlEncode = /"|&|'|<|>|[\x00-\x20]|[\x7F-\xFF]/g,
     reg_htmlDecode = /&#(\d+);|(<br\s*\/\s*>)/g,
+    //十六进制表示:
+    // \x1abf4: 可以使用任意多的十六进制数字，直至不是十六进制数字为止；
+    // \uAAAA: 16位的通用字符名,\u后面必须跟4个十六进制数字（不足四位前面用零补齐).
+    // \UAAAAAAAA:32位的通用字符名，\U后面必须跟8个十六进制数字（不足八位前面用零补齐）
+    // 一个数字，代表4位， ascii总共1个字节，所以一般都用\u00YY或者\xYY表示。
 //0-32  128-255
 //ascii: 1字节，包含标准 0-127字符和扩展ascii 128-255字符。 扩展ascii为非标准。
 //0-31和127为控制字符,    127是删除
@@ -599,6 +604,7 @@ var dateUtils = {
         })
     },
     dateParse(str, fmt) {
+        if (!fmt) fmt = 'yyyy-MM-dd hh:mm:ss';
         var params = str.split(/\D+/);
         var match, index = 0, r = reg_dateFmt;
         var arg = {

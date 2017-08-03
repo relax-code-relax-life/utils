@@ -121,6 +121,11 @@ describe("util_", function () {
                 '30:30',
                 'h:m',
                 new Date(2017, 0, 1, 30, 30).getTime()
+            ],
+            [
+                '2015-06-07 10:11:11',
+                '',
+                new Date(2015,5,7,10,11,11).getTime()
             ]
         ];
         test.forEach(function (data) {
