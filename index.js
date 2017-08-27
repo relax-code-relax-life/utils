@@ -6,9 +6,6 @@ var isBrowser = window && this === window;
 
 
 var userAgent = isBrowser ? navigator.userAgent : '';
-var isAndroid = /Android/i.test(userAgent);
-var isWeiXin = /MicroMessenger/.test(userAgent);
-var isIos = /iphone|ipad|ipod|ios/i.test(userAgent);
 
 
 var reg_isUrl = /^((https?|ftp):\/\/)?(((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:)*@)?(((\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5]))|((([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.)+(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.?)(:\d*)?)(\/((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)+(\/(([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)*)*)?)?(\?((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)|[\uE000-\uF8FF]|\/|\?)*)?(\#((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)|\/|\?)*)?$/i,
@@ -36,7 +33,11 @@ var reg_isUrl = /^((https?|ftp):\/\/)?(((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900
     reg_safari = /Safari\/(\d+)/,
     reg_ie = /MSIE (\d+)/,
     reg_ie2 = /Trident\/.*; rv:(\d+)/,  //检测ie11+
-    reg_ieEdge = /(Edge\/\d+)/;
+    reg_ieEdge = /(Edge\/\d+)/,
+
+    reg_isAndroid = /Android/i,
+    reg_isWeiXin = /MicroMessenger/,
+    reg_isIos = /iphone|ipad|ipod|ios/i;
 
 var browserVersion = function (reg, ua) {
     var match = reg.exec(ua || userAgent);
@@ -77,8 +78,8 @@ var call = Function.prototype.call;
 var slice = call.bind(Array.prototype.slice);
 var toString = call.bind(Object.prototype.toString);
 var isArray = Array.isArray || function (arr) {
-        return toString(arr) === '[object Array]'
-    };
+    return toString(arr) === '[object Array]'
+};
 var isFunction = function (fn) {
     return toString(fn) === '[object Function]'
 };
@@ -92,13 +93,13 @@ var isDate = function (val) {
     return toString(val) === '[object Date]';
 };
 var assign = Object.assign || function (tar, ...extend) {
-        extend.forEach((val, key) => {
-            tar[key] = val;
-        });
-        return tar;
-    };
+    extend.forEach((val, key) => {
+        tar[key] = val;
+    });
+    return tar;
+};
 var fill = function (arr, padding) {
-    if (arr.fill)   return arr.fill(padding);
+    if (arr.fill) return arr.fill(padding);
     else {
         for (var i = arr.length - 1; i > -1; i--) {
             arr[i] = padding;
@@ -152,22 +153,22 @@ var guidCnt = 0;
 var loopIds = {};
 
 var utils = {
-    guid(preFix){
+    guid(preFix) {
         return preFix + guidCnt
     },
-    noop(){
+    noop() {
     },
-    isAndroid(){
-        return isAndroid;
+    isAndroid(ua) {
+        return reg_isAndroid.test(ua || userAgent);
     },
-    isIos(){
-        return isIos
+    isIos(ua) {
+        return reg_isIos.test(ua || userAgent);
     },
-    isWeiXin(){
-        return isWeiXin
+    isWeiXin(ua) {
+        return reg_isWeiXin.test(ua || userAgent);
     },
     //返回bool，则正确检测到联网类型。返回undefined，则代表未检测到。
-    isWifi(){
+    isWifi() {
         var connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
         if (connection) {
             // return connection.type === 'wifi';
@@ -178,7 +179,7 @@ var utils = {
         }
         else return undefined;
     },
-    isUrl(str){
+    isUrl(str) {
         return reg_isUrl.test(str);
     },
     /**
@@ -186,19 +187,19 @@ var utils = {
      * @param ua
      * @returns {null|string}
      */
-    isIE(ua){
+    isIE(ua) {
         return browserVersion(reg_ie, ua) || browserVersion(reg_ie2, ua) || browserVersion(reg_ieEdge, ua);
     },
-    isChrome(ua){
+    isChrome(ua) {
         return browserVersion(reg_chrome, ua);
     },
-    isFirefox(ua){
+    isFirefox(ua) {
         return browserVersion(reg_firefox, ua);
     },
-    isSafari(ua){
+    isSafari(ua) {
         return (browserVersion(reg_chrome, ua) || browserVersion(reg_ieEdge, ua)) ? null : browserVersion(reg_safari, ua);
     },
-    defer(){
+    defer() {
         var defer = {};
         defer.promise = new Promise(function (resolve, reject) {
             defer.resolve = resolve;
@@ -206,7 +207,7 @@ var utils = {
         });
         return defer;
     },
-    each(obj, fn, context){
+    each(obj, fn, context) {
         if (isArray(obj)) return obj.forEach(fn, context);
 
         //只遍历自有可枚举属性
@@ -214,7 +215,7 @@ var utils = {
             fn.call(context, obj[key], key, obj);
         })
     },
-    map(obj, fn, context){
+    map(obj, fn, context) {
         if (isArray(obj)) return obj.map(fn, context);
 
         var result = [];
@@ -232,7 +233,7 @@ var utils = {
      * @param [context] {Object} map函数的this值。
      * @return {Array} 返回新数组。
      */
-    unique(arr, isSort, fn, context){
+    unique(arr, isSort, fn, context) {
 
         var result = [];
 
@@ -261,7 +262,7 @@ var utils = {
         return result;
     },
     cache,
-    loop(fn, tick, immediate){
+    loop(fn, tick, immediate) {
         var key = utils.guid('loop');
 
         var promiseFn = function () {
@@ -281,7 +282,7 @@ var utils = {
 
         return key;
     },
-    clearLoop(key){
+    clearLoop(key) {
         var timeoutId = loopIds[key];
         if (timeoutId) {
             clearTimeout(timeoutId);
@@ -290,7 +291,7 @@ var utils = {
     },
 
     //间隔wait执行
-    throttle  (fn, alwaysFn, immediately, wait, context) {//optional:alwaysFn,immediately,context
+    throttle(fn, alwaysFn, immediately, wait, context) {//optional:alwaysFn,immediately,context
         if (!isFunction(alwaysFn)) {
             context = wait;
             wait = immediately;
@@ -331,7 +332,7 @@ var utils = {
         }
     },
     //防抖动
-    debounce(fn, alwaysFn, immediately, wait, context){//optional:alwaysFn,immediately,context
+    debounce(fn, alwaysFn, immediately, wait, context) {//optional:alwaysFn,immediately,context
 
         if (!isFunction(alwaysFn)) {
             context = wait;
@@ -381,7 +382,7 @@ var utils = {
         }
     },
 
-    download(src, fileName){
+    download(src, fileName) {
         var link = document.createElement('a');
         link.download = fileName;
         link.href = src;
@@ -398,7 +399,7 @@ var utils = {
      * @param encodeEx {Boolean|Array} 不进行转义。数组形式:[key1,key2,...]，指定特定的key不进行转义
      * @returns {*}
      */
-    param(params, encodeEx){
+    param(params, encodeEx) {
         if (params == null || typeof params !== 'object') return params || '';
         var result = [], val, enc = encodeURIComponent;
 
@@ -426,7 +427,7 @@ var utils = {
 
         return result.join('&');
     },
-    resolveUrl(url, param, encodeEx){
+    resolveUrl(url, param, encodeEx) {
         param = utils.param(param, encodeEx);
         return url.replace(reg_resolveUrl, '?$2&' + param + '$3').replace('?&', '?')
     },
@@ -478,7 +479,7 @@ var utils = {
      * @param txt
      * @returns {boolean} 复制成功返回true, 复制出错返回false
      */
-    copyTxt(txt){
+    copyTxt(txt) {
         try {
             if (!copyTxt(txt)) {
                 return false;
@@ -495,7 +496,7 @@ var utils = {
      * @param txt
      * @returns {XML|void|*|string}
      */
-    htmlEncode(txt){
+    htmlEncode(txt) {
         if (typeof txt !== 'string') {
             txt = txt + '';
         }
@@ -507,7 +508,7 @@ var utils = {
             return '&#' + code + ';';
         });
     },
-    htmlDecode(val){
+    htmlDecode(val) {
         if (val == null || val === '') return '';
         var el = document.createElement('div');
         el.innerHTML = val;
@@ -522,7 +523,7 @@ var utils = {
      * @param args
      * @returns {string}
      */
-    camelCase(...args){
+    camelCase(...args) {
         return args.join('-').replace(reg_camelCase, function (match, letter) {
             return letter.toUpperCase();
         });
@@ -979,7 +980,7 @@ assign(utils, {
     cookie: {
         delete: deleteCookie,
         set: setCookie,
-        get(name, refresh){
+        get(name, refresh) {
             var cookie = getCookie(refresh)[name];
             return cookie && cookie.value;
         },
