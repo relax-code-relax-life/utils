@@ -331,7 +331,15 @@ var utils = {
             if (!timeoutId) execFn();
         }
     },
-    //防抖动
+    /**
+     * 防抖动
+     * @param fn {Function}
+     * @param [alwaysFn] {Function}
+     * @param [immediately] {Boolean}
+     * @param wait {Number}
+     * @param [context] {Object}
+     * @returns {Function}
+     */
     debounce(fn, alwaysFn, immediately, wait, context) {//optional:alwaysFn,immediately,context
 
         if (!isFunction(alwaysFn)) {
@@ -348,7 +356,7 @@ var utils = {
 
         var timeoutId, arg;
 
-        var setTimeout = function (fn) {
+        var setTimer = function (fn) {
             clearTimeout(timeoutId);
             timeoutId = setTimeout(fn, wait)
         };
@@ -358,14 +366,14 @@ var utils = {
 
             execFn = function () {
                 if (!timeoutId) fn.apply(context, arg);
-                setTimeout(function () {
+                setTimer(function () {
                     timeoutId = undefined
                 });
             }
         }
         else {
             execFn = function () {
-                setTimeout(function () {
+                setTimer(function () {
                     fn.apply(context, arg);
                     timeoutId = undefined;
                 });
