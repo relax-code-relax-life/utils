@@ -39,18 +39,23 @@ describe("util_", function () {
                 output: host + '?key=val&' + paramStr + '#fragment'
             },
             {
-                input: host + '?key=val&adfasd#fragment',
-                output: host + '?key=val&adfasd&' + paramStr + '#fragment'
+                input: host + '?key=val#fragment',
+                output: host + '?key=val&' + paramStr + '#fragment'
             },
             {
-                input: host + '?key=val&adfasd#fragment',
-                output: host + '?key=val&adfasd&' + paramStrEncodeEx + '#fragment',
+                input: host + '?key=val#fragment',
+                output: host + '?key=val&' + paramStrEncodeEx + '#fragment',
                 encodeEx: true
             },
             {
-                input: host + '?key=val&adfasd#fragment',
-                output: host + '?key=val&adfasd&' + paramStrEncodeEx + '#fragment',
+                input: host + '?key=val#fragment',
+                output: host + '?key=val&' + paramStrEncodeEx + '#fragment',
                 encodeEx: ['+enc']
+            },
+            {
+                input: host + '?key=val&name=123#fragment',
+                output: host + '?key=val&' + paramStrEncodeEx + '#fragment',
+                encodeEx:true
             }
         ];
 

@@ -110,14 +110,19 @@ var fill = function (arr, padding) {
 
 
 //缓存函数。  将函数结果缓存，函数实际只执行一次。
-var cache = function (fn, context) {
+//predicate 判断在refresh为false时，是否使用缓存
+var cache = function (fn, context, predicate) {
     var result,
         isExecute; //判断是否执行过fn，不能通过result判断，因为fn有可能返回undefined
     return function (refresh, ...args) { //第一个参数为 是否强制刷新
-        if (!isExecute || refresh) {
-            !context && (context = this);
+
+        !context && (context = this);
+
+        //从未执行过 或 强制刷新 或 predicate要求刷新(返回true)
+        if (!isExecute || refresh || (predicate && predicate.apply(context, args))) {
             result = fn.apply(context, args);
         }
+
         return result;
     }
 };
@@ -435,26 +440,36 @@ var utils = {
 
         return result.join('&');
     },
+    /**
+     * 针对url添加查询字符串。
+     * 该方法不是一个绝对安全的方法，可能会改变原url中查询字符串中参数的顺序，以及丢失无法解析的值。
+     * 例如: resolveUrl('localhost?name=wwl&abc',{sex:'male'}) 可能会返回: localhost?sex=male&name=wwl
+     * @param url {String}
+     * @param param {Object} 代表查询字符串的参数对象
+     * @param encodeEx {Boolean|Array} 为true，代表不进行转义。默认为false,即转义。
+     * @returns {string}
+     */
     resolveUrl(url, param, encodeEx) {
+        param = assign(utils.getQuery(url), param);
         param = utils.param(param, encodeEx);
-        return url.replace(reg_resolveUrl, '?$2&' + param + '$3').replace('?&', '?')
+        return url.replace(reg_resolveUrl, '?' + param + '$3');
     },
 
     /**
-     *返回代表查询字符串的键值对。函数内部缓存query对象，多次调用该函数，实际只解析一次查询字符串。
+     *返回代表查询字符串的键值对。
      *@method getQuery
-     *@param [refresh=false] 若存在缓存则直接返回。refresh为true时，无论是否存在缓存对象，都强制重新解析查询字符串。
-     *@return 返回代表当前url中查询字符串的键值对对象。
+     *@param [url] 需要解析的字符串，默认为location.search
+     *@return {Object} 返回代表当前url中查询字符串的键值对对象。
      * 用例：
-     * utils.getQuery().id 或者 utils.getQuery(false,'localhost/indexhtml?id=idinfo')
+     * utils.getQuery().id 或者 utils.getQuery('localhost/indexhtml?id=idinfo').id
      */
-    getQuery: cache(function (url) {
+    getQuery: function (url) {
         var q = {}, match;
         while (match = reg_query.exec(url || (isBrowser && location.search) || '')) {
             q[match[1]] = match[2];
         }
         return q;
-    }),
+    },
 
     /**
      * 计算字符长度。该方法区分全角字符和半角字符。

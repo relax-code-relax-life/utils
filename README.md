@@ -51,7 +51,7 @@ string param(params:object, encodeEx:bool|array)
 
 string resolveUrl(url, param, encodeEx) //返回拼接后的url
 
-object getQuery([forceRefresh],[url])          //返回query对象  
+object getQuery([url])          //返回query对象  
 
 int countStr(txt, [fullVal] = 1, [halfVal] = 0.5, [enterVal] = 1)   //计算字符串长度
 
