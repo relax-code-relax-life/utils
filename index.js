@@ -27,6 +27,7 @@ var reg_isUrl = /^((https?|ftp):\/\/)?(((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900
     reg_camelCase = /-([a-zA-Z])/g,
     reg_query = /(?:[?&])(.*?)=(.*?)(?=&|$|#)/g,
     reg_dateFmt = /y+|M+|d+|h+|m+|s+|S+/g,
+    reg_parseParam = /(?:^|&)(.*?)=(.*?)(?=&|$)/g,
 
     reg_chrome = /Chrome\/(\d+)/,
     reg_firefox = /Firefox\/(\d+)/,
@@ -408,6 +409,7 @@ var utils = {
 
     /**
      * 将对象转换为key=val&key1=value1的参数形式
+     * value默认通过encodeURIComponent转义，通过encodeEx不转义。
      * @param params
      * @param encodeEx {Boolean|Array} 不进行转义。数组形式:[key1,key2,...]，指定特定的key不进行转义
      * @returns {*}
@@ -440,6 +442,34 @@ var utils = {
 
         return result.join('&');
     },
+
+    /**
+     * 将key=value&key1=value1形式的字符串转换成对象，相对于param方法。
+     * value默认使用decodeURIComponent进行解密，可以通过decodeEx参数不进行解密。
+     * @param paramStr {String}
+     * @param decodeEx {Boolean|Array}
+     * @returns {{}}
+     */
+    parseParam(paramStr, decodeEx) {
+        var data = {},
+            match,
+            decode = decodeURIComponent;
+
+        var excludeMap = {}, excludeAll = false;
+        if (isArray(decodeEx)) {
+            decodeEx.forEach(key => excludeMap[key] = true);
+        }
+        else {
+            excludeAll = decodeEx;
+        }
+
+        while (match = reg_parseParam.exec(paramStr)) {
+            data[match[1]] = excludeAll || excludeMap[match[1]] ? match[2] : decode(match[2]);
+        }
+
+        return data;
+    },
+
     /**
      * 针对url添加查询字符串。
      * 该方法不是一个绝对安全的方法，可能会改变原url中查询字符串中参数的顺序，以及丢失无法解析的值。
