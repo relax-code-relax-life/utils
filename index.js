@@ -1060,6 +1060,8 @@ if (!isBrowser) {
     }
 }
 
+//alias
+utils.uniq = utils.unique;
 
 module.exports = utils;
 
