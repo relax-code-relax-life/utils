@@ -310,6 +310,7 @@ var utils = {
             immediately = false;
         }
 
+        var oriContext = context;
         var timeoutId, args,
             execFn;
 
@@ -332,7 +333,7 @@ var utils = {
 
         return function () {
             args = arguments;
-            !context && (context = this);
+            !oriContext && (context = this);
             alwaysFn && alwaysFn.apply(context, args);
             if (!timeoutId) execFn();
         }
@@ -359,6 +360,8 @@ var utils = {
             wait = immediately;
             immediately = false;
         }
+
+        var oriContext = context;
 
         var timeoutId, arg;
 
@@ -388,7 +391,8 @@ var utils = {
 
         return function () {
             arg = arguments;
-            !context && (context = this);
+
+            !oriContext && (context = this);
 
             execFn();
 
