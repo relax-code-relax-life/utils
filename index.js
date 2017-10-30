@@ -2,7 +2,7 @@
  * Created by wangweilin on 2017/6/9.
  */
 
-var isBrowser = window && this === window;
+var isBrowser = typeof window !== 'undefined' && window.document;
 
 
 var userAgent = isBrowser ? navigator.userAgent : '';
@@ -40,6 +40,12 @@ var reg_isUrl = /^((https?|ftp):\/\/)?(((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900
     reg_isWeiXin = /MicroMessenger/,
     reg_isIos = /iphone|ipad|ipod|ios/i;
 
+/**
+ *
+ * @param reg
+ * @param ua
+ * @returns {Array|{index: number, input: string}|*}
+ */
 var browserVersion = function (reg, ua) {
     var match = reg.exec(ua || userAgent);
     return match && match[1];
@@ -159,7 +165,7 @@ var guidCnt = 0;
 var loopIds = {};
 
 var utils = {
-    guid(preFix) {
+    guid(preFix = '') {
         return preFix + guidCnt
     },
     noop() {
@@ -791,7 +797,7 @@ var dateUtils = {
      * 返回开始日期和结束日期的周。计算时忽略时间，只计算日期。
      * @param startDate ｛Date｝ 开始日期。
      * @param endDate   {Date} 结束日期
-     * @param splitDay {number} 分割点。对应date.getDay()取值0~6。 例如取周一至周日，则splitDay传入1，取周日至周六，splitDay传入0。
+     * @param splitDay {number} 分割点。对应date.getDay()取值0~6。 默认为1。例如取周一至周日，则splitDay传入1，取周日至周六，splitDay传入0。
      * @returns {Array} 返回周的数组。 每一项为：{start:date,end:date,duration:number}
      * 用例： 获取该月的所有周。
      * var today=new Date();
@@ -1036,6 +1042,7 @@ assign(utils, {
     getCookie, setCookie, deleteCookie,
     cookie: {
         delete: deleteCookie,
+        del: deleteCookie,
         set: setCookie,
         get(name, refresh) {
             var cookie = getCookie(refresh)[name];
