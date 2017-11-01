@@ -1,5 +1,14 @@
-# utils API
+# 下载
+* npm install --save wwl-utils
+* <script src="https://gitee.com/w-wl/dist_utils/raw/master/index.js"></script>
 
+# 使用
+* import utils from "wwl-utils"
+* amd加载方式: define( ["/js/wwl-utils.js"] , (utils)=>{  } );
+* 在页面引用script标签的方式，会暴露出window.utils对象。
+
+
+# utils API
 ## guid
  function guid(prefix = ''): string;
  
@@ -16,11 +25,16 @@ noop(): () => void;
 function isUrl(url: string): boolean;
 
 ## isAndroid、isIos、isWeiXin
-(ua = navigator.userAgent): boolean;
+function (ua = navigator.userAgent): boolean;
 
 根据传入的userAgent的值，判断是否是android,ios,微信。
 
 默认使用当前navigator.userAgent。
+```javascript
+var ua="Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1";
+utils.isIos();      //false
+utils.isIos(ua);    //true 
+```
 
 ## isWifi
 function isWifi(): boolean | undefined;
@@ -40,6 +54,11 @@ function isFirefox(ua = navigator.userAgent): null | string;
 function isSafari(ua = navigator.userAgent): null | string;
 
 如果匹配，返回当前浏览器的版本号，如果不符合，返回null.
+```javascript
+var ua="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/604.1.38 (KHTML, like Gecko) Version/11.0 Safari/604.1.38";
+utils.isChrome();   //null;
+utils.isSafari(ua); //"604"
+```
 
 ## defer
 function defer(): { promise: Promise, resolve: () => void, reject: () => void };
@@ -124,6 +143,16 @@ immediately: 是否立即执行。如果为true,则会在第一次调用时立�
 wait:指定时间，以毫秒为单位。
 
 contex: 指定alwaysFn和fn的this值，如果省略，则为结果函数的this值。
+```javascript
+var obj={};
+var fn=function(){ console.log(this===obj) };
+obj.fn=utils.debounce(fn,()=>{console.log(1)},1000);
+obj.fn();
+obj.fn();
+//1
+//1
+//true
+```
 
 ## download
 function download(url: string, fileName?: string): void;
@@ -140,6 +169,11 @@ function param(params: object, encodeEx?: boolean | Array<string>): string
 value默认通过encodeURIComponent转义，
 
 encodeEx设置为true，则不进行转义，或者设置为一个数组[key1,key2]指定特定的key不进行转义。
+```javascript
+utils.param({name:'+wwl'});         //"name=%2Bwwl"
+utils.param({name:'+wwl'},true);    //"name=+wwl"
+utils.param({name:'+wwl'},['name']);//"name=+wwl"
+```
 
 ## parseParam
 function parseParam(paramStr: string, decodeEx?: boolean | Array<string>): object;
@@ -149,6 +183,12 @@ function parseParam(paramStr: string, decodeEx?: boolean | Array<string>): objec
 value默认会通过decodeURIComponent进行解密。
 
 通过设置decodeEx参数不进行解密。
+```javascript
+utils.parseParam('name=%2Bwwl')             //{name:"+wwl"}
+utils.parseParam('name=%2Bwwl',true)        //{name:"%2Bwwl"}
+utils.parseParam('name=%2Bwwl',['name'])    //{name:"%2Bwwl"}
+
+```
 
 ## resolveUrl
 function resolveUrl(url: string, param: object, encodeEx?: boolean | Array<string>): string;
@@ -201,6 +241,11 @@ function htmlDecode(val: string): string;
 html转义和解密。
 
 如果是node环境，htmlDecode只能正确解密由htmlEncode()返回的内容
+
+```javascript
+utils.htmlEncode('<body>');     //&#60;body&#62;
+utils.htmlDecode('&lt;body')    //<body
+```
 
 
 ## camelCase

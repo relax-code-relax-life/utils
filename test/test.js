@@ -248,4 +248,18 @@ describe("util_", function () {
         ).toEqual([2, 3, 5]);
 
     })
+
+
+    it('htmlEncode', function () {
+        expect(
+            utils.htmlEncode('<script>"?&</script>')
+        ).toEqual('&#60;script&#62;&#34;?&#38;&#60;/script&#62;');
+    })
+
+    it('htmlDecode', function () {
+        expect(
+            utils.htmlDecode('&#60;script&#62;&#34;?&#38;&#60;/script&#62;<script>')
+        ).toEqual('<script>"?&</script><script>');
+    })
+
 });

@@ -14,6 +14,7 @@ var reg_isUrl = /^((https?|ftp):\/\/)?(((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900
     reg_enterChar = /\n/g,
     reg_htmlEncode = /"|&|'|<|>|[\x00-\x20]|[\x7F-\xFF]/g,
     reg_htmlDecode = /&#(\d+);|(<br\s*\/\s*>)/g,
+    reg_htmlDecodeBrowser = /&#.+?;/g,
     //十六进制表示:
     // \x1abf4: 可以使用任意多的十六进制数字，直至不是十六进制数字为止；
     // \uAAAA: 16位的通用字符名,\u后面必须跟4个十六进制数字（不足四位前面用零补齐).
@@ -573,11 +574,19 @@ var utils = {
     },
     htmlDecode(val) {
         if (val == null || val === '') return '';
-        var el = document.createElement('div');
-        el.innerHTML = val;
-        var result = el.innerText;
-        el = null;
-        return result;
+        var match = val.match(reg_htmlDecodeBrowser);
+        if (match) {
+            var el = document.createElement('div');
+            el.innerHTML = match.join(',');
+            match = el.innerText.split(',')
+            el = null;
+        }
+        else match = [];
+
+        var index = 0;
+        return val.replace(reg_htmlDecodeBrowser, (result, pos) => {
+            return match[index++];
+        });
     },
 
     /**
