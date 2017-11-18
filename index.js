@@ -29,6 +29,7 @@ var reg_isUrl = /^((https?|ftp):\/\/)?(((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900
     reg_query = /(?:[?&])(.*?)=(.*?)(?=&|$|#)/g,
     reg_dateFmt = /y+|M+|d+|h+|m+|s+|S+/g,
     reg_parseParam = /(?:^|&)(.*?)=(.*?)(?=&|$)/g,
+    reg_template = /\$\{\s*(.+?)\s*\}/g,
 
     reg_chrome = /Chrome\/(\d+)/,
     reg_firefox = /Firefox\/(\d+)/,
@@ -631,6 +632,72 @@ var utils = {
 
         return result.join('');
     },
+
+
+    /**
+     * 模板函数，计算表达式生成字符串。支持ES6模板字符串语法。 eg: template('hello,${firstName+secondName}',{firstName:'wang',secondName:'wl'});
+     * @param temp
+     * @param data
+     * @returns {string}
+     */
+    template: (function () {
+
+        let supportTempStr = true;
+        try {
+            let fn = new Function('``');
+        }
+        catch (e) {
+            supportTempStr = false;
+        }
+
+        if (supportTempStr) {
+            return function (temp, data) {
+               return (new Function('__scope__',
+                   `
+                    var __result__;
+                    try{
+                        with(__scope__){
+                            __result__=\`${temp}\`
+                        }
+                    }
+                    catch(e){
+                        __result__="";
+                    }
+                    return __result__;
+                    `
+               ))(data);
+            };
+        }
+        else {
+            //known bug: temp=' hello ${name+"${inner}"} ';
+            return function (temp, data) {
+                //如果以reg_template开头，则splitCodes[0]为空字符串。
+                //如果以reg_template结尾，则splitCodes[len-1]为空字符串。
+                var isExpr = true;
+                var exprCode = temp.split(reg_template)
+                    .map(splitCode => {
+                        isExpr = !isExpr;
+                        if (isExpr) {
+                            return splitCode;
+                        }
+                        else {
+                            return `'${splitCode.replace("'", "\\'")}'`;
+                        }
+                    }).join('+');
+
+                return (new Function('__scope__',
+                    `
+            var __result__;
+            with(__scope__){ 
+                __result__=${exprCode};
+            }
+            return __result__;
+         `
+                ))(data);
+            };
+        }
+
+    })()
 
 };
 
