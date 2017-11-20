@@ -64,6 +64,8 @@ declare namespace utils {
 
     function paddingLeft(target = '', len, paddingChar = " "): string
 
+    function template(template : string, data: object): string
+
     function dateFormat(date: Date, fmt: string): string;
 
     function dateParse(str: string, fmt: string): Date;

@@ -247,19 +247,27 @@ describe("util_", function () {
             })
         ).toEqual([2, 3, 5]);
 
-    })
+    });
 
 
     it('htmlEncode', function () {
         expect(
             utils.htmlEncode('<script>"?&</script>')
         ).toEqual('&#60;script&#62;&#34;?&#38;&#60;/script&#62;');
-    })
+    });
 
     it('htmlDecode', function () {
         expect(
             utils.htmlDecode('&#60;script&#62;&#34;?&#38;&#60;/script&#62;<script>')
         ).toEqual('<script>"?&</script><script>');
+    });
+
+    it('template', function () {
+        var data={name:'wwl',sex:'man',arr:[1,2,3]};
+        var tempStr='asdfasdf${ "sex"+sex },${name},${arr.join("-")}';
+        var expectStr='asdfasdfsexman,wwl,1-2-3';
+        var result=utils.template(tempStr,data);
+        expect(result).toEqual(expectStr);
     })
 
 });

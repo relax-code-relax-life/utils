@@ -268,6 +268,15 @@ utils.paddingLeft('1',3,'0');  //001
 utils.paddingLeft('12345',3);  //12345
 ```
 
+## template
+function template(template : string, data: object): string
+
+模板函数。计算表达式生成字符串。支持ES6模板字符串语法。
+```javascript
+utils.template('hello,${firstName+secondName}',{firstName:'wang',secondName:'wl'});
+//"hello,wangwl"
+```
+
 ## dateFormat
 function dateFormat(date: Date, fmt: string): string;
 
