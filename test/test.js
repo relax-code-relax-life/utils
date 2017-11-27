@@ -206,7 +206,7 @@ describe("util_", function () {
         var str2 = 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.103 Safari/537.36';
         //edge
         var str3 = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; ServiceUI 9) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/52.0.2743.116 Safari/537.36 Edge/15.15063';
-        expect(utils.isSafari(str1)).toEqual('603');
+        expect(utils.isSafari(str1)).toEqual('10.1.1');
         expect(utils.isSafari(str2)).toEqual(null);
         expect(utils.isSafari(str3)).toEqual(null);
     });
