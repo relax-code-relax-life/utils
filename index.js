@@ -33,7 +33,7 @@ var reg_isUrl = /^((https?|ftp):\/\/)?(((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900
 
     reg_chrome = /Chrome\/(\d+)/,
     reg_firefox = /Firefox\/(\d+)/,
-    reg_safari = /Safari\/(\d+)/,
+    reg_safari = /Version\/([\d.]+) Safari\/\d+/,
     reg_ie = /MSIE (\d+)/,
     reg_ie2 = /Trident\/.*; rv:(\d+)/,  //检测ie11+
     reg_ieEdge = /(Edge\/\d+)/,
