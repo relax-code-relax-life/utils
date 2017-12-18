@@ -30,6 +30,8 @@ declare namespace utils {
 
     function map<T>(obj: T, fn: (value: any, index: number | string, context?: object) => void, obj: T): T;
 
+    function find(obj: Array|object, fn: (value: any, index: number | string, context?: object) => boolean, obj: object): any;
+
     function unique(arr: Array, isSort = false, map?: (item: any, index: number, arr: Array) => any, context?: object): Array;
 
     function cache(fn, context?, predicate?: (...args) => boolean): (refresh, ...args) => any;

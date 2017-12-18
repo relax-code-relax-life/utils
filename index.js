@@ -238,6 +238,14 @@ var utils = {
         });
         return result;
     },
+    find(obj, fn, context) {
+        if (isArray(obj)) return obj.find(fn, context);
+        var key = Object.keys(obj).find(function (key) {
+            return fn.call(context,obj[key],key,obj);
+        });
+        return obj[key];
+
+    },
     /**
      * 不改变数组顺序的情况下去重,
      * @param arr {Array}
@@ -652,8 +660,8 @@ var utils = {
 
         if (supportTempStr) {
             return function (temp, data) {
-               return (new Function('__scope__',
-                   `
+                return (new Function('__scope__',
+                    `
                     var __result__;
                     try{
                         with(__scope__){
@@ -665,7 +673,7 @@ var utils = {
                     }
                     return __result__;
                     `
-               ))(data);
+                ))(data);
             };
         }
         else {

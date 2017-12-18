@@ -55,7 +55,7 @@ describe("util_", function () {
             {
                 input: host + '?key=val&name=123#fragment',
                 output: host + '?key=val&' + paramStrEncodeEx + '#fragment',
-                encodeEx:true
+                encodeEx: true
             }
         ];
 
@@ -130,7 +130,7 @@ describe("util_", function () {
             [
                 '2015-06-07 10:11:11',
                 '',
-                new Date(2015,5,7,10,11,11).getTime()
+                new Date(2015, 5, 7, 10, 11, 11).getTime()
             ]
         ];
         test.forEach(function (data) {
@@ -263,11 +263,18 @@ describe("util_", function () {
     });
 
     it('template', function () {
-        var data={name:'wwl',sex:'man',arr:[1,2,3]};
-        var tempStr='asdfasdf${ "sex"+sex },${name},${arr.join("-")}';
-        var expectStr='asdfasdfsexman,wwl,1-2-3';
-        var result=utils.template(tempStr,data);
+        var data = {name: 'wwl', sex: 'man', arr: [1, 2, 3]};
+        var tempStr = 'asdfasdf${ "sex"+sex },${name},${arr.join("-")}';
+        var expectStr = 'asdfasdfsexman,wwl,1-2-3';
+        var result = utils.template(tempStr, data);
         expect(result).toEqual(expectStr);
-    })
+    });
+    it('find', function () {
+        var child = {name: 'wwl'};
+        var parent = {child: child};
+
+        expect(utils.find(parent, (val, key) => val.name === 'wwl')).toEqual(child);
+        expect(utils.find(parent, (val, key) => val.name === '123')).toEqual(undefined);
+    });
 
 });
