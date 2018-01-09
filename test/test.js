@@ -74,6 +74,7 @@ describe("util_", function () {
     it('camelCase', function () {
         expect(utils.camelCase('camel-case')).toEqual('camelCase');
         expect(utils.camelCase('I-am', 'wwl')).toEqual('IAmWwl');
+        expect(utils.camelCase('http')).toEqual('http');
     });
     it('paddingLeft', function () {
         expect(utils.paddingLeft('123', 5, '0')).toEqual('00123');
@@ -125,7 +126,7 @@ describe("util_", function () {
             [
                 '30:30',
                 'h:m',
-                new Date(2017, 0, 1, 30, 30).getTime()
+                new Date(2018, 0, 1, 30, 30).getTime()
             ],
             [
                 '2015-06-07 10:11:11',

@@ -298,7 +298,7 @@ utils.dateFormat(
     'yy-MM-dd hh-mm-ss'); //"17-10-30 18-08-08"
 ```
 
-## 日期计算
+## dateAdd(日期计算)
 function dateAdd(date, config: number | { year?: number, month?: number, day?: number, hour?: number, min?: number, sec?: number }): Date;
 
 日期加减法。返回新的Date对象。
