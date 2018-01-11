@@ -24,7 +24,7 @@ declare namespace utils {
 
     function isSafari(ua = navigator.userAgent): null | string;
 
-    function defer(): { promise: Promise, resolve: () => void, reject: () => void };
+    function defer(): { promise: Promise, resolve: (data:any) => void, reject: (data:any) => void };
 
     function each<T>(obj: T, fn: (value: any, index: number | string, context?: object) => void, obj: T): void;
 
@@ -68,9 +68,9 @@ declare namespace utils {
 
     function template(template : string, data: object): string
 
-    function dateFormat(date: Date, fmt: string): string;
+    function dateFormat(date: Date, fmt?: string): string;
 
-    function dateParse(str: string, fmt: string): Date;
+    function dateParse(str: string, fmt?: string): Date;
 
     function dateAdd(date, config: number | { year?: number, month?: number, day?: number, hour?: number, min?: number, sec?: number }): Date;
 
