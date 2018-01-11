@@ -241,7 +241,7 @@ var utils = {
     find(obj, fn, context) {
         if (isArray(obj)) return obj.find(fn, context);
         var key = Object.keys(obj).find(function (key) {
-            return fn.call(context,obj[key],key,obj);
+            return fn.call(context, obj[key], key, obj);
         });
         return obj[key];
 
@@ -310,6 +310,19 @@ var utils = {
             clearTimeout(timeoutId);
             loopIds[key] = undefined;
         }
+    },
+    /**
+     * setTimeout的promise形式。缺点是无法对该任务执行clearTimeout。
+     * @param fn {function}
+     * @param wait {number}
+     * @returns {Promise}
+     */
+    timeout(fn, wait = 0) {
+        var defer = utils.defer();
+        setTimeout(function () {
+            defer.resolve(fn());
+        }, wait);
+        return defer.promise;
     },
 
     //间隔wait执行

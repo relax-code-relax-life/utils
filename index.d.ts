@@ -24,13 +24,13 @@ declare namespace utils {
 
     function isSafari(ua = navigator.userAgent): null | string;
 
-    function defer(): { promise: Promise, resolve: (data:any) => void, reject: (data:any) => void };
+    function defer(): { promise: Promise, resolve: (data: any) => void, reject: (data: any) => void };
 
     function each<T>(obj: T, fn: (value: any, index: number | string, context?: object) => void, obj: T): void;
 
     function map<T>(obj: T, fn: (value: any, index: number | string, context?: object) => void, obj: T): T;
 
-    function find(obj: Array|object, fn: (value: any, index: number | string, context?: object) => boolean, obj: object): any;
+    function find(obj: Array | object, fn: (value: any, index: number | string, context?: object) => boolean, obj: object): any;
 
     function unique(arr: Array, isSort = false, map?: (item: any, index: number, arr: Array) => any, context?: object): Array;
 
@@ -39,6 +39,8 @@ declare namespace utils {
     function loop(fn, tick: number, immediate?: boolean): string;
 
     function clearLoop(key: string): void;
+
+    function timeout(fn: () => any, wait = 0): Promise
 
     function throttle(fn, alwaysFn?, immediately?: boolean, wait: number, context?: any)
 
@@ -66,7 +68,7 @@ declare namespace utils {
 
     function paddingLeft(target = '', len, paddingChar = " "): string
 
-    function template(template : string, data: object): string
+    function template(template: string, data: object): string
 
     function dateFormat(date: Date, fmt?: string): string;
 
