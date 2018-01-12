@@ -1,6 +1,6 @@
 # 下载
 * npm install --save wwl-utils
-* <script src="https://gitee.com/w-wl/dist_utils/raw/master/index.js"></script>
+* \<script src="https://gitee.com/w-wl/dist_utils/raw/master/index.js"></script\>
 
 # 使用
 * import utils from "wwl-utils"
