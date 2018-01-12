@@ -278,4 +278,20 @@ describe("util_", function () {
         expect(utils.find(parent, (val, key) => val.name === '123')).toEqual(undefined);
     });
 
+    it('timeout', function () {
+
+        var promise = utils.timeout(() => {
+            return 5
+        }, 100);
+
+
+        expect(typeof promise.abort === 'function').toBe(true);
+        promise.then(
+            (data) => {
+                expect(data === 5).toBe(true);
+            }
+        );
+
+    });
+
 });

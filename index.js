@@ -319,9 +319,12 @@ var utils = {
      */
     timeout(fn, wait = 0) {
         var defer = utils.defer();
-        setTimeout(function () {
+        var id = setTimeout(function () {
             defer.resolve(fn());
         }, wait);
+        defer.promise.abort = function () {
+            clearTimeout(id);
+        };
         return defer.promise;
     },
 

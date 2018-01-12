@@ -61,7 +61,7 @@ utils.isSafari(ua); //"604"
 ```
 
 ## defer
-function defer(): { promise: Promise, resolve: () => void, reject: () => void };
+function defer(): { promise: Promise, resolve: (data: any) => void, reject: (data: any) => void };
 
 创建一个延迟对象。
 
@@ -126,6 +126,24 @@ function clearLoop(key: string): void;
 取消循环执行。
 
 key为loop()方法返回的值。
+
+## timeout
+function timeout(fn: () => any, wait = 0): Promise
+
+setTimeout的promise版本。
+
+返回一个Promise对象，该Promise返回的是传入的fn的返回的值。
+
+返回的Promise对象带有abort()方法，该方法内部调用clearTimeout，可以通过该方法取消该定时任务。
+
+```javascript
+
+var promise=utils.timeout(() => { return 5 },1000);
+
+promise.then(data=>data===5); //true
+typeof promise.abort==='function'; //true
+
+```
 
 ## throttle 、 debounce
 function throttle(fn, alwaysFn?, immediately?, wait, contex?)   
@@ -278,7 +296,7 @@ utils.template('hello,${firstName+secondName}',{firstName:'wang',secondName:'wl'
 ```
 
 ## dateFormat
-function dateFormat(date: Date, fmt: string): string;
+function dateFormat(date: Date, fmt?: string): string;
 
 格式化时间。 支持：年y,月M,天d,时h,分m,秒s,毫秒S。
 
@@ -289,7 +307,7 @@ utils.dateFormat(new Date(),'yyyy-M-d h:m:s'); //"2017-10-30 18:8:8"
 ```
 
 ## dateParse
-function dateParse(str: string, fmt: string): Date;
+function dateParse(str: string, fmt?: string): Date;
 
 根据时间字符串和指定的格式，返回Date对象。
 ```javascript
