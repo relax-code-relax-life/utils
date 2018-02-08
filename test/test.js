@@ -10,6 +10,14 @@ describe('check utils exist', function () {
 
 
 describe("util_", function () {
+    it('paddingLeft', function () {
+        expect(utils.isUrl('http://www.163.com')).toEqual(true);
+        expect(utils.isUrl('http://www.163.com/?adf#lakdsf')).toEqual(true);
+        expect(utils.isUrl('www.163.com/?adf#lakdsf')).toEqual(true);
+        expect(utils.isUrl('163.com/?adf#lakdsf')).toEqual(true);
+        var url='http://wangwl.net/static/projects/visualRegex/#flags=gim&source=%5E((%5B%5E%3A%5C%2F%3F%23%5D%2B)%3A)%3F(%5C%2F%5C%2F(%5B%5E%5C%2F%3F%23%5D*))%3F(%5B%5E%3F%23%5D*)(%5C%3F(%5B%5E%23%5D*))%3F(%23(.*))%3F&match=http%3A%2F%2Fwangwl.net%2Fstatic%2Fprojects%2FvisualRegex%2F%23flags%3Dgim%26source%3D%255E((%255B%255E%253A%252F%253F%2523%255D%252B)%253A)%253F(%252F%252F(%255B%255E%252F%253F%2523%255D*))%253F(%255B%255E%253F%2523%255D*)(%255C%253F(%255B%255E%2523%255D*))%253F(%2523(.*))%253F%26match%3D%250A%25E5%2595%258A';
+        expect(utils.isUrl(url)).toEqual(true);
+    });
     it("resolveUrl", function () {
         var host = 'http://127.0.0.1:8080';
 
