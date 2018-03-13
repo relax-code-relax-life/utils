@@ -80,6 +80,15 @@ function map<T>(obj: T, fn: (value: any, index: number | string, context?: objec
 
 如果obj为对象，则借助Object.keys(obj)进行映射。
 
+## find
+
+function find(obj: Array | object, fn: (value: any, index: number | string, context?: object) => boolean, obj: object): any;
+
+返回fn为true时的值。
+
+如果obj为数组，则调用Array#find() ， 如果obj为对象，则借助Object.keys(obj)#find()进行查找。
+
+
 ## unique、uniq
 function unique(arr: Array, isSort = false, map?: (item: any, index: number, arr: Array) => any, context?: object): Array;
 

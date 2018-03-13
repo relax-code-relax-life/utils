@@ -6,6 +6,23 @@ const UglifyJSPlugin = require('uglifyjs-webpack-plugin');
 const webpack = require('webpack');
 
 module.exports = {
+    mode: 'production',
+    optimization: {
+        minimizer: [new UglifyJSPlugin({
+            uglifyOptions: {
+                output: {
+                    ascii_only: false,
+                    comments: false,
+                    beautify: false
+                },
+                compress: {
+                    drop_console: true
+                }
+            }
+        }),
+            new webpack.BannerPlugin('http://wangwl.net/static/pages/utils.html')
+        ]
+    },
     entry: {
         main: './index.js'
     },
@@ -29,11 +46,5 @@ module.exports = {
             }
         ]
     },
-    plugins: [
-        new UglifyJSPlugin({
-            comments: false,
-            beautify: false
-        }),
-        new webpack.BannerPlugin('https://gitee.com/w-wl/')
-    ]
-};
+    plugins: []
+}
