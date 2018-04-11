@@ -258,6 +258,10 @@ var utils = {
      */
     unique(arr, isSort, fn, context) {
 
+        if (!fn && window.Set && Array.from) {
+            return Array.from(new Set(arr));
+        }
+
         var result = [];
 
         var mapArr = fn ? arr.map(fn, context) : arr;
@@ -1108,10 +1112,10 @@ var getCookie = cache(function () {
             expires = option.expires;
             date = new Date();
             date.setTime(date.valueOf() +
-                ( isNumber(expires.day) ? expires.day * 86400 : 0) +
-                ( isNumber(expires.hour) ? expires.hour * 3600 : 0) +
-                ( isNumber(expires.min) ? expires.min * 60 : 0) +
-                ( isNumber(expires.sec) ? expires.sec : 0));
+                (isNumber(expires.day) ? expires.day * 86400 : 0) +
+                (isNumber(expires.hour) ? expires.hour * 3600 : 0) +
+                (isNumber(expires.min) ? expires.min * 60 : 0) +
+                (isNumber(expires.sec) ? expires.sec : 0));
             option.expires = date;
         }
 

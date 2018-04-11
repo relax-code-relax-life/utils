@@ -21,7 +21,7 @@
 ## noop
 noop(): () => void;
 
-## isAndroid
+## reg_isUrl
 function isUrl(url: string): boolean;
 
 ## isAndroid、isIos、isWeiXin
@@ -99,6 +99,8 @@ isSort:是否已排序，默认false。如果未，则借助includes是否存在
 map:映射函数，根据map函数的返回值进行比较。会调用arr.length次map函数。
 
 context：map函数的this值。
+
+当未指定map且浏览器支持`Set`时： 则忽略isSort，优先借助`Set`进行去重。
 
 ## cache
 
