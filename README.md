@@ -21,7 +21,7 @@
 ## noop
 noop(): () => void;
 
-## reg_isUrl
+## isUrl
 function isUrl(url: string): boolean;
 
 ## isAndroid、isIos、isWeiXin
