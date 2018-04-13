@@ -124,6 +124,50 @@ cache(false,8,7);   //8
 
 ```
 
+## promisify
+
+function promisify(original: Function): Function
+
+将node.js回调风格的函数，转换为返回promise的函数。
+
+模仿node.js中的utils.promisify，调用方式一致。
+
+```javascript
+var add=function(a,b,cb){
+   if(typeof a !=='number') cb('not a number');
+   else cb(null,a+b);
+}
+
+utils.promisify(add)(1,2).then(
+    (result) => { console.log(result===3);   },//true
+    (err) => { console.log(err) /*该回调不会执行*/}  
+);
+
+utils.promisify(add)('abc',2).then(
+    (result) => { console.log(result) /*该回调不执行*/ },
+    (err)=>{ console.log(err); }    //"not a number"
+)
+```
+
+可以通过设置original\[utils.promisify.custom]来自定义promise的返回值。
+
+当original不是标准的node.js回调风格函数时候，utils.promisify.custom会比较有用。
+
+```javascript
+var add=function(cb,a,b){
+    return cb(a+b);
+};
+
+add[utils.promisify.custom]=function(a,b){
+    return new Promise(function(resolve,reject){
+        add( resolve,a+1,b );
+    })
+}
+
+utils.promisify(add)(1,2).then( (result)=>{ console.log(result) } ) //4
+```
+
+
 ## loop
 function loop(fn, tick: number, immediate?: boolean): string;
 

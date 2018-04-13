@@ -15,7 +15,7 @@ describe("util_", function () {
         expect(utils.isUrl('http://www.163.com/?adf#lakdsf')).toEqual(true);
         expect(utils.isUrl('www.163.com/?adf#lakdsf')).toEqual(true);
         expect(utils.isUrl('163.com/?adf#lakdsf')).toEqual(true);
-        var url='http://wangwl.net/static/projects/visualRegex/#flags=gim&source=%5E((%5B%5E%3A%5C%2F%3F%23%5D%2B)%3A)%3F(%5C%2F%5C%2F(%5B%5E%5C%2F%3F%23%5D*))%3F(%5B%5E%3F%23%5D*)(%5C%3F(%5B%5E%23%5D*))%3F(%23(.*))%3F&match=http%3A%2F%2Fwangwl.net%2Fstatic%2Fprojects%2FvisualRegex%2F%23flags%3Dgim%26source%3D%255E((%255B%255E%253A%252F%253F%2523%255D%252B)%253A)%253F(%252F%252F(%255B%255E%252F%253F%2523%255D*))%253F(%255B%255E%253F%2523%255D*)(%255C%253F(%255B%255E%2523%255D*))%253F(%2523(.*))%253F%26match%3D%250A%25E5%2595%258A';
+        var url = 'http://wangwl.net/static/projects/visualRegex/#flags=gim&source=%5E((%5B%5E%3A%5C%2F%3F%23%5D%2B)%3A)%3F(%5C%2F%5C%2F(%5B%5E%5C%2F%3F%23%5D*))%3F(%5B%5E%3F%23%5D*)(%5C%3F(%5B%5E%23%5D*))%3F(%23(.*))%3F&match=http%3A%2F%2Fwangwl.net%2Fstatic%2Fprojects%2FvisualRegex%2F%23flags%3Dgim%26source%3D%255E((%255B%255E%253A%252F%253F%2523%255D%252B)%253A)%253F(%252F%252F(%255B%255E%252F%253F%2523%255D*))%253F(%255B%255E%253F%2523%255D*)(%255C%253F(%255B%255E%2523%255D*))%253F(%2523(.*))%253F%26match%3D%250A%25E5%2595%258A';
         expect(utils.isUrl(url)).toEqual(true);
     });
     it("resolveUrl", function () {
@@ -286,7 +286,7 @@ describe("util_", function () {
         expect(utils.find(parent, (val, key) => val.name === '123')).toEqual(undefined);
     });
 
-    it('timeout', function () {
+    it('timeout', function (done) {
 
         var promise = utils.timeout(() => {
             return 5
@@ -297,9 +297,68 @@ describe("util_", function () {
         promise.then(
             (data) => {
                 expect(data === 5).toBe(true);
+                done();
             }
         );
 
     });
+
+    it('promisify', function () {
+        var resolveFn = function (a, b, cb) {
+            cb(null, a + b);
+        };
+        var rejectFn = function (a, b, cb) {
+            cb('err');
+        };
+        var customFn = function (cb) {
+            cb(null, 'original')
+        };
+        customFn[utils.promisify.custom] = function (a, b) {
+            return a + b
+        };
+
+        var customFn2 = function (cb, a, b) {
+            cb(a + b)
+        };
+        customFn2[utils.promisify.custom] = function (a, b) {
+            return new Promise((resolve, reject) => {
+                customFn2(resolve, a, b)
+            })
+        };
+
+        utils.promisify(resolveFn)(1, 2).then(
+            (result) => {
+                expect(result).toEqual(3)
+            },
+            (err) => {
+                expect(err).toEqual(null)
+            });
+
+        utils.promisify(rejectFn)(1, 2).then(
+            (result) => {
+                expect(result).toEqual(null)
+            },
+            (err) => {
+                expect(err).toEqual('err')
+            });
+
+        utils.promisify(customFn)(1, 2).then(
+            (result) => {
+                expect(result).toEqual(3)
+            },
+            (err) => {
+                expect(err).toEqual(null)
+            }
+        );
+
+        utils.promisify(customFn2)(1, 2).then(
+            (result) => {
+                expect(result).toEqual(3)
+            },
+            (err) => {
+                expect(err).toEqual(null)
+            }
+        );
+    })
 
 });

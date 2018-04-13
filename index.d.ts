@@ -36,6 +36,8 @@ declare namespace utils {
 
     function cache(fn, context?, predicate?: (...args) => boolean): (refresh, ...args) => any;
 
+    function promisify(original: Function): Function
+
     function loop(fn, tick: number, immediate?: boolean): string;
 
     function clearLoop(key: string): void;

@@ -730,6 +730,56 @@ var utils = {
 
 };
 
+//region promisify
+var customPromisifiedSymbol = '__p$symbol__';
+
+/**
+ * 模仿node.js中的util.promisify()
+ * 将一个Node.js回调风格的函数，转换为返回promise的函数。
+ * 1. 新函数在内部调用original，在参数后添加callback，然后判断Promise的状态。
+ * 2. 如果存在original[utils.promisify.custom]，则直接调用该函数。
+ * @param original {function}
+ * @returns {function}
+ */
+function promisify(original) {
+
+    if (!isFunction(original)) throw TypeError('promisify(): argument not a function');
+
+    function fn(...args) {
+        var custom = original[customPromisifiedSymbol];
+        if (custom) {
+            if (!isFunction(custom)) throw TypeError(`${original.name}[promisify.custom] is not a function`);
+            return Promise.resolve(custom.apply(this, args));
+        }
+
+        var defer = utils.defer();
+
+        try {
+            args.push((err, ...values) => {
+                if (err) {
+                    defer.reject(err);
+                }
+                else if (values.length > 1) {
+                    defer.resolve(values);
+                }
+                else {
+                    defer.resolve(values[0]);
+                }
+            });
+            original.apply(this, args);
+        }
+        catch (e) {
+            defer.reject(e);
+        }
+
+        return defer.promise;
+    }
+
+    return Object.defineProperties(fn, Object.getOwnPropertyDescriptors(original));
+}
+
+promisify.custom = customPromisifiedSymbol;
+//endregion
 
 //region date
 var dateMethodMap = {
@@ -1144,6 +1194,7 @@ var getCookie = cache(function () {
 //endregion
 
 assign(utils, {
+    promisify,
     getCookie, setCookie, deleteCookie,
     cookie: {
         delete: deleteCookie,
