@@ -104,17 +104,19 @@ context：map函数的this值。
 
 ## cache
 
-function cache(fn, context?, predicate?: (...args) => boolean): (refresh, ...args) => any;
+function cache(fn, context?, predicate?: (...args) => boolean ): (refresh, ...args) => any;
 
 返回一个新的缓存函数。
 
 返回的函数签名为:function(refresh,...args); refresh判断是否强制刷新，剩余参数传给fn。
 
-如果传入predicate，在refresh为false时，会根据predicate的返回值判断是否需要刷新。
+predicate为可选的，如果传入predicate，在refresh为false时，会根据predicate的返回值判断是否需要刷新。
+
+context为可选的,可以通过context设置返回函数和predicate的this值，
 ```javascript
 
-let ori=(a,b) => {console.log(a,b);return a};
-let cache=utils.cache(ori,(a,b) =>  a>b);
+var  ori=function(a,b){ return a; };
+var  cache=utils.cache(ori,function(a,b){return a>b});
 
 cache(true,1,2);    //1
 cache();            //1
