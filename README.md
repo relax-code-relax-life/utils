@@ -128,11 +128,13 @@ cache(false,8,7);   //8
 
 ## promisify
 
-function promisify(original: Function): Function
+function promisify(original: Function, context?: object): Function
 
-将node.js回调风格的函数，转换为返回promise的函数。
+将node.js回调风格的函数，转换为返回promise的函数。 
 
 模仿node.js中的utils.promisify，调用方式一致。
+
+通过可选的context参数设置original执行时的this值。
 
 ```javascript
 //node.js异步回调风格: 最后一个参数为回调函数，且回调函数的第一个参数为err。

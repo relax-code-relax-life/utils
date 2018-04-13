@@ -36,7 +36,7 @@ declare namespace utils {
 
     function cache(fn, context?, predicate?: (...args) => boolean): (refresh, ...args) => any;
 
-    function promisify(original: Function): Function
+    function promisify(original: Function, context?: object): Function
 
     function loop(fn, tick: number, immediate?: boolean): string;
 

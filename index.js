@@ -741,7 +741,7 @@ var customPromisifiedSymbol = '__p$symbol__';
  * @param original {function}
  * @returns {function}
  */
-function promisify(original) {
+function promisify(original,context) {
 
     if (!isFunction(original)) throw TypeError('promisify(): argument not a function');
 
@@ -749,7 +749,7 @@ function promisify(original) {
         var custom = original[customPromisifiedSymbol];
         if (custom) {
             if (!isFunction(custom)) throw TypeError(`${original.name}[promisify.custom] is not a function`);
-            return Promise.resolve(custom.apply(this, args));
+            return Promise.resolve(custom.apply(context||this, args));
         }
 
         var defer = utils.defer();
@@ -766,7 +766,7 @@ function promisify(original) {
                     defer.resolve(values[0]);
                 }
             });
-            original.apply(this, args);
+            original.apply(context||this, args);
         }
         catch (e) {
             defer.reject(e);
