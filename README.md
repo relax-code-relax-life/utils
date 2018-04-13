@@ -133,9 +133,10 @@ function promisify(original: Function): Function
 模仿node.js中的utils.promisify，调用方式一致。
 
 ```javascript
-var add=function(a,b,cb){
-   if(typeof a !=='number') cb('not a number');
-   else cb(null,a+b);
+//node.js异步回调风格: 最后一个参数为回调函数，且回调函数的第一个参数为err。
+var add=function(a,b,callback){
+   if(typeof a !=='number') callback('not a number');
+   else callback(null,a+b);
 }
 
 utils.promisify(add)(1,2).then(
@@ -149,7 +150,7 @@ utils.promisify(add)('abc',2).then(
 )
 ```
 
-可以通过设置original\[utils.promisify.custom]来自定义promise的返回值。
+可以通过设置`original[utils.promisify.custom]`来自定义promise的返回值。
 
 当original不是标准的node.js回调风格函数时候，utils.promisify.custom会比较有用。
 
