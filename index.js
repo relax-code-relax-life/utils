@@ -197,6 +197,25 @@ var utils = {
     isUrl(str) {
         return reg_isUrl.test(str);
     },
+    //判断是否为一个类数组对象
+    //字符串和函数也存在length属性，通过typeof排除
+    //DOM文本节点也有length属性,用额外的o.nodeType!=3将其排除
+    //大多方法通过for循环和length属性对数组操作，所以通过length属性判断是否为类数组对象
+    /**
+     *判断是否为类数组。
+     *规则：参数为object类型(Node类型除外)，且具有非负整数的、可用的(不为NaN的有限数字)、小于2^32的length属性；则视为类数组。
+     *@method isArrayLike
+     *@return {bool}
+     */
+    isArrayLike(o) {
+        return o &&                 //非null undefined
+            typeof o === 'object' &&   //o为对象
+            isFinite(o.length) &&           //o.length为有限数字，当传入值的valueof()不能转化为数字返回false
+            o.length >= 0 &&                //非负数
+            o.length === Math.floor(o.length) && //为整数
+            o.length < 4294967296 &&         //小于2^32
+            !o.nodeType;                //不包含Node节点
+    },
     /**
      *
      * @param ua
@@ -741,7 +760,7 @@ var customPromisifiedSymbol = '__p$symbol__';
  * @param original {function}
  * @returns {function}
  */
-function promisify(original,context) {
+function promisify(original, context) {
 
     if (!isFunction(original)) throw TypeError('promisify(): argument not a function');
 
@@ -749,7 +768,7 @@ function promisify(original,context) {
         var custom = original[customPromisifiedSymbol];
         if (custom) {
             if (!isFunction(custom)) throw TypeError(`${original.name}[promisify.custom] is not a function`);
-            return Promise.resolve(custom.apply(context||this, args));
+            return Promise.resolve(custom.apply(context || this, args));
         }
 
         var defer = utils.defer();
@@ -766,7 +785,7 @@ function promisify(original,context) {
                     defer.resolve(values[0]);
                 }
             });
-            original.apply(context||this, args);
+            original.apply(context || this, args);
         }
         catch (e) {
             defer.reject(e);

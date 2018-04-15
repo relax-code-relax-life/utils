@@ -8,6 +8,8 @@ declare namespace utils {
 
     function isUrl(url: string): boolean;
 
+    function isArrayLike(obj: any): boolean;
+
     function isAndroid(ua = navigator.userAgent): boolean;
 
     function isIos(ua = navigator.userAgent): boolean

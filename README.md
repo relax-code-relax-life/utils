@@ -24,6 +24,11 @@ noop(): () => void;
 ## isUrl
 function isUrl(url: string): boolean;
 
+## isArrayLike
+function isArrayLike(obj: any): boolean;
+
+检测是否为类数组，如果是，则该对象可以通过Array#slice或Array.from转换为数组类型。
+
 ## isAndroid、isIos、isWeiXin
 function (ua = navigator.userAgent): boolean;
 
