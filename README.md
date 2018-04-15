@@ -105,7 +105,7 @@ map:映射函数，根据map函数的返回值进行比较。会调用arr.length
 
 context：map函数的this值。
 
-在浏览器环境下，当未指定map且支持`Set`时： 则忽略isSort，优先借助`Set`进行去重。
+当未指定map且支持`Set`时： 则忽略isSort，优先借助`Set`进行去重。
 
 ## cache
 

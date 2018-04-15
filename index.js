@@ -277,7 +277,7 @@ var utils = {
      */
     unique(arr, isSort, fn, context) {
 
-        if (isBrowser && !fn && window.Set) {
+        if (typeof Set === 'function' && !fn) {
             return Array.from(new Set(arr));
         }
 
