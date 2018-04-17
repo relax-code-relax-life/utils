@@ -169,7 +169,7 @@ var loopIds = {};
 
 var utils = {
     guid(preFix = '') {
-        return preFix + guidCnt
+        return preFix + guidCnt++
     },
     noop() {
     },
