@@ -70,6 +70,8 @@ declare namespace utils {
 
     function camelCase(...args: Array<string>): string
 
+    function kebabCase(...args: Array<string>): string
+
     function paddingLeft(target = '', len, paddingChar = " "): string
 
     function template(template: string, data: object): string

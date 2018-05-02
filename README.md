@@ -341,6 +341,18 @@ function camelCase(...args: Array<string>): string
 utils.camelCase('camel-case');  //camelCase
 utils.camelCase('I-am', 'wwl'); //IAmWwl
 ```
+## kebabCase
+
+function kebabCase(...args: Array<string>): string
+
+将驼峰命名法字符串，转换为小写的短横线分隔形式。
+"kebabCase"转换为"kebab-case"。
+或传入多个字符串，合并为短横线分隔形式。
+```javascript
+utils.kebabCase('this','IsTest');   //this-is-test
+utils.kebabCase('KebabCase');       //kebab-case
+
+```
 
 ## paddingLeft
 function paddingLeft(target = '', len, paddingChar = " "): string

@@ -84,6 +84,12 @@ describe("util_", function () {
         expect(utils.camelCase('I-am', 'wwl')).toEqual('IAmWwl');
         expect(utils.camelCase('http')).toEqual('http');
     });
+    it('kebabCase', function () {
+        expect(utils.kebabCase('kebabCase')).toEqual('kebab-case');
+        expect(utils.kebabCase('I-am', 'wwl')).toEqual('i-am-wwl');
+        expect(utils.kebabCase('http')).toEqual('http');
+        expect(utils.kebabCase('this','IsTest')).toEqual('this-is-test');
+    });
     it('paddingLeft', function () {
         expect(utils.paddingLeft('123', 5, '0')).toEqual('00123');
         expect(utils.paddingLeft('123')).toEqual('123');

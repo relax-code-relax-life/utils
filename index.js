@@ -27,6 +27,7 @@ var reg_isUrl = /^(([^:/?#]+):)?(\/\/([^/?#]*))?([^?#]*)(\?([^#]*))?(#(.*))?/i,
 //32-126为可显字符,     32为空格,48~57为0-9,65~90为A-Z,97-122为a-z，其余为符号。
 //128-255为扩展字符
     reg_camelCase = /-([a-zA-Z])/g,
+    reg_upperCase = /[A-Z]/g,
     reg_query = /(?:[?&])(.*?)=(.*?)(?=&|$|#)/g,
     reg_dateFmt = /y+|M+|d+|h+|m+|s+|S+/g,
     reg_parseParam = /(?:^|&)(.*?)=(.*?)(?=&|$)/g,
@@ -648,6 +649,19 @@ var utils = {
         return args.join('-').replace(reg_camelCase, function (match, letter) {
             return letter.toUpperCase();
         });
+    },
+
+    /**
+     * kebabCase转换为kebab-case
+     * 或传入多个参数，合并为kebab-case形式。
+     * @param args
+     */
+    kebabCase(...args) {
+        return args.map(function (name) {
+            return name.replace(reg_upperCase, function (match, pos) {
+                return (pos === 0 ? '' : '-') + match.toLowerCase()
+            });
+        }).join('-');
     },
 
 
