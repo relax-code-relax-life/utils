@@ -5,8 +5,10 @@
 const UglifyJSPlugin = require('uglifyjs-webpack-plugin');
 const webpack = require('webpack');
 
+var isDev = false;
+
 module.exports = {
-    mode: 'production',
+    mode: isDev ? 'development' : 'production',
     optimization: {
         minimizer: [new UglifyJSPlugin({
             uglifyOptions: {
@@ -31,7 +33,8 @@ module.exports = {
         path: __dirname + '/dist',
         library: 'utils',
         libraryTarget: 'umd',
-        umdNamedDefine: false
+        umdNamedDefine: false,
+        globalObject: 'this'
     },
     watch: true,
     module: {
