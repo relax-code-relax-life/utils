@@ -278,6 +278,12 @@ var utils = {
      */
     unique(arr, isSort, fn, context) {
 
+        if (typeof isSort === 'function') {
+            context = fn;
+            fn = isSort;
+            isSort = false;
+        }
+
         if (typeof Set === 'function' && !fn) {
             return Array.from(new Set(arr));
         }

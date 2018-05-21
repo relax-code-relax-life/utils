@@ -99,13 +99,18 @@ function unique(arr: Array, isSort = false, map?: (item: any, index: number, arr
 
 不改变数组顺序的情况下去重，返回一个新的数据。uniq为unique的别名。
 
-isSort:是否已排序，默认false。如果未，则借助includes是否存在。
+isSort:是否已排序，默认false。如果未排序，则借助includes判断是否存在。
 
 map:映射函数，根据map函数的返回值进行比较。会调用arr.length次map函数。
 
 context：map函数的this值。
 
 当未指定map且支持`Set`时： 则忽略isSort，优先借助`Set`进行去重。
+
+```javascript
+ utils.uniq([5, 2, 3, '5', 2]);   //[5,2,3,5]
+ utils.uniq([5, 2, 3, '5', 2],item=>parseInt(item));    //[5,2,3]
+```
 
 ## cache
 

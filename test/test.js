@@ -88,7 +88,7 @@ describe("util_", function () {
         expect(utils.kebabCase('kebabCase')).toEqual('kebab-case');
         expect(utils.kebabCase('I-am', 'wwl')).toEqual('i-am-wwl');
         expect(utils.kebabCase('http')).toEqual('http');
-        expect(utils.kebabCase('this','IsTest')).toEqual('this-is-test');
+        expect(utils.kebabCase('this', 'IsTest')).toEqual('this-is-test');
     });
     it('paddingLeft', function () {
         expect(utils.paddingLeft('123', 5, '0')).toEqual('00123');
@@ -261,6 +261,18 @@ describe("util_", function () {
                 return parseInt(val)
             })
         ).toEqual([2, 3, 5]);
+
+        expect(
+            utils.unique([5, 2, 3, '5', 2], function (val) {
+                return parseInt(val)
+            })
+        ).toEqual([5, 2, 3]);
+
+        expect(
+            utils.unique([5, 2, 3, '5', 2].sort(), function (val) {
+                return parseInt(val)
+            })
+        ).toEqual([2,3,5]);
 
     });
 
