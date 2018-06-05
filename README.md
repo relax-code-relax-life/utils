@@ -1,11 +1,14 @@
+javascript工具函数。
+
 # 下载
-* npm install --save wwl-utils
-* \<script src="https://gitee.com/w-wl/dist_utils/raw/master/index.js"></script\>
+* npm: `npm install --save wwl-utils`
+* 直接下载: \<script src="https://gitee.com/w-wl/dist_utils/raw/master/index.js"></script\>
 
 # 使用
-* import utils from "wwl-utils"
-* amd加载方式: define( ["/js/wwl-utils.js"] , (utils)=>{  } );
-* 在页面引用script标签的方式，会暴露出window.utils对象。
+* es2015: `import utils from "wwl-utils"`
+* commonjs: `var utils = require("wwl-utils")`
+* amd: `define( ["/js/wwl-utils.js"] , (utils)=>{ /*...*/ } )`
+* window.utils: `<script src="https://gitee.com/w-wl/dist_utils/raw/master/index.js"></script>`
 
 
 # utils API
