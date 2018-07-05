@@ -9,6 +9,7 @@ javascript工具函数。
 * commonjs: `var utils = require("wwl-utils")`
 * amd: `define( ["/js/wwl-utils.js"] , (utils)=>{ /*...*/ } )`
 * window.utils: `<script src="https://gitee.com/w-wl/dist_utils/raw/master/index.js"></script>`
+* self.utils: `importScripts("./utils.js")`
 
 
 # utils API
@@ -43,6 +44,11 @@ var ua="Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.
 utils.isIos();      //false
 utils.isIos(ua);    //true 
 ```
+
+## isWindows、isMac
+function(): boolean
+
+检查当前操作系统是否为windows或Mac。
 
 ## isWifi
 function isWifi(): boolean | undefined;
