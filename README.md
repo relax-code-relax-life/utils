@@ -2,13 +2,13 @@ javascript工具函数。
 
 # 下载
 * npm: `npm install --save wwl-utils`
-* 直接下载: \<script src="https://gitee.com/w-wl/dist_utils/raw/master/index.js"></script\>
+* 直接下载: `http://wangwl.net/static/demo/wwl-utils/index.js`
 
 # 使用
 * es2015: `import utils from "wwl-utils"`
 * commonjs: `var utils = require("wwl-utils")`
 * amd: `define( ["/js/wwl-utils.js"] , (utils)=>{ /*...*/ } )`
-* window.utils: `<script src="https://gitee.com/w-wl/dist_utils/raw/master/index.js"></script>`
+* window.utils: `<script src="http://wangwl.net/static/demo/wwl-utils/index.js"></script>`
 * self.utils: `importScripts("./utils.js")`
 
 

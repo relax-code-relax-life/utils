@@ -26,6 +26,10 @@ declare namespace utils {
 
     function isSafari(ua = navigator.userAgent): null | string;
 
+    function isMac(): boolean;
+
+    function isWindows(): boolean;
+
     function defer(): { promise: Promise, resolve: (data: any) => void, reject: (data: any) => void };
 
     function each<T>(obj: T, fn: (value: any, index: number | string, context?: object) => void, obj: T): void;
