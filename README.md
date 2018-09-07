@@ -389,22 +389,35 @@ utils.template('hello,${firstName+secondName}',{firstName:'wang',secondName:'wl'
 ## dateFormat
 function dateFormat(date: Date, fmt?: string): string;
 
-格式化时间。 支持：年y,月M,天d,时h,分m,秒s,毫秒S。
+格式化时间。 
+1. 支持：年y, 月M, 天d, 24小时制H, 12小时制h, 分m, 秒s, 毫秒S, am/pm a。
+2. 支持转义: 使用中括号对以上字符进行转义。
 
 年份根据y的数量截取，其他值，只补齐不截取。
 ```javascript
-utils.dateFormat(new Date(),'yy-MM-dd hh:mm:ss'); //"17-10-30 18:08:08"
-utils.dateFormat(new Date(),'yyyy-M-d h:m:s'); //"2017-10-30 18:8:8"
+utils.dateFormat(new Date(),'yy-MM-dd HH:mm:ss'); //"17-10-30 18:08:08"
+utils.dateFormat(new Date(),'yyyy-M-d h:m:s a'); //"2017-10-30 6:8:8 pm"
+//转义:
+utils.dateFormat(new Date(),'[today] M-d')  //"today 10-30"
 ```
 
 ## dateParse
 function dateParse(str: string, fmt?: string): Date;
 
 根据时间字符串和指定的格式，返回Date对象。
+
+1. 支持：年y, 月M, 天d, 24小时制H, 12小时制h, 分m, 秒s, 毫秒S, am/pm a。
+2. 支持转义: 使用中括号对以上字符进行转义。
+
 ```javascript
 utils.dateFormat(
-    utils.dateParse('2017-10-30 18:8:8','yyyy-M-d h:m:s'),
-    'yy-MM-dd hh-mm-ss'); //"17-10-30 18-08-08"
+    utils.dateParse('2017-10-30 18:8:8','yyyy-M-d H:m:s'),
+    'yy-MM-dd HH-mm-ss'); //"17-10-30 18-08-08"
+
+utils.dateFormat(
+    utils.dateParse('today 6:10 pm','[today] h:m a'),
+    'HH:mm'); //"18:10"
+    
 ```
 
 ## dateAdd(日期计算)

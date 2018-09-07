@@ -113,6 +113,22 @@ describe("util_", function () {
             {
                 fmt: 'yy;M;d;h;m;s-S',
                 result: '17;1;10;3;25;5-666'
+            },
+            {
+                fmt:'Hm',
+                result:'325'
+            },
+            {
+                fmt:'Hma',
+                result:'325am'
+            },
+            {
+                fmt:'Hma',
+                result:'325am'
+            },
+            {
+                fmt:'[mm]HH:mm',
+                result:'mm03:25'
             }
         ];
         test.forEach(function (data) {
@@ -128,12 +144,12 @@ describe("util_", function () {
                 new Date(2017, 0, 10, 3, 25).getTime()
             ],
             [
-                '2000,5',
-                'yy,MM',
+                '2000,05',
+                'yyyy,MM',
                 new Date(2000, 4).getTime()
             ],
             [
-                '1999,13,1/23:23',
+                '1999,13,01/23:23',
                 'yyyy,MM,dd/hh:mm',
                 new Date(1999, 12, 1, 23, 23).getTime()
             ],
@@ -146,6 +162,26 @@ describe("util_", function () {
                 '2015-06-07 10:11:11',
                 '',
                 new Date(2015, 5, 7, 10, 11, 11).getTime()
+            ],
+            [
+                '20150607 101111',
+                'yyyyMMdd hhmmss',
+                new Date(2015, 5, 7, 10, 11, 11).getTime()
+            ],
+            [
+                '20150607 101111 pm',
+                'yyyyMMdd HHmmss',
+                new Date(2015, 5, 7, 10, 11, 11).getTime()
+            ],
+            [
+                '20150607 101111 pmm',
+                'yyyyMMdd hhmmss a',
+                new Date(2015, 5, 7, 22, 11, 11).getTime()
+            ],
+            [
+                '20150607 101111 pmm',
+                'yyyyMMdd hhmmss a[m]',
+                new Date(2015, 5, 7, 22, 11, 11).getTime()
             ]
         ];
         test.forEach(function (data) {

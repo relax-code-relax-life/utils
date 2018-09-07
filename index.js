@@ -29,7 +29,7 @@ var reg_isUrl = /^(([^:/?#]+):)?(\/\/([^/?#]*))?([^?#]*)(\?([^#]*))?(#(.*))?/i,
     reg_camelCase = /-([a-zA-Z])/g,
     reg_upperCase = /[A-Z]/g,
     reg_query = /(?:[?&])(.*?)=(.*?)(?=&|$|#)/g,
-    reg_dateFmt = /y+|M+|d+|h+|m+|s+|S+/g,
+    reg_dateFmt = /y+|M+|d+|H+|h+|m+|s+|S+|a|(\[.*?])/g,
     reg_parseParam = /(?:^|&)(.*?)=(.*?)(?=&|$)/g,
     reg_template = /\$\{\s*(.+?)\s*\}/g,
 
@@ -840,7 +840,7 @@ var dateMethodMap = {
 
 var dateUtils = {
     /**
-     * 格式化时间。 支持：年y,月M,天d,时h,分m,秒s,毫秒S。
+     * 格式化时间。 支持：年y,月M,天d,24小时H,12小时h,分m,秒s,毫秒S,am/pm a
      * 年份根据y的数量截取，其他值，只补齐不截取。
      * @method formatDate
      * @param date {Date} 日期
@@ -850,18 +850,27 @@ var dateUtils = {
     dateFormat(date, fmt) {
         if (!isDate(date)) return '';
         if (!fmt) fmt = 'yyyy-MM-dd hh:mm:ss';
+
+        var hour = date.getHours(),
+            a = hour > 12 ? 'pm' : 'am';
         var map = {
             y: date.getFullYear(),
             M: date.getMonth() + 1,
             d: date.getDate(),
-            h: date.getHours(),
+            H: hour,
+            h: hour > 12 ? hour - 12 : hour,
             m: date.getMinutes(),
             s: date.getSeconds(),
-            S: date.getMilliseconds()
+            S: date.getMilliseconds(),
+            a: a
         };
-        var tmpResult, type, r = reg_dateFmt;
-        return fmt.replace(r, function (val) {
+        var tmpResult, type;
+        return fmt.replace(reg_dateFmt, function (val) {
             type = val.charAt(0);
+
+            if (type === '[') return val.slice(1, -1);
+            else if (type === 'a') return map[type];
+
             tmpResult = utils.paddingLeft(map[type], val.length, '0');
             if (type === 'y') {
                 tmpResult = tmpResult.slice(-val.length, tmpResult.length);
@@ -871,19 +880,67 @@ var dateUtils = {
     },
     dateParse(str, fmt) {
         if (!fmt) fmt = 'yyyy-MM-dd hh:mm:ss';
-        var params = str.split(/\D+/);
-        var match, index = 0, r = reg_dateFmt;
+
         var arg = {
             'y': undefined,
             'M': undefined,
             'd': 1,
-            'h': 0,
+            'H': undefined,
+            'h': undefined,
             'm': 0,
             's': 0,
-            'S': 0
+            'S': 0,
+            'a': 'am'
         };
-        while (match = r.exec(fmt)) {
-            arg[match[0].charAt(0)] = ~~params[index++];
+
+        var reg_matcher_source = fmt.replace(reg_dateFmt, function (m) {
+
+            var type = m[0];
+            var len = m.length;
+
+            var result;
+
+            if (type === 'y') {
+                if (len < 4) {
+                    result = `\\d{${len}}`;
+                }
+                else result = `\\d{4}`;
+            }
+            else if (type === 'M' || type === 'd' || type === 'H' || type === 'h' || type === 'm' || type === 's') {
+                if (len === 1) {
+                    result = '[1-9]\\d|\\d'
+                }
+                else { //m>=2
+                    result = `\\d{2}`
+                }
+            }
+            else if (type === 'S') {
+                if (len < 3) {
+                    result = `\\d{${len}}`
+                }
+                else result = `\\d{3}`
+            }
+            else if (type === 'a') {
+                result = '(am|Am|AM|pm|Pm|PM)?'
+            }
+            else if (type === '[') {
+                return m.slice(1, -1)
+            }
+
+            return `(${result})`;
+        });
+
+
+        var match_tar = new RegExp(reg_matcher_source, 'g').exec(str);
+        var match_fmt, index = 1;
+
+        if (!match_tar) throw new Error(`The date format "${fmt}" match the date string "${str}" failed.`);
+
+        var type;
+        while (match_fmt = reg_dateFmt.exec(fmt)) {
+            type = match_fmt[0].charAt(0);
+            if (type === '[') continue;
+            arg[type] = type === 'a' ? match_tar[index++] : ~~match_tar[index++];
         }
 
         var year = (new Date()).getFullYear();
@@ -900,7 +957,19 @@ var dateUtils = {
         if (arg['M'] === undefined) arg['M'] = 0;
         else arg['M'] -= 1;
 
-        return new Date(arg.y, arg['M'], arg.d, arg.h, arg.m, arg.s, arg['S']);
+        if (!arg['h']) {
+            arg['a'] = 'am';    //跳过下面的+12判断
+            arg['h'] = arg['H'] || 0;
+        }
+
+        arg['a'] = arg['a'].toLowerCase();
+        // if(arg['a']!=='pm') arg['a']='am';
+
+        if (arg['a'] === 'pm') {
+            arg['h'] += 12;
+        }
+
+        return new Date(arg.y, arg.M, arg.d, arg.h, arg.m, arg.s, arg.S);
 
     },
     /**

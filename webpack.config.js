@@ -36,7 +36,7 @@ module.exports = {
         umdNamedDefine: false,
         globalObject: 'this'
     },
-    watch: true,
+    watch: isDev,
     module: {
         rules: [
             {
