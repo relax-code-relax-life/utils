@@ -3,6 +3,7 @@
     "declaration": true,
     "declarationDir": "dist",
     "target": "ES2016",
-    "removeComments": true
+    "removeComments": true,
+    "strictNullChecks": true
   }
 }

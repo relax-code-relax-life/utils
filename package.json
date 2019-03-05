@@ -1,22 +1,21 @@
 {
-  "name": "wwl-utils",
-  "version": "1.0.46",
+  "name": "relax-utils",
+  "version": "1.0.47",
   "description": "Javascript util methods.",
   "keywords": [
     "utils",
     "util",
-    "wwl",
-    "wangweilin",
-    "w-wl",
+    "relax",
     "tool",
     "tools",
-    "helper"
+    "helper",
+    "wwl",
+    "wangweilin"
   ],
   "main": "index.js",
   "scripts": {
     "test": "karma start karma.conf.js",
-    "build": "webpack --config webpack.config.js",
-    "treeshaking": "webpack --config ./test/treeShaking/webpack.config.js"
+    "build": "webpack --config webpack.config.js"
   },
   "repository": {
     "type": "git",

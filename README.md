@@ -1,20 +1,20 @@
 javascript工具函数。
 
 # 下载
-* npm: `npm install --save wwl-utils`
-* 直接下载: `http://wangwl.net/static/demo/wwl-utils/index.js`
+* npm: `npm install --save relax-utils`
+* 直接下载: `http://wangwl.net/static/demo/relax-utils/index.js`
 
 # 使用
-* es2015: `import utils from "wwl-utils"`
-* commonjs: `var utils = require("wwl-utils")`
-* amd: `define( ["/js/wwl-utils.js"] , (utils)=>{ /*...*/ } )`
-* window.utils: `<script src="http://wangwl.net/static/demo/wwl-utils/index.js"></script>`
+* es2015: `import utils from "relax-utils"`
+* commonjs: `var utils = require("relax-utils")`
+* amd: `define( ["/js/relax-utils.js"] , (utils)=>{ /*...*/ } )`
+* window.utils: `<script src="http://wangwl.net/static/demo/relax-utils/index.js"></script>`
 * self.utils: `importScripts("./utils.js")`
 
 
 # utils API
 ## guid
- function guid(prefix = ''): string;
+ function guid(preFix?: string): string;
  
  返回一个唯一序号。
  ```javascript
@@ -23,10 +23,13 @@ javascript工具函数。
  ```
 
 ## noop
-noop(): () => void;
+function noop(): void;
+
+空函数，即: function(){};
 
 ## isUrl
-function isUrl(url: string): boolean;
+function isUrl(str: string): boolean;
+判断传入str是否为url格式。
 
 ## isArrayLike
 function isArrayLike(obj: any): boolean;

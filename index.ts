@@ -193,7 +193,7 @@ let utils = {
         return reg_isWeiXin.test(ua || userAgent);
     },
     //返回bool，则正确检测到联网类型。返回undefined，则代表未检测到。
-    isWifi(): undefined | boolean {
+    isWifi(): boolean | undefined {
         interface NetworkInformation {
             type?: string;
         }
@@ -246,16 +246,16 @@ let utils = {
      * @param ua
      * @returns {null|string}
      */
-    isIE(ua?): null | string {
+    isIE(ua?: string): null | string {
         return browserVersion(reg_ie, ua) || browserVersion(reg_ie2, ua) || browserVersion(reg_ieEdge, ua);
     },
-    isChrome(ua?): null | string {
+    isChrome(ua?: string): null | string {
         return browserVersion(reg_chrome, ua);
     },
-    isFirefox(ua?): null | string {
+    isFirefox(ua?: string): null | string {
         return browserVersion(reg_firefox, ua);
     },
-    isSafari(ua?): null | string {
+    isSafari(ua?: string): null | string {
         return (browserVersion(reg_chrome, ua) || browserVersion(reg_ieEdge, ua)) ? null : browserVersion(reg_safari, ua);
     },
     defer(): Defer {
@@ -287,7 +287,7 @@ let utils = {
         let obj = arrayOrObject;
         if (isArray(obj)) return (obj as T[]).map(fn, context);
 
-        var result = [];
+        var result: any[] = [];
         utils.each(obj, (val, key) => {
             result.push(fn.call(context, val, key, obj));
         });
@@ -297,12 +297,14 @@ let utils = {
         arrayOrObject: SomeObject<T> | T[],
         fn: (value: T, index: number, obj: typeof arrayOrObject) => boolean,
         context?: any
-    ): T {
+    ): T | undefined {
         let obj = arrayOrObject;
         if (isArray(obj)) return (obj as T[]).find(fn, context);
-        var key = Object.keys(obj).find(function (key) {
+        var key: string | undefined = Object.keys(obj).find(function (key) {
             return fn.call(context, obj[key], key, obj);
         });
+
+        //@ts-ignore
         return obj[key];
 
     },
@@ -315,7 +317,11 @@ let utils = {
      * @param [context] {Object} map函数的this值。
      * @return {Array} 返回新数组。
      */
-    unique<T>(arr: T[], isSort = false, fn?: (item: T, index: number, arr: T[]) => any, context?: any): T[] {
+    unique<T>(
+        arr: T[],
+        isSort = false,
+        fn?: (item: T, index: number, arr: T[]) => any,
+        context?: any): T[] {
 
         if (typeof isSort === 'function') {
             context = fn;
@@ -327,7 +333,7 @@ let utils = {
             return Array.from(new Set(arr));
         }
 
-        var result = [];
+        var result: T[] = [];
 
         var mapArr = fn ? arr.map(fn, context) : arr;
 
@@ -341,7 +347,7 @@ let utils = {
             });
         } else {
             //提前map
-            var mapResult = [];
+            var mapResult: T[] = [];
             mapArr.forEach(function (item, i) {
                 if (!mapResult.includes(item)) {
                     mapResult.push(item);
@@ -532,7 +538,7 @@ let utils = {
      */
     param(params: object, encodeEx?: boolean | string[]): string {
         if (params == null || typeof params !== 'object') return params ? params + '' : '';
-        var result = [], val, enc = encodeURIComponent;
+        var result: string[] = [], val, enc = encodeURIComponent;
 
         //格式化excludeMap: {key1:bool,key2:bool}
         var excludeMap = {}, excludeAll = false;
@@ -680,13 +686,14 @@ let utils = {
         if (match) {
             var el = document.createElement('div');
             el.innerHTML = match.join(',');
-            match = el.innerText.split(',')
+            match = el.innerText.split(',');
+            //@ts-ignore
             el = null;
         } else match = [];
 
         var index = 0;
         return val.replace(reg_htmlDecodeBrowser, (result, pos) => {
-            return match[index++];
+            return (match as string[])[index++];
         });
     },
 
@@ -932,7 +939,17 @@ var dateUtils = {
     dateParse(str: string, fmt ?: string) {
         if (!fmt) fmt = 'yyyy-MM-dd hh:mm:ss';
 
-        var arg = {
+        var arg: {
+            'y': undefined | number,
+            'M': undefined | number,
+            'd': number,
+            'H': undefined | number,
+            'h': undefined | number,
+            'm': number,
+            's': number,
+            'S': number,
+            'a': string
+        } = {
             'y': undefined,
             'M': undefined,
             'd': 1,
@@ -999,7 +1016,7 @@ var dateUtils = {
         }
 
         if (arg['M'] === undefined) arg['M'] = 0;
-        else arg['M'] -= 1;
+        else arg['M']! -= 1;
 
         if (!arg['h']) {
             arg['a'] = 'am';    //跳过下面的+12判断
@@ -1010,10 +1027,10 @@ var dateUtils = {
         // if(arg['a']!=='pm') arg['a']='am';
 
         if (arg['a'] === 'pm') {
-            arg['h'] += 12;
+            arg['h']! += 12;
         }
 
-        return new Date(arg.y, arg.M, arg.d, arg.h, arg.m, arg.s, arg.S);
+        return new Date(arg.y, arg.M!, arg.d, arg.h, arg.m, arg.s, arg.S);
 
     },
     /**
@@ -1119,10 +1136,10 @@ var dateUtils = {
      * utils.weekRange(utils.firstWeekInMonth(today),utils.lastWeekInMonth(today));
      */
     weekRange: function (startDate: Date, endDate: Date, splitDay?: number): { start: Date, end: Date, duration: number }[] {
-        var dateGroup = [
+        var dateGroup: { start?: Date, end?: Date, duration?: number }[] = [
             //{start,end,duration} , ...
         ];
-        if (!startDate || !endDate) return dateGroup;
+        if (!startDate || !endDate) return dateGroup as [];
 
         var shiftTmp;
         if (startDate > endDate) {
@@ -1193,16 +1210,17 @@ var dateUtils = {
             if (!dateGroup[0].start) {
                 //说明不是从 分隔日 开始的。
                 dateGroup[0].start = startDate;
-                dateGroup[0].duration = weight[dateGroup[0].end.getDay()] - weight[startDate.getDay()] + 1;
+                dateGroup[0].duration = weight[dateGroup[0].end!.getDay()] - weight[startDate.getDay()] + 1;
             }
 
             //添加dateGroup末位
             dateGroupLast = len - 1;
             dateGroup[dateGroupLast].end = endDate;
-            dateGroup[dateGroupLast].duration = weight[dateGroup[dateGroupLast].end.getDay()] -
-                weight[dateGroup[dateGroupLast].start.getDay()] + 1;
+            dateGroup[dateGroupLast].duration = weight[dateGroup[dateGroupLast].end!.getDay()] -
+                weight[dateGroup[dateGroupLast].start!.getDay()] + 1;
         }
 
+        //@ts-ignore
         return dateGroup;
     },
     /**
@@ -1312,7 +1330,7 @@ var getCookie: (refresh?: boolean) => GetCookieResult = cache(function () {
      expires:日期类型，cookie的过期时间。默认为session-Cookie;
      expires:也可传入一个类似{day:num,hour:num,min:num,sec:num}的对象向后递推时间。例如{expires:{day:1}}代表该cookie有效时间为1天。
      */
-    setCookie = function (key: string, value: string | object, option?: SetCookieOption): GetCookieResultItem {
+    setCookie = function (key: string, value: string | object, option?: SetCookieOption): GetCookieResultItem | undefined {
         var c, val = '', name, date, expires;
 
         if (!key) return;
