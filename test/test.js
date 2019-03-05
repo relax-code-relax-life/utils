@@ -115,20 +115,20 @@ describe("util_", function () {
                 result: '17;1;10;3;25;5-666'
             },
             {
-                fmt:'Hm',
-                result:'325'
+                fmt: 'Hm',
+                result: '325'
             },
             {
-                fmt:'Hma',
-                result:'325am'
+                fmt: 'Hma',
+                result: '325am'
             },
             {
-                fmt:'Hma',
-                result:'325am'
+                fmt: 'Hma',
+                result: '325am'
             },
             {
-                fmt:'[mm]HH:mm',
-                result:'mm03:25'
+                fmt: '[mm]HH:mm',
+                result: 'mm03:25'
             }
         ];
         test.forEach(function (data) {
@@ -136,6 +136,8 @@ describe("util_", function () {
         });
     });
     it('dateParse', function () {
+
+        const yearNow = (new Date()).getFullYear();
 
         var test = [
             [
@@ -156,7 +158,7 @@ describe("util_", function () {
             [
                 '30:30',
                 'h:m',
-                new Date(2018, 0, 1, 30, 30).getTime()
+                new Date(yearNow, 0, 1, 30, 30).getTime()
             ],
             [
                 '2015-06-07 10:11:11',
@@ -308,7 +310,7 @@ describe("util_", function () {
             utils.unique([5, 2, 3, '5', 2].sort(), function (val) {
                 return parseInt(val)
             })
-        ).toEqual([2,3,5]);
+        ).toEqual([2, 3, 5]);
 
     });
 

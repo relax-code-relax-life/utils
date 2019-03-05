@@ -8,7 +8,7 @@ const webpack = require('webpack');
 var isDev = false;
 
 module.exports = {
-    mode: isDev ? 'development' : 'production',
+    mode: isDev ? 'none' : 'production',
     optimization: {
         minimizer: [new UglifyJSPlugin({
             uglifyOptions: {
@@ -26,7 +26,7 @@ module.exports = {
         ]
     },
     entry: {
-        main: './index.js'
+        main: './index.ts'
     },
     output: {
         filename: 'index.js',
@@ -34,20 +34,43 @@ module.exports = {
         library: 'utils',
         libraryTarget: 'umd',
         umdNamedDefine: false,
-        globalObject: 'this'
+        globalObject: 'this',
+        libraryExport:'default'
     },
-    watch: isDev,
+    watch: false,
     module: {
         rules: [
             {
-                test: /\.js$/,
-                loader: "babel-loader",
-                exclude: /node_modules/,
-                options: {
-                    babelrc: true
-                }
+                test: /\.tsx?$/, use: [
+                    {
+                        loader: 'babel-loader', // 执行顺序 plugins(正序) --> presets(倒序)
+                        options: {
+                            plugins: [
+                                ["@babel/plugin-transform-runtime", {
+                                    "corejs": false,
+                                    "helpers": true,
+                                    "regenerator": false,
+                                    "useESModules": false
+                                }]
+                            ],
+                            presets: [
+                                ['@babel/preset-env', {
+                                    targets: {"ie": "9"},
+                                    loose: true,
+                                    modules: false,
+                                    useBuiltIns: false
+                                }]
+                            ]
+                        }
+                    },
+                    "awesome-typescript-loader"
+                ]
             }
         ]
     },
-    plugins: []
+    plugins: [],
+    resolve: {
+        // Add '.ts' and '.tsx' as resolvable extensions.
+        extensions: ['.ts', '.js']
+    },
 }

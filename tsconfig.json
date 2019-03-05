@@ -1,0 +1,8 @@
+{
+  "compilerOptions": {
+    "declaration": true,
+    "declarationDir": "dist",
+    "target": "ES2016",
+    "removeComments": true
+  }
+}

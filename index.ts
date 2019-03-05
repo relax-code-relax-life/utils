@@ -2,14 +2,28 @@
  * Created by wangweilin on 2017/6/9.
  */
 
-var isBrowser = typeof window !== 'undefined' && window.document;
+interface Defer {
+    promise: Promise<any>,
+    resolve: (data?: any) => void,
+    reject: (error?: any) => void
+}
+
+interface PromiseWithAbort<T> extends Promise<T> {
+    abort()
+}
+
+interface SomeObject<T> {
+    [prop: string]: T
+}
 
 
-var userAgent = isBrowser ? navigator.userAgent : '';
-var platform = isBrowser ? navigator.platform : '';
+const isBrowser = typeof window !== 'undefined' && window.document;
+
+const userAgent = isBrowser ? navigator.userAgent : '';
+const platform = isBrowser ? navigator.platform : '';
 
 // var reg_isUrl = /^((https?|ftp):\/\/)?(((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:)*@)?(((\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5]))|((([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.)+(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.?)(:\d*)?)(\/((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)+(\/(([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)*)*)?)?(\?((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)|[\uE000-\uF8FF]|\/|\?)*)?(\#((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)|\/|\?)*)?$/i,
-var reg_isUrl = /^(([^:/?#]+):)?(\/\/([^/?#]*))?([^?#]*)(\?([^#]*))?(#(.*))?/i,
+const reg_isUrl = /^(([^:/?#]+):)?(\/\/([^/?#]*))?([^?#]*)(\?([^#]*))?(#(.*))?/i,
     reg_resolveUrl = /(\?([^#]*))?(#.*)?\s*$/,
     reg_singleChar = /[\u0020-\u007f\uff61-\uff9f]/g,
     reg_enterChar = /\n/g,
@@ -44,16 +58,11 @@ var reg_isUrl = /^(([^:/?#]+):)?(\/\/([^/?#]*))?([^?#]*)(\?([^#]*))?(#(.*))?/i,
     reg_isWeiXin = /MicroMessenger/,
     reg_isIos = /iphone|ipad|ipod|ios/i;
 
-/**
- *
- * @param reg
- * @param ua
- * @returns {Array|{index: number, input: string}|*}
- */
-var browserVersion = function (reg, ua) {
+function browserVersion(reg: RegExp, ua?: string): null | string {
     var match = reg.exec(ua || userAgent);
     return match && match[1];
-};
+}
+
 //region userAgent
 /*
  chrome:
@@ -83,33 +92,33 @@ var browserVersion = function (reg, ua) {
  * */
 //endregion
 
-
 //signature: obj,start,end
-var call = Function.prototype.call;
-var slice = call.bind(Array.prototype.slice);
-var toString = call.bind(Object.prototype.toString);
-var isArray = Array.isArray || function (arr) {
-    return toString(arr) === '[object Array]'
+const call = Function.prototype.call;
+const slice = call.bind(Array.prototype.slice);
+const tostring = call.bind(Object.prototype.toString);
+const isArray = Array.isArray || function (arr) {
+    return tostring(arr) === '[object Array]'
 };
-var isFunction = function (fn) {
-    return toString(fn) === '[object Function]'
+const isFunction = function (fn) {
+    return tostring(fn) === '[object Function]'
 };
-var isBoolean = function (val) {
+const isBoolean = function (val) {
     return typeof val === 'boolean';
 };
-var isNumber = function (val) {
+const isNumber = function (val) {
     return typeof val === 'number'
 };
-var isDate = function (val) {
-    return toString(val) === '[object Date]';
+const isDate = function (val) {
+    return tostring(val) === '[object Date]';
 };
-var assign = Object.assign || function (tar, ...extend) {
-    extend.forEach((val, key) => {
-        tar[key] = val;
-    });
-    return tar;
-};
-var fill = function (arr, padding) {
+const assign: <T, U, V, W>(target: T, source1: U, source2?: V, source3?: W) => T & U & V & W = Object.assign
+    || function (tar, ...extend) {
+        extend.forEach((val, key) => {
+            tar[key] = val;
+        });
+        return tar;
+    };
+const fill = function (arr: any[], padding: any) {
     if (arr.fill) return arr.fill(padding);
     else {
         for (var i = arr.length - 1; i > -1; i--) {
@@ -119,10 +128,9 @@ var fill = function (arr, padding) {
     }
 };
 
-
 //缓存函数。  将函数结果缓存，函数实际只执行一次。
 //predicate 判断在refresh为false时，是否使用缓存
-var cache = function (fn, context, predicate) {
+const cache = function (fn: Function, context?: Object, predicate?: Function) {
     var result,
         isExecute; //判断是否执行过fn，不能通过result判断，因为fn有可能返回undefined
     return function (refresh, ...args) { //第一个参数为 是否强制刷新
@@ -138,11 +146,11 @@ var cache = function (fn, context, predicate) {
     }
 };
 
-var copyTxt = (function () {
-    var getFakeEle = function () {
+const copyTxt = (function () {
+    var getFakeEle = function (): HTMLTextAreaElement {
         var id = 'inner_copy_fake_ele';
 
-        var ele = document.getElementById(id);
+        var ele = document.getElementById(id) as HTMLTextAreaElement;
         if (ele) {
             return ele;
         }
@@ -165,35 +173,45 @@ var copyTxt = (function () {
     }
 })();
 
-var guidCnt = 0;
-var loopIds = {};
+let guidCnt = 0;
+let loopIds = {};
 
-var utils = {
+// @ts-ignore
+let utils = {
     guid(preFix = '') {
         return preFix + guidCnt++
     },
     noop() {
     },
-    isAndroid(ua) {
+    isAndroid(ua?: string) {
         return reg_isAndroid.test(ua || userAgent);
     },
-    isIos(ua) {
+    isIos(ua?: string) {
         return reg_isIos.test(ua || userAgent);
     },
-    isWeiXin(ua) {
+    isWeiXin(ua?: string) {
         return reg_isWeiXin.test(ua || userAgent);
     },
     //返回bool，则正确检测到联网类型。返回undefined，则代表未检测到。
-    isWifi() {
-        var connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+    isWifi(): undefined | boolean {
+        interface NetworkInformation {
+            type?: string;
+        }
+
+        interface Navigator {
+            connection?: NetworkInformation,
+            mozConnection?: NetworkInformation,
+            webkitConnection?: NetworkInformation
+        }
+
+        const n = navigator as Navigator;
+        var connection = n.connection || n.mozConnection || n.webkitConnection;
         if (connection) {
             // return connection.type === 'wifi';
             return connection.type !== 'cellular'; //认为不为蜂窝网，则即为wifi
-        }
-        else if (utils.isWeiXin()) {
+        } else if (utils.isWeiXin()) {
             return /NetType\/WIFI/.test(navigator.userAgent);
-        }
-        else return undefined;
+        } else return undefined;
     },
 
     isWindows() {
@@ -203,7 +221,7 @@ var utils = {
         return platform === 'MacIntel' || platform === 'Macintosh' || platform === 'MacPPC' || platform === 'Mac68K';
     },
 
-    isUrl(str) {
+    isUrl(str: string) {
         return reg_isUrl.test(str);
     },
     //判断是否为一个类数组对象
@@ -213,10 +231,8 @@ var utils = {
     /**
      *判断是否为类数组。
      *规则：参数为object类型(Node类型除外)，且具有非负整数的、可用的(不为NaN的有限数字)、小于2^32的length属性；则视为类数组。
-     *@method isArrayLike
-     *@return {bool}
      */
-    isArrayLike(o) {
+    isArrayLike(o: any) {
         return o &&                 //非null undefined
             typeof o === 'object' &&   //o为对象
             isFinite(o.length) &&           //o.length为有限数字，当传入值的valueof()不能转化为数字返回false
@@ -230,36 +246,46 @@ var utils = {
      * @param ua
      * @returns {null|string}
      */
-    isIE(ua) {
+    isIE(ua?): null | string {
         return browserVersion(reg_ie, ua) || browserVersion(reg_ie2, ua) || browserVersion(reg_ieEdge, ua);
     },
-    isChrome(ua) {
+    isChrome(ua?): null | string {
         return browserVersion(reg_chrome, ua);
     },
-    isFirefox(ua) {
+    isFirefox(ua?): null | string {
         return browserVersion(reg_firefox, ua);
     },
-    isSafari(ua) {
+    isSafari(ua?): null | string {
         return (browserVersion(reg_chrome, ua) || browserVersion(reg_ieEdge, ua)) ? null : browserVersion(reg_safari, ua);
     },
-    defer() {
-        var defer = {};
+    defer(): Defer {
+        var defer = {} as Defer;
         defer.promise = new Promise(function (resolve, reject) {
             defer.resolve = resolve;
             defer.reject = reject;
         });
         return defer;
     },
-    each(obj, fn, context) {
-        if (isArray(obj)) return obj.forEach(fn, context);
+    each<T>(
+        arrayOrObject: SomeObject<T> | T[],
+        fn: (value: T, index: number, obj: typeof arrayOrObject) => void,
+        context?: any
+    ): void {
+        let obj = arrayOrObject;
+        if (isArray(obj)) return (obj as T[]).forEach(fn, context);
 
         //只遍历自有可枚举属性
         Object.keys(obj).forEach(key => {
             fn.call(context, obj[key], key, obj);
         })
     },
-    map(obj, fn, context) {
-        if (isArray(obj)) return obj.map(fn, context);
+    map<T>(
+        arrayOrObject: SomeObject<T> | T[],
+        fn: (value: T, index: number, obj: typeof arrayOrObject) => any,
+        context?: any
+    ): any[] {
+        let obj = arrayOrObject;
+        if (isArray(obj)) return (obj as T[]).map(fn, context);
 
         var result = [];
         utils.each(obj, (val, key) => {
@@ -267,8 +293,13 @@ var utils = {
         });
         return result;
     },
-    find(obj, fn, context) {
-        if (isArray(obj)) return obj.find(fn, context);
+    find<T>(
+        arrayOrObject: SomeObject<T> | T[],
+        fn: (value: T, index: number, obj: typeof arrayOrObject) => boolean,
+        context?: any
+    ): T {
+        let obj = arrayOrObject;
+        if (isArray(obj)) return (obj as T[]).find(fn, context);
         var key = Object.keys(obj).find(function (key) {
             return fn.call(context, obj[key], key, obj);
         });
@@ -284,7 +315,7 @@ var utils = {
      * @param [context] {Object} map函数的this值。
      * @return {Array} 返回新数组。
      */
-    unique(arr, isSort, fn, context) {
+    unique<T>(arr: T[], isSort = false, fn?: (item: T, index: number, arr: T[]) => any, context?: any): T[] {
 
         if (typeof isSort === 'function') {
             context = fn;
@@ -308,8 +339,7 @@ var utils = {
                     result.push(arr[i]);
                 }
             });
-        }
-        else {
+        } else {
             //提前map
             var mapResult = [];
             mapArr.forEach(function (item, i) {
@@ -323,7 +353,7 @@ var utils = {
         return result;
     },
     cache,
-    loop(fn, tick, immediate) {
+    loop(fn: Function, tick: number, immediate: boolean): string {
         var key = utils.guid('loop');
 
         var promiseFn = function () {
@@ -343,7 +373,7 @@ var utils = {
 
         return key;
     },
-    clearLoop(key) {
+    clearLoop(key: string) {
         var timeoutId = loopIds[key];
         if (timeoutId) {
             clearTimeout(timeoutId);
@@ -356,30 +386,37 @@ var utils = {
      * @param wait {number}
      * @returns {Promise}
      */
-    timeout(fn, wait = 0) {
+    timeout<T>(fn: () => T, wait = 0) {
         var defer = utils.defer();
         var id = setTimeout(function () {
             defer.resolve(fn());
         }, wait);
-        defer.promise.abort = function () {
+
+        let promise = defer.promise as PromiseWithAbort<T>;
+
+        promise.abort = function () {
             clearTimeout(id);
         };
-        return defer.promise;
+        return promise;
     },
 
-    //间隔wait执行
-    throttle(fn, alwaysFn, immediately, wait, context) {//optional:alwaysFn,immediately,context
+    //间隔wait执行 //optional:alwaysFn,immediately,context
+    throttle(fn: Function, alwaysFn?: Function, immediately?: boolean, wait?: number, context?: any) {
         if (!isFunction(alwaysFn)) {
             context = wait;
+            // @ts-ignore
             wait = immediately;
-            immediately = alwaysFn;
+            // @ts-ignore
+            immediately = alwaysFn as Function;
             alwaysFn = undefined;
         }
         if (!isBoolean(immediately)) {
             context = wait;
+            // @ts-ignore
             wait = immediately;
             immediately = false;
         }
+        if (wait == null) wait = 300;
 
         var oriContext = context;
         var timeoutId, args,
@@ -392,8 +429,7 @@ var utils = {
                     timeoutId = undefined;
                 }, wait);
             }
-        }
-        else {
+        } else {
             execFn = function () {
                 timeoutId = setTimeout(function () {
                     fn.apply(context, args);
@@ -418,19 +454,25 @@ var utils = {
      * @param [context] {Object}
      * @returns {Function}
      */
-    debounce(fn, alwaysFn, immediately, wait, context) {//optional:alwaysFn,immediately,context
+    //optional:alwaysFn,immediately,context
+    debounce(fn: Function, alwaysFn?: Function, immediately?: boolean, wait?: number, context?: any) {
 
         if (!isFunction(alwaysFn)) {
             context = wait;
+            // @ts-ignore
             wait = immediately;
+            // @ts-ignore
             immediately = alwaysFn;
             alwaysFn = undefined;
         }
         if (!isBoolean(immediately)) {
             context = wait;
+            // @ts-ignore
             wait = immediately;
             immediately = false;
         }
+
+        if (wait == null) wait = 300;
 
         var oriContext = context;
 
@@ -450,8 +492,7 @@ var utils = {
                     timeoutId = undefined
                 });
             }
-        }
-        else {
+        } else {
             execFn = function () {
                 setTimer(function () {
                     fn.apply(context, arg);
@@ -471,7 +512,7 @@ var utils = {
         }
     },
 
-    download(src, fileName) {
+    download(src: string, fileName: string) {
         var link = document.createElement('a');
         link.download = fileName;
         link.href = src;
@@ -489,19 +530,18 @@ var utils = {
      * @param encodeEx {Boolean|Array} 不进行转义。数组形式:[key1,key2,...]，指定特定的key不进行转义
      * @returns {*}
      */
-    param(params, encodeEx) {
-        if (params == null || typeof params !== 'object') return params || '';
+    param(params: object, encodeEx?: boolean | string[]): string {
+        if (params == null || typeof params !== 'object') return params ? params + '' : '';
         var result = [], val, enc = encodeURIComponent;
 
         //格式化excludeMap: {key1:bool,key2:bool}
         var excludeMap = {}, excludeAll = false;
         if (isArray(encodeEx)) {
-            encodeEx.forEach(function (key) {
+            (encodeEx as string[]).forEach(function (key) {
                 excludeMap[key] = true;
             })
-        }
-        else {
-            excludeAll = encodeEx;
+        } else {
+            excludeAll = encodeEx as boolean;
         }
 
 
@@ -525,17 +565,16 @@ var utils = {
      * @param decodeEx {Boolean|Array}
      * @returns {{}}
      */
-    parseParam(paramStr, decodeEx) {
+    parseParam(paramStr: string, decodeEx?: boolean | string[]) {
         var data = {},
             match,
             decode = decodeURIComponent;
 
         var excludeMap = {}, excludeAll = false;
         if (isArray(decodeEx)) {
-            decodeEx.forEach(key => excludeMap[key] = true);
-        }
-        else {
-            excludeAll = decodeEx;
+            (decodeEx as string[]).forEach(key => excludeMap[key] = true);
+        } else {
+            excludeAll = decodeEx as boolean;
         }
 
         while (match = reg_parseParam.exec(paramStr)) {
@@ -554,10 +593,10 @@ var utils = {
      * @param encodeEx {Boolean|Array} 为true，代表不进行转义。默认为false,即转义。
      * @returns {string}
      */
-    resolveUrl(url, param, encodeEx) {
+    resolveUrl(url: string, param?: object, encodeEx?: boolean | string[]) {
         param = assign(utils.getQuery(url), param);
-        param = utils.param(param, encodeEx);
-        return url.replace(reg_resolveUrl, '?' + param + '$3');
+        let queryStr = utils.param(param, encodeEx);
+        return url.replace(reg_resolveUrl, '?' + queryStr + '$3');
     },
 
     /**
@@ -568,7 +607,7 @@ var utils = {
      * 用例：
      * utils.getQuery().id 或者 utils.getQuery('localhost/indexhtml?id=idinfo').id
      */
-    getQuery: function (url) {
+    getQuery: function (url?: string) {
         var q = {}, match;
         while (match = reg_query.exec(url || (isBrowser && location.search) || '')) {
             q[match[1]] = match[2];
@@ -584,7 +623,7 @@ var utils = {
      * @param [enterVal] {Number} 可选的, 回车字符的权重值,默认为1
      * @return {Number} 返回字符权重值
      */
-    countStr: function (txt, fullVal = 1, halfVal = 0.5, enterVal = 1) {
+    countStr: function (txt: string, fullVal = 1, halfVal = 0.5, enterVal = 1) {
         if (!txt) return 0;
         txt = txt + '';
         fullVal = +fullVal;
@@ -607,13 +646,12 @@ var utils = {
      * @param txt
      * @returns {boolean} 复制成功返回true, 复制出错返回false
      */
-    copyTxt(txt) {
+    copyTxt(txt: string) {
         try {
             if (!copyTxt(txt)) {
                 return false;
             }
-        }
-        catch (err) {
+        } catch (err) {
             return false;
         }
         return true;
@@ -624,7 +662,7 @@ var utils = {
      * @param txt
      * @returns {XML|void|*|string}
      */
-    htmlEncode(txt) {
+    htmlEncode(txt: string) {
         if (typeof txt !== 'string') {
             txt = txt + '';
         }
@@ -636,7 +674,7 @@ var utils = {
             return '&#' + code + ';';
         });
     },
-    htmlDecode(val) {
+    htmlDecode(val: string) {
         if (val == null || val === '') return '';
         var match = val.match(reg_htmlDecodeBrowser);
         if (match) {
@@ -644,8 +682,7 @@ var utils = {
             el.innerHTML = match.join(',');
             match = el.innerText.split(',')
             el = null;
-        }
-        else match = [];
+        } else match = [];
 
         var index = 0;
         return val.replace(reg_htmlDecodeBrowser, (result, pos) => {
@@ -659,7 +696,7 @@ var utils = {
      * @param args
      * @returns {string}
      */
-    camelCase(...args) {
+    camelCase(...args: string[]) {
         return args.join('-').replace(reg_camelCase, function (match, letter) {
             return letter.toUpperCase();
         });
@@ -670,7 +707,7 @@ var utils = {
      * 或传入多个参数，合并为kebab-case形式。
      * @param args
      */
-    kebabCase(...args) {
+    kebabCase(...args: string[]) {
         return args.map(function (name) {
             return name.replace(reg_upperCase, function (match, pos) {
                 return (pos === 0 ? '' : '-') + match.toLowerCase()
@@ -690,7 +727,7 @@ var utils = {
      * utils.paddingLeft('1',3,'0');  //001
      * utils.paddingLeft('12345',3);  //12345
      */
-    paddingLeft: function (target = '', len, paddingChar) {
+    paddingLeft: function (target = '', len: number, paddingChar: string) {
         var result, i, targetLen;
 
         target += '';
@@ -716,13 +753,12 @@ var utils = {
      * @param data
      * @returns {string}
      */
-    template: (function () {
+    template: (function (): (temp: string, data: object) => string {
 
         let supportTempStr = true;
         try {
             let fn = new Function('``');
-        }
-        catch (e) {
+        } catch (e) {
             supportTempStr = false;
         }
 
@@ -743,8 +779,7 @@ var utils = {
                     `
                 ))(data);
             };
-        }
-        else {
+        } else {
             //known bug: temp=' hello ${name+"${inner}"} ';
             return function (temp, data) {
                 //如果以reg_template开头，则splitCodes[0]为空字符串。
@@ -755,8 +790,7 @@ var utils = {
                         isExpr = !isExpr;
                         if (isExpr) {
                             return splitCode;
-                        }
-                        else {
+                        } else {
                             return `'${splitCode.replace("'", "\\'")}'`;
                         }
                     }).join('+');
@@ -777,6 +811,7 @@ var utils = {
 
 };
 
+
 //region promisify
 var customPromisifiedSymbol = '__p$symbol__';
 
@@ -786,9 +821,10 @@ var customPromisifiedSymbol = '__p$symbol__';
  * 1. 新函数在内部调用original，在参数后添加callback，然后判断Promise的状态。
  * 2. 如果存在original[utils.promisify.custom]，则直接调用该函数。
  * @param original {function}
+ * @param context
  * @returns {function}
  */
-function promisify(original, context) {
+let promisify = function (original: Function, context?: object): (...args) => Promise<any> {
 
     if (!isFunction(original)) throw TypeError('promisify(): argument not a function');
 
@@ -801,35 +837,50 @@ function promisify(original, context) {
 
         var defer = utils.defer();
 
+        // 如果传入的参数不足fn定义的参数个数，则补足undefined。
+        // 但是如果超出了，则还是默认最后添加cb， 因为fn.length不准确，比如使用 ...args形式或使用arguments。
+        var paddingArgsLen = fn.length - 1 - args.length;
+        if (paddingArgsLen > 0) args = args.concat(fill(new Array(6), undefined));
+
         try {
             args.push((err, ...values) => {
                 if (err) {
                     defer.reject(err);
-                }
-                else if (values.length > 1) {
+                } else if (values.length > 1) {
                     defer.resolve(values);
-                }
-                else {
+                } else {
                     defer.resolve(values[0]);
                 }
             });
             original.apply(context || this, args);
-        }
-        catch (e) {
+        } catch (e) {
             defer.reject(e);
         }
 
         return defer.promise;
     }
 
+    // @ts-ignore
     return Object.defineProperties(fn, Object.getOwnPropertyDescriptors(original));
 }
-
+//@ts-ignore
 promisify.custom = customPromisifiedSymbol;
 //endregion
 
 //region date
-var dateMethodMap = {
+
+interface DateAddConfig {
+    year?: number,
+    month?: number,
+    day?: number,
+    hour?: number,
+    min?: number,
+    sec?: number,
+
+    [prop: string]: any
+}
+
+const dateMethodMap = {
     year: 'FullYear',
     month: 'Month',
     day: 'Date',
@@ -847,9 +898,9 @@ var dateUtils = {
      * @param fmt{String} 格式化字符串
      * @return {string}
      * */
-    dateFormat(date, fmt) {
+    dateFormat(date: Date, fmt = 'yyyy-MM-dd hh:mm:ss') {
         if (!isDate(date)) return '';
-        if (!fmt) fmt = 'yyyy-MM-dd hh:mm:ss';
+        // if (!fmt) fmt = 'yyyy-MM-dd hh:mm:ss';
 
         var hour = date.getHours(),
             a = hour > 12 ? 'pm' : 'am';
@@ -878,7 +929,7 @@ var dateUtils = {
             return tmpResult;
         })
     },
-    dateParse(str, fmt) {
+    dateParse(str: string, fmt ?: string) {
         if (!fmt) fmt = 'yyyy-MM-dd hh:mm:ss';
 
         var arg = {
@@ -903,27 +954,20 @@ var dateUtils = {
             if (type === 'y') {
                 if (len < 4) {
                     result = `\\d{${len}}`;
-                }
-                else result = `\\d{4}`;
-            }
-            else if (type === 'M' || type === 'd' || type === 'H' || type === 'h' || type === 'm' || type === 's') {
+                } else result = `\\d{4}`;
+            } else if (type === 'M' || type === 'd' || type === 'H' || type === 'h' || type === 'm' || type === 's') {
                 if (len === 1) {
                     result = '[1-9]\\d|\\d'
-                }
-                else { //m>=2
+                } else { //m>=2
                     result = `\\d{2}`
                 }
-            }
-            else if (type === 'S') {
+            } else if (type === 'S') {
                 if (len < 3) {
                     result = `\\d{${len}}`
-                }
-                else result = `\\d{3}`
-            }
-            else if (type === 'a') {
+                } else result = `\\d{3}`
+            } else if (type === 'a') {
                 result = '(am|Am|AM|pm|Pm|PM)?'
-            }
-            else if (type === '[') {
+            } else if (type === '[') {
                 return m.slice(1, -1)
             }
 
@@ -991,7 +1035,7 @@ var dateUtils = {
      * utils.dateAdd(date,{ day:-1,month:1,hour:1 });  //2015/12/31 13:00:00
      * utils.dateAdd(date,31);  //2016/1/1 12:00:00  utils.dateAdd(date,{day:31})的缩写形式
      */
-    dateAdd: function (date, config) {
+    dateAdd: function (date: Date, config: number | DateAddConfig) {
         var
             //defaultConfig = {
             //    year: 0,
@@ -1024,7 +1068,7 @@ var dateUtils = {
      * @param date {Date}
      * @return {Date} 返回一个新的日期对象
      */
-    firstDateInMonth: function (date) {
+    firstDateInMonth: function (date: Date) {
         date = new Date(date);
         date.setDate(1);
         return date;
@@ -1034,7 +1078,7 @@ var dateUtils = {
      * @param date
      * @returns {Date} 返回一个新的日期对象
      */
-    lastDateInMonth: function (date) {
+    lastDateInMonth: function (date: Date) {
         date = new Date(date);
         date.setMonth(date.getMonth() + 1);
         date.setDate(0);
@@ -1045,22 +1089,22 @@ var dateUtils = {
      * @param date
      * @returns {Date}
      */
-    firstWeekInMonth: function (date) {
-        var firstDate = utils.firstDateInMonth(date);
+    firstWeekInMonth: function (date: Date) {
+        var firstDate = dateUtils.firstDateInMonth(date);
         var day = firstDate.getDay();
         if (day === 0) day = 7;
-        return utils.dateAdd(firstDate, 1 - day);
+        return dateUtils.dateAdd(firstDate, 1 - day);
     },
     /**
      * 返回传入日期月份的最后一周的周日。
      * @param date
      * @returns {Date}
      */
-    lastWeekInMonth: function (date) {
-        var lastDate = utils.lastDateInMonth(date);
+    lastWeekInMonth: function (date: Date) {
+        var lastDate = dateUtils.lastDateInMonth(date);
         var day = lastDate.getDay();
         if (day !== 0) {
-            lastDate = utils.dateAdd(lastDate, 7 - day);
+            lastDate = dateUtils.dateAdd(lastDate, 7 - day);
         }
         return lastDate;
     },
@@ -1074,7 +1118,7 @@ var dateUtils = {
      * var today=new Date();
      * utils.weekRange(utils.firstWeekInMonth(today),utils.lastWeekInMonth(today));
      */
-    weekRange: function (startDate, endDate, splitDay) {
+    weekRange: function (startDate: Date, endDate: Date, splitDay?: number): { start: Date, end: Date, duration: number }[] {
         var dateGroup = [
             //{start,end,duration} , ...
         ];
@@ -1116,8 +1160,7 @@ var dateUtils = {
                     start: new Date(currentDate)
                 });
                 delta = 7;
-            }
-            else if (delta === 7) {
+            } else if (delta === 7) {
                 dateGroupLast = dateGroup.length - 1;
                 dateGroup[dateGroupLast].end = new Date(currentDate.getTime() - 86400000);
                 dateGroup[dateGroupLast].duration = 7;
@@ -1145,8 +1188,7 @@ var dateUtils = {
                 end: endDate,
                 duration: weight[endDate.getDay()] - weight[startDate.getDay()] + 1
             }];
-        }
-        else {
+        } else {
             //添加dateGroup的首位
             if (!dateGroup[0].start) {
                 //说明不是从 分隔日 开始的。
@@ -1173,11 +1215,12 @@ var dateUtils = {
      * var end=new Date(2015,8,11);
      * utils.weekendsCount(start,end); //返回2. 2015-8-1至2015-8-11共有两天周末。
      */
-    weekendsCount: function (startDate, endDate) {
+    weekendsCount: function (startDate: Date, endDate: Date) {
 
         startDate = new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate());
         endDate = new Date(endDate.getFullYear(), endDate.getMonth(), endDate.getDate());
 
+        //@ts-ignore
         var duration = (endDate - startDate) / 86400000 + 1;
 
         //计算工作日。 eg: 2015-8-1 ~ 2015-8-11 有两天为周六日。 实际工作为9-2=7天
@@ -1192,8 +1235,7 @@ var dateUtils = {
             if (firstDay === 0) {
                 //第一天是周日，则余出天数只有 一个休息日
                 weekendCounts++;
-            }
-            else if (firstDay <= 6 && lastDay >= 6) {
+            } else if (firstDay <= 6 && lastDay >= 6) {
                 //第一天在周六或之前,
                 // 第二天是周六，1天休息日，
                 // 第二天周日或以后，2个休息日。
@@ -1221,7 +1263,24 @@ var dateUtils = {
         utils.getCookie().multiCookie.values.key1;
         }
  */
-var getCookie = cache(function () {
+
+interface GetCookieResult {
+    [name: string]: GetCookieResultItem
+}
+
+interface GetCookieResultItem {
+    value: string,
+    values: string | null
+}
+
+interface SetCookieOption {
+    path?: string,
+    domain?: string,
+    secure?: boolean,
+    expires?: Date | { day?: number, hour?: number, min?: number, sec?: number }
+}
+
+var getCookie: (refresh?: boolean) => GetCookieResult = cache(function () {
         //str:用于测试的模仿cookie的值,包含多种可能的情况
         //var str = "test=cookie\'s value&one=6&two=2; 2=cookie2; empty; ; mu lti=multiValue&name1=value1&name2=values2";
 
@@ -1253,7 +1312,7 @@ var getCookie = cache(function () {
      expires:日期类型，cookie的过期时间。默认为session-Cookie;
      expires:也可传入一个类似{day:num,hour:num,min:num,sec:num}的对象向后递推时间。例如{expires:{day:1}}代表该cookie有效时间为1天。
      */
-    setCookie = function (key, value, option) {
+    setCookie = function (key: string, value: string | object, option?: SetCookieOption): GetCookieResultItem {
         var c, val = '', name, date, expires;
 
         if (!key) return;
@@ -1266,15 +1325,14 @@ var getCookie = cache(function () {
                 val += name + '=' + escape(value[name]) + '&';
             }
             val = val.slice(0, -1);  //去除最后一个&
-        }
-        else {
+        } else {
             val += escape(value);
         }
 
         option = option || {};
 
         //如果options.expires不是时间，则按照{day:num,hour:num,min:num,sec:num}向后递推时间。
-        if (option.expires && toString(option.expires) !== '[object Date]') {
+        if (option.expires && tostring(option.expires) !== '[object Date]') {
             expires = option.expires;
             date = new Date();
             date.setTime(date.valueOf() +
@@ -1287,7 +1345,7 @@ var getCookie = cache(function () {
 
 
         c = key + '=' + val +
-            (option.expires ? ';expires=' + option.expires.toUTCString() : '') +
+            (option.expires ? ';expires=' + (option.expires as Date).toUTCString() : '') +
             (option.path ? '; path=' + option.path : '') +
             (option.domain ? '; domain=' + option.domain : '') +
             (option.secure ? '; secure' : '');
@@ -1303,25 +1361,34 @@ var getCookie = cache(function () {
      *@param option {Object} 需要传入和设置cookie时相同的option,才能正确删除。
      *@return {boolean} 是否成功删除cookie,已删除则返回true,未删除false;
      */
-    deleteCookie = function (key, option) {
-        setCookie(key, '', this.extend(option, {expires: {day: -30}}));
+    deleteCookie = function (key: string, option?: SetCookieOption): boolean {
+        setCookie(key, '', assign(option, {expires: {day: -30}}));
         return !(key in getCookie(true));
     };
 //endregion
 
-assign(utils, {
-    promisify,
-    getCookie, setCookie, deleteCookie,
-    cookie: {
-        delete: deleteCookie,
-        del: deleteCookie,
-        set: setCookie,
-        get(name, refresh) {
-            var cookie = getCookie(refresh)[name];
-            return cookie && cookie.value;
-        },
+
+//export result，为了生成完整的ts声明
+let result = assign(utils,
+    {
+        promisify,
+        getCookie, setCookie, deleteCookie,
+        cookie: {
+            delete: deleteCookie,
+            del: deleteCookie,
+            set: setCookie,
+            get(name: string, refresh?: boolean): undefined | string {
+                var cookie = getCookie(refresh)[name];
+                return cookie && cookie.value;
+            },
+        }
+    },
+    dateUtils,
+    //alias
+    {
+        uniq: utils.unique
     }
-}, dateUtils);
+)
 
 //browser special
 if (!isBrowser) {
@@ -1343,9 +1410,6 @@ if (!isBrowser) {
     }
 }
 
-//alias
-utils.uniq = utils.unique;
-
-module.exports = utils;
+export default result;
 
 
