@@ -78,20 +78,30 @@ utils.isSafari(ua); //"604"
 ```
 
 ## defer
-function defer(): { promise: Promise, resolve: (data: any) => void, reject: (data: any) => void };
+function defer(): { promise: Promise, resolve: (data: any) => void, reject: (err: any) => void };
 
 创建一个延迟对象。
 
 
 ## each
-function each<T>(obj: T, fn: (value: any, index: number | string, context?: object) => void, obj: T): void;
+```typescript
+function each(     
+    obj: Object | Array<any>, 
+    fn: (value: any, index: string | number, obj: object | Array) => void, 
+    context?: any) : void;
+```
 
 遍历数组或者对象。
 
 当obj是对象时，则借助Object.keys(obj)的返回值进行遍历，即只遍历自有的可枚举属性。
 
 ## map
-function map<T>(obj: T, fn: (value: any, index: number | string, context?: object) => void, obj: T): T;
+```typescript
+function map(
+    obj: Object | Array<any>, 
+    fn: (value: any, index: string | number, obj: Object|Array) => any, 
+    context?: any): any[];
+```
 
 映射一个新的数组或对象。
 
@@ -99,15 +109,26 @@ function map<T>(obj: T, fn: (value: any, index: number | string, context?: objec
 
 ## find
 
-function find(obj: Array | object, fn: (value: any, index: number | string, context?: object) => boolean, obj: object): any;
+```typescript
+function find(
+    obj: Array | Object, 
+    fn: (value: any, index: string | number, obj: Array|Object) => boolean, 
+    context: Object): any | undefined;
 
+```
 返回fn为true时的值。
 
 如果obj为数组，则调用Array#find() ， 如果obj为对象，则借助Object.keys(obj)#find()进行查找。
 
 
 ## unique、uniq
-function unique(arr: Array, isSort = false, map?: (item: any, index: number, arr: Array) => any, context?: object): Array;
+```typescript
+function unique<T>(
+    arr: Array<T>, 
+    isSort = false, 
+    map?: (item: T, index: number, arr: Array<T>) => any, 
+    context?: Object): Array<any>;
+```
 
 不改变数组顺序的情况下去重，返回一个新的数据。uniq为unique的别名。
 
@@ -126,8 +147,13 @@ context：map函数的this值。
 
 ## cache
 
-function cache(fn, context?, predicate?: (...args) => boolean ): (refresh, ...args) => any;
+```typescript
+function cache(
+    fn:Function, 
+    context?:Object, 
+    predicate?: (...args) => boolean ) : (refresh, ...args) => any;
 
+```
 返回一个新的缓存函数。
 
 返回的函数签名为:function(refresh,...args); refresh判断是否强制刷新，剩余参数传给fn。
@@ -154,26 +180,73 @@ function promisify(original: Function, context?: object): Function
 
 将node.js回调风格的函数，转换为返回promise的函数。 
 
-模仿node.js中的utils.promisify，调用方式一致。
+模仿node.js中的util.promisify，调用方式一致。
 
 通过可选的context参数设置original执行时的this值。
 
 ```javascript
 //node.js异步回调风格: 最后一个参数为回调函数，且回调函数的第一个参数为err。
-var add=function(a,b,callback){
-   if(typeof a !=='number') callback('not a number');
-   else callback(null,a+b);
+var add = function (a, b, callback) {
+    if (typeof a !== 'number') callback('not a number');
+    else callback(null, a + b);
 }
 
-utils.promisify(add)(1,2).then(
-    (result) => { console.log(result===3);   },//true
-    (err) => { console.log(err) /*该回调不会执行*/}  
+utils.promisify(add)(1, 2).then(
+    (result) => console.log(result === 3),//true
+    (err) => console.log(err)           //该回调不会执行
 );
 
-utils.promisify(add)('abc',2).then(
-    (result) => { console.log(result) /*该回调不执行*/ },
-    (err)=>{ console.log(err); }    //"not a number"
+utils.promisify(add)('abc', 2).then(
+    (result) => console.log(result), //该回调不执行
+    (err) => console.log(err)       //"not a number"
 )
+```
+
+与node.js中util.promisify的区别在于，
+1. 该promisify()会判断当传入参数个数小于original时，会补全参数。
+2. 支持callback返回多个值的情况。
+```javascript
+// nodejs环境
+const nodeUtil = require('util');
+const relaxUtil = require('./dist/index');
+
+const print = function (a, b, cb) {
+    cb(null, a, b);
+}
+const printSingle = function (a, cb) {
+    cb(null, a);
+}
+
+const nodePromisify = nodeUtil.promisify(print);
+const relaxPromisify = relaxUtil.promisify(print);
+const relaxPromisifySingle = relaxUtil.promisify(printSingle);
+
+nodePromisify('param1').then(
+    (result) => console.log('success:', result),
+    (error) => console.log('error:', error)
+);
+//error: TypeError: cb is not a function
+
+nodePromisify('param1', 'param2').then(
+    (result) => console.log('success', result),
+);
+//success: param1
+
+relaxPromisify('param1').then(
+    (result) => console.log('success:', result),
+)
+//success: ['param1',undefined]
+
+relaxPromisify('param1', 'param2').then(
+    (results) => console.log('success:', results),
+);
+//success: ['param1','param2']
+
+relaxPromisifySingle('param1').then(
+    (result) => console.log('success:',result)
+);
+//success: 'param1'
+
 ```
 
 可以通过设置`original[utils.promisify.custom]`来自定义promise的返回值。
@@ -196,7 +269,7 @@ utils.promisify(add)(1,2).then( (result)=>{ console.log(result) } ) //4
 
 
 ## loop
-function loop(fn, tick: number, immediate?: boolean): string;
+function loop(fn: Function, tick: number, immediate = false ): string;
 
 根据setTimeout循环执行fn，支持fn返回一个promise来控制是否继续循环
 
@@ -210,7 +283,7 @@ function clearLoop(key: string): void;
 key为loop()方法返回的值。
 
 ## timeout
-function timeout(fn: () => any, wait = 0): Promise
+function timeout<T>(fn: (...args) => T, wait = 0): Promise<T>;
 
 setTimeout的promise版本。
 
@@ -228,9 +301,9 @@ typeof promise.abort==='function'; //true
 ```
 
 ## throttle 、 debounce
-function throttle(fn, alwaysFn?, immediately?, wait, contex?)   
+function throttle(fn: Function, alwaysFn?: Function, immediately?: boolean, wait=300, context?: object)   
 
-function debounce(fn, alwaysFn?, immediately?, wait, contex?) 
+function debounce(fn: Function, alwaysFn?: Function, immediately?: boolean, wait=300, context?: object) 
 
 截流和防抖动。
 
@@ -242,7 +315,7 @@ immediately: 是否立即执行。如果为true,则会在第一次调用时立�
 
 wait:指定时间，以毫秒为单位。
 
-contex: 指定alwaysFn和fn的this值，如果省略，则为结果函数的this值。
+context: 指定alwaysFn和fn的this值，如果省略，则为结果函数的this值。
 ```javascript
 var obj={};
 var fn=function(){ console.log(this===obj) };
@@ -255,14 +328,14 @@ obj.fn();
 ```
 
 ## download
-function download(url: string, fileName?: string): void;
+function download(url: string, fileName: string): void;
 
 触发下载指定的url，而不是打开一个新窗口。
 
 在node环境下，该方法为noop()。
 
 ## param
-function param(params: object, encodeEx?: boolean | Array<string>): string
+function param(params: object, encodeEx?: boolean | string[] ): string;
 
 将对象转换为key=val&key1=value1的字符串形式。
 
@@ -276,7 +349,7 @@ utils.param({name:'+wwl'},['name']);//"name=+wwl"
 ```
 
 ## parseParam
-function parseParam(paramStr: string, decodeEx?: boolean | Array<string>): object;
+function parseParam(paramStr: string, decodeEx?: boolean | string[] ): {};
 
 将key=value&key1=value1形式的字符串转换成对象，param的反向操作。
 
@@ -291,7 +364,7 @@ utils.parseParam('name=%2Bwwl',['name'])    //{name:"%2Bwwl"}
 ```
 
 ## resolveUrl
-function resolveUrl(url: string, param: object, encodeEx?: boolean | Array<string>): string;
+function resolveUrl(url: string, param?: object , encodeEx?: boolean | string[] ): string;
 
 在指定的url上添加查询字符串。
 ```javascript
@@ -349,7 +422,7 @@ utils.htmlDecode('&lt;body')    //<body
 
 
 ## camelCase
-function camelCase(...args: Array<string>): string
+function camelCase(...args: string[]): string;
 
 "camel-case"转换为"camelCase"。
 
@@ -360,7 +433,7 @@ utils.camelCase('I-am', 'wwl'); //IAmWwl
 ```
 ## kebabCase
 
-function kebabCase(...args: Array<string>): string
+function kebabCase(...args: string[]): string;
 
 将驼峰命名法字符串，转换为小写的短横线分隔形式。
 "kebabCase"转换为"kebab-case"。
@@ -372,7 +445,7 @@ utils.kebabCase('KebabCase');       //kebab-case
 ```
 
 ## paddingLeft
-function paddingLeft(target = '', len, paddingChar = " "): string
+function paddingLeft(target = '', len: number, paddingChar = " "): string
 
 补齐位数。
 ```javascript
@@ -390,7 +463,7 @@ utils.template('hello,${firstName+secondName}',{firstName:'wang',secondName:'wl'
 ```
 
 ## dateFormat
-function dateFormat(date: Date, fmt?: string): string;
+function dateFormat(date: Date, fmt = 'yyyy-MM-dd hh:mm:ss'): string;
 
 格式化时间。 
 1. 支持：年y, 月M, 天d, 24小时制H, 12小时制h, 分m, 秒s, 毫秒S, am/pm a。
@@ -405,7 +478,7 @@ utils.dateFormat(new Date(),'[today] M-d')  //"today 10-30"
 ```
 
 ## dateParse
-function dateParse(str: string, fmt?: string): Date;
+function dateParse(str: string, fmt = 'yyyy-MM-dd hh:mm:ss'): Date;
 
 根据时间字符串和指定的格式，返回Date对象。
 
@@ -427,9 +500,10 @@ utils.dateFormat(
 function dateAdd(date, config: number | { year?: number, month?: number, day?: number, hour?: number, min?: number, sec?: number }): Date;
 
 日期加减法。返回新的Date对象。
+
 ```javascript
 var today=utils.dateParse('2017,10,10 10:10:10','yyyy,MM,dd hh:mm:ss');
-utils.dateAdd(today,-2);        //2017,10,8 10:10:10
+utils.dateAdd(today,-2);        //2017,10,8 10:10:10    等效于utils.dateAdd(today,{day:-2});
 utils.dateAdd(today,{hour:2});  //2017,10,10 12:10:10
 ```
 
@@ -448,7 +522,12 @@ function lastWeekInMonth(date: Date): Date;
 返回传入日期所在月份的，第一周的周一、最后一周的周日。
 
 ## weekRange
-function weekRange(startDate: Date, endDate: Date, splitDay = 1): Array<{ tart: Date, end: Date, duration: number }>
+```typescript
+function weekRange(
+    startDate: Date, 
+    endDate: Date, 
+    splitDay = 1): Array<{ start: Date, end: Date, duration: number }>
+```
 
 返回开始日期和结束日期的周。计算时忽略时间，只计算日期。
 
@@ -466,7 +545,7 @@ function weekendsCount(startDate: Date, endDate: Date): number
 计算开始日期和结束日期共有周六日多少天。计算时忽略时间，只计算日期。
 
 ## getCookie
-function getCookie(refresh?): object;
+function getCookie(refresh = false): object;
 
 返回一个指代当前cookie的对象。兼容.NET中的多值cookie。
 
@@ -481,7 +560,17 @@ if(utils.getCookie().multiCookie.values){    //多值cookie，获取multiCookie�
 ```
 
 ## setCookie
-function setCookie(key: string, value: string | object, option?: { path?: string, domain?: string, secure?: boolean, expires?: Date | { day: number, hour: number, min: number, sec: number } }): string
+```typescript
+function setCookie(
+    key: string, 
+    value: string | object, 
+    option?: { 
+            path?: string, 
+            domain?: string, 
+            secure?: boolean, 
+            expires?: Date | { day: number, hour: number, min: number, sec: number } 
+            }): string
+```
 
 设置或添加一个cookie，返回cookie的值。
 
@@ -507,7 +596,7 @@ function deleteCookie(key: string, option): boolean;
         del: typeof deleteCookie,
         delete: typeof deleteCookie,
         set: typeof setCookie,
-        get(name: string, refresh: boolean): string | undefined
+        get(name: string, refresh = false): string | undefined
     };
 
 cookie.del 、cookie.delete 为 deleteCookie的别名。

@@ -268,7 +268,7 @@ let utils = {
     },
     each<T>(
         arrayOrObject: SomeObject<T> | T[],
-        fn: (value: T, index: number, obj: typeof arrayOrObject) => void,
+        fn: (value: T, index: number | string, obj: typeof arrayOrObject) => void,
         context?: any
     ): void {
         let obj = arrayOrObject;
@@ -279,11 +279,11 @@ let utils = {
             fn.call(context, obj[key], key, obj);
         })
     },
-    map<T>(
+    map<T, N>(
         arrayOrObject: SomeObject<T> | T[],
-        fn: (value: T, index: number, obj: typeof arrayOrObject) => any,
+        fn: (value: T, index: number | string, obj: typeof arrayOrObject) => N,
         context?: any
-    ): any[] {
+    ): N[] {
         let obj = arrayOrObject;
         if (isArray(obj)) return (obj as T[]).map(fn, context);
 
@@ -295,7 +295,7 @@ let utils = {
     },
     find<T>(
         arrayOrObject: SomeObject<T> | T[],
-        fn: (value: T, index: number, obj: typeof arrayOrObject) => boolean,
+        fn: (value: T, index: number | string, obj: typeof arrayOrObject) => boolean,
         context?: any
     ): T | undefined {
         let obj = arrayOrObject;
@@ -359,7 +359,7 @@ let utils = {
         return result;
     },
     cache,
-    loop(fn: Function, tick: number, immediate: boolean): string {
+    loop(fn: Function, tick: number, immediate = false): string {
         var key = utils.guid('loop');
 
         var promiseFn = function () {
@@ -392,7 +392,7 @@ let utils = {
      * @param wait {number}
      * @returns {Promise}
      */
-    timeout<T>(fn: () => T, wait = 0) {
+    timeout<T>(fn: (...args) => T, wait = 0) {
         var defer = utils.defer();
         var id = setTimeout(function () {
             defer.resolve(fn());
@@ -735,7 +735,7 @@ let utils = {
      * utils.paddingLeft('12345',3);  //12345
      */
     paddingLeft: function (target = '', len: number, paddingChar: string) {
-        var result, i, targetLen;
+        var result, targetLen;
 
         target += '';
         len = ~~len;
@@ -846,8 +846,8 @@ let promisify = function (original: Function, context?: object): (...args) => Pr
 
         // 如果传入的参数不足fn定义的参数个数，则补足undefined。
         // 但是如果超出了，则还是默认最后添加cb， 因为fn.length不准确，比如使用 ...args形式或使用arguments。
-        var paddingArgsLen = fn.length - 1 - args.length;
-        if (paddingArgsLen > 0) args = args.concat(fill(new Array(6), undefined));
+        var paddingArgsLen = original.length - 1 - args.length;
+        if (paddingArgsLen > 0) args = args.concat(fill(new Array(paddingArgsLen), undefined));
 
         try {
             args.push((err, ...values) => {
@@ -1233,7 +1233,7 @@ var dateUtils = {
      * var end=new Date(2015,8,11);
      * utils.weekendsCount(start,end); //返回2. 2015-8-1至2015-8-11共有两天周末。
      */
-    weekendsCount: function (startDate: Date, endDate: Date) {
+    weekendsCount: function (startDate: Date, endDate: Date): number {
 
         startDate = new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate());
         endDate = new Date(endDate.getFullYear(), endDate.getMonth(), endDate.getDate());

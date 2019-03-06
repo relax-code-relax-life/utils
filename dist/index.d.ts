@@ -52,14 +52,14 @@ declare let result: {
     isFirefox(ua?: string | undefined): string | null;
     isSafari(ua?: string | undefined): string | null;
     defer(): Defer;
-    each<T>(arrayOrObject: SomeObject<T> | T[], fn: (value: T, index: number, obj: SomeObject<T> | T[]) => void, context?: any): void;
-    map<T>(arrayOrObject: SomeObject<T> | T[], fn: (value: T, index: number, obj: SomeObject<T> | T[]) => any, context?: any): any[];
-    find<T>(arrayOrObject: SomeObject<T> | T[], fn: (value: T, index: number, obj: SomeObject<T> | T[]) => boolean, context?: any): T | undefined;
+    each<T>(arrayOrObject: SomeObject<T> | T[], fn: (value: T, index: string | number, obj: SomeObject<T> | T[]) => void, context?: any): void;
+    map<T, N>(arrayOrObject: SomeObject<T> | T[], fn: (value: T, index: string | number, obj: SomeObject<T> | T[]) => N, context?: any): N[];
+    find<T>(arrayOrObject: SomeObject<T> | T[], fn: (value: T, index: string | number, obj: SomeObject<T> | T[]) => boolean, context?: any): T | undefined;
     unique<T>(arr: T[], isSort?: boolean, fn?: ((item: T, index: number, arr: T[]) => any) | undefined, context?: any): T[];
     cache: (fn: Function, context?: Object | undefined, predicate?: Function | undefined) => (refresh: any, ...args: any[]) => any;
-    loop(fn: Function, tick: number, immediate: boolean): string;
+    loop(fn: Function, tick: number, immediate?: boolean): string;
     clearLoop(key: string): void;
-    timeout<T>(fn: () => T, wait?: number): PromiseWithAbort<T>;
+    timeout<T>(fn: (...args: any[]) => T, wait?: number): PromiseWithAbort<T>;
     throttle(fn: Function, alwaysFn?: Function | undefined, immediately?: boolean | undefined, wait?: number | undefined, context?: any): () => void;
     debounce(fn: Function, alwaysFn?: Function | undefined, immediately?: boolean | undefined, wait?: number | undefined, context?: any): () => void;
     download(src: string, fileName: string): void;
@@ -99,7 +99,7 @@ declare let result: {
         end: Date;
         duration: number;
     }[];
-    weekendsCount: (startDate: Date, endDate: Date) => any;
+    weekendsCount: (startDate: Date, endDate: Date) => number;
 } & {
     uniq: <T>(arr: T[], isSort?: boolean, fn?: ((item: T, index: number, arr: T[]) => any) | undefined, context?: any) => T[];
 };
