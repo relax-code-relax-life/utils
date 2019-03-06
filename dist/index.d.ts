@@ -103,4 +103,4 @@ declare let result: {
 } & {
     uniq: <T>(arr: T[], isSort?: boolean, fn?: ((item: T, index: number, arr: T[]) => any) | undefined, context?: any) => T[];
 };
-export default result;
+export = result;
