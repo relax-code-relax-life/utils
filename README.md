@@ -484,18 +484,18 @@ function retry(fn, max: number, wait=0, context?: object) : function
 
 其中`wait`默认为0，即立即进行重试。如果`wait`大于0，则使用`setTimeout`在间隔wait之后进行重试。
 
-`context`
+通过`context`设置fn执行时候的`this`的值，默认和返回的函数执行时的`this`一致。
 
 ```javascript
 var cnt = 0;
 var fn = function(){
-    console.log('retry', ++cnt);
+    console.log('retry', ++cnt, this);
     return Promise.reject();
 }
-utils.retry(fn,3,300)();
-// retry1
-// retry2
-// retry3
+utils.retry(fn,3,300).bind({test:'this'})();
+// retry1 {test:"this"}
+// retry2 {test:"this"}
+// retry3 {test:"this"}
 ```
 
 ## dateFormat
