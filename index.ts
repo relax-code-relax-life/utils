@@ -388,14 +388,14 @@ let utils = {
     },
     /**
      * setTimeout的promise形式。缺点是无法对该任务执行clearTimeout。
-     * @param fn {function}
      * @param wait {number}
+     * @param [fn] {function}
      * @returns {Promise}
      */
-    timeout<T>(fn: (...args) => T, wait = 0) {
+    timeout<T>(wait = 0, fn?: (...args) => T) {
         var defer = utils.defer();
         var id = setTimeout(function () {
-            defer.resolve(fn());
+            defer.resolve(fn ? fn() : undefined);
         }, wait);
 
         let promise = defer.promise as PromiseWithAbort<T>;
@@ -814,7 +814,49 @@ let utils = {
             };
         }
 
-    })()
+    })(),
+
+    // 返回只包含指定属性的对象
+    pick(tar: object, keys: string[] | string): object {
+        if (!tar) return {};
+        if (typeof keys === 'string') keys = keys.split(/ +/);
+        if (!Array.isArray(keys)) return {};
+
+        return keys.reduce((result, key) => {
+            if (!(key in tar)) return result;
+            result[key] = tar[key];
+            return result;
+        }, {})
+    },
+
+    retry<T>(fn: (...args) => Promise<T>, max: number, wait = 0, context: object = this) {
+
+        if (typeof max !== 'number') throw new TypeError('the parameter max is not a number');
+
+        let cnt = 0;
+
+        const exec: (...args) => Promise<T> = function () {
+            cnt++;
+            return Promise.resolve(fn.apply(context, arguments))
+                .then(
+                    (data) => {
+                        cnt = 0;
+                        return data;
+                    },
+                    (err) => {
+                        if (cnt < max) {
+                            if (wait > 0) return utils.timeout(wait, () => exec.apply(this, arguments));
+                            return exec.apply(this, arguments);
+                        }
+                        else {
+                            cnt = 0;
+                            return Promise.reject(err);
+                        }
+                    }
+                )
+        };
+        return exec;
+    }
 
 };
 

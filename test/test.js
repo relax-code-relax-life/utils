@@ -344,9 +344,9 @@ describe("util_", function () {
 
     it('timeout', function (done) {
 
-        var promise = utils.timeout(() => {
+        var promise = utils.timeout(100,() => {
             return 5
-        }, 100);
+        });
 
 
         expect(typeof promise.abort === 'function').toBe(true);
@@ -416,5 +416,42 @@ describe("util_", function () {
             }
         );
     })
+
+    it('pick', function () {
+        var tar = {
+            name: 'wwl',
+            sex: 'male',
+            birth: '03'
+        };
+        expect(utils.pick()).toEqual({});
+        expect(utils.pick(tar, [])).toEqual({});
+        expect(utils.pick(tar, ['tel'])).toEqual({});
+        expect(utils.pick(tar, 'name')).toEqual({name: 'wwl'});
+        expect(utils.pick(tar, 'name sex')).toEqual({name: 'wwl', sex: 'male'});
+        expect(utils.pick(tar, ['sex', 'name'])).toEqual({name: 'wwl', sex: 'male'});
+    });
+
+    it('retry', async function () {
+        // 判断最多执行3次
+        var execCnt = 0;
+        var max = 3;
+        const context = {name: 'context'};
+        let isReject = true;
+        var fn = function () {
+            console.log('wwl =======', execCnt, isReject);
+            expect(this).toEqual(context);
+            execCnt++;
+            if (isReject) return Promise.reject();
+            else return Promise.resolve();
+        };
+        var decorateFn = utils.retry(fn, max, 300, context);
+        await decorateFn().catch(() => expect(execCnt).toEqual(3));
+
+        // 判断第二次执行,retry内部的计数会清零 并且 执行正确情况下，只执行一次
+        execCnt = 0;
+        isReject = false;
+        decorateFn().then(() => expect(execCnt).toEqual(1));
+
+    });
 
 });

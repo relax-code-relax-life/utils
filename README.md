@@ -283,11 +283,10 @@ function clearLoop(key: string): void;
 key为loop()方法返回的值。
 
 ## timeout
-function timeout<T>(fn: (...args) => T, wait = 0): Promise<T>;
+function timeout<T>(wait = 0, fn?: (...args) => T): Promise<T>;
 
-setTimeout的promise版本。
-
-返回一个Promise对象，该Promise返回的是传入的fn的返回的值。
+setTimeout的promise版本。返回一个Promise对象。
+fn是可选的，如果传入fn，则该Promise返回的是fn的返回的值，如果未传入fn，则该Promise返回undefined。
 
 返回的Promise对象带有abort()方法，该方法内部调用clearTimeout，可以通过该方法取消该定时任务。
 
@@ -460,6 +459,43 @@ function template(template : string, data: object): string
 ```javascript
 utils.template('hello,${firstName+secondName}',{firstName:'wang',secondName:'wl'});
 //"hello,wangwl"
+```
+
+## pick
+function pick(tar: object, keys: string | string[]): object;
+
+创建只包含指定属性的对象。
+```javascript
+var tar = {
+            name: 'wwl',
+            sex: 'male',
+            birth: '03'
+        };
+utils.pick(tar, 'name sex'); // {name: 'wwl', sex: 'male'}
+utils.pick(tar, ['sex', 'name']) // {name: 'wwl', sex: 'male'}
+```
+
+## retry
+function retry(fn, max: number, wait=0, context?: object) : function
+
+创建重试函数。
+
+创建的新函数，内部实际执行`fn`，如果`fn`返回了失败的Promise，则会在间隔`wait`时间之后，重新执行`fn`，最多执行`max`次。
+
+其中`wait`默认为0，即立即进行重试。如果`wait`大于0，则使用`setTimeout`在间隔wait之后进行重试。
+
+`context`
+
+```javascript
+var cnt = 0;
+var fn = function(){
+    console.log('retry', ++cnt);
+    return Promise.reject();
+}
+utils.retry(fn,3,300)();
+// retry1
+// retry2
+// retry3
 ```
 
 ## dateFormat

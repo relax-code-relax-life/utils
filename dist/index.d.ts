@@ -59,7 +59,7 @@ declare let result: {
     cache: (fn: Function, context?: Object | undefined, predicate?: Function | undefined) => (refresh: any, ...args: any[]) => any;
     loop(fn: Function, tick: number, immediate?: boolean): string;
     clearLoop(key: string): void;
-    timeout<T>(fn: (...args: any[]) => T, wait?: number): PromiseWithAbort<T>;
+    timeout<T>(wait?: number, fn?: ((...args: any[]) => T) | undefined): PromiseWithAbort<T>;
     throttle(fn: Function, alwaysFn?: Function | undefined, immediately?: boolean | undefined, wait?: number | undefined, context?: any): () => void;
     debounce(fn: Function, alwaysFn?: Function | undefined, immediately?: boolean | undefined, wait?: number | undefined, context?: any): () => void;
     download(src: string, fileName: string): void;
@@ -75,6 +75,8 @@ declare let result: {
     kebabCase(...args: string[]): string;
     paddingLeft: (target: string | undefined, len: number, paddingChar: string) => any;
     template: (temp: string, data: object) => string;
+    pick(tar: object, keys: string | string[]): object;
+    retry<T>(fn: (...args: any[]) => Promise<T>, max: number, wait?: number, context?: object): (...args: any[]) => Promise<T>;
 } & {
     promisify: (original: Function, context?: object | undefined) => (...args: any[]) => Promise<any>;
     getCookie: (refresh?: boolean | undefined) => GetCookieResult;
@@ -103,4 +105,4 @@ declare let result: {
 } & {
     uniq: <T>(arr: T[], isSort?: boolean, fn?: ((item: T, index: number, arr: T[]) => any) | undefined, context?: any) => T[];
 };
-export = result;
+export default result;
