@@ -1396,10 +1396,10 @@ var getCookie: (refresh?: boolean) => GetCookieResult = cache(function () {
             expires = option.expires;
             date = new Date();
             date.setTime(date.valueOf() +
-                (isNumber(expires.day) ? expires.day * 86400 : 0) +
-                (isNumber(expires.hour) ? expires.hour * 3600 : 0) +
-                (isNumber(expires.min) ? expires.min * 60 : 0) +
-                (isNumber(expires.sec) ? expires.sec : 0));
+                (isNumber(expires.day) ? expires.day * 86400 * 1000 : 0) +
+                (isNumber(expires.hour) ? expires.hour * 3600 * 1000 : 0) +
+                (isNumber(expires.min) ? expires.min * 60 * 1000 : 0) +
+                (isNumber(expires.sec) ? expires.sec * 1000 : 0));
             option.expires = date;
         }
 
