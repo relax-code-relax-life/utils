@@ -42,14 +42,14 @@ const reg_isUrl = /^(([^:/?#]+):)?(\/\/([^/?#]*))?([^?#]*)(\?([^#]*))?(#(.*))?/i
 //128-255为扩展字符
     reg_camelCase = /-([a-zA-Z])/g,
     reg_upperCase = /[A-Z]/g,
-    reg_query = /(?:[?&])(.*?)=(.*?)(?=&|$|#)/g,
+    reg_query = /(?:[?&])(.*?)(?:=(.*?))?(?=&|$|#)/g,
     reg_dateFmt = /y+|M+|d+|H+|h+|m+|s+|S+|a|(\[.*?])/g,
     reg_parseParam = /(?:^|&)(.*?)=(.*?)(?=&|$)/g,
     reg_template = /\$\{\s*(.+?)\s*\}/g,
 
     reg_chrome = /Chrome\/(\d+)/,
     reg_firefox = /Firefox\/(\d+)/,
-    reg_safari = /Version\/([\d.]+) Safari\/\d+/,
+    reg_safari = /Version\/([\d.]+)( Mobile\/.+?)? Safari\/\d+/,
     reg_ie = /MSIE (\d+)/,
     reg_ie2 = /Trident\/.*; rv:(\d+)/,  //检测ie11+
     reg_ieEdge = /(Edge\/\d+)/,
@@ -145,6 +145,19 @@ const cache = function (fn: Function, context?: Object, predicate?: Function) {
         return result;
     }
 };
+
+const formatExcludeParam = function (val: boolean | string[] | undefined) {
+    var excludeMap = {}, excludeAll = false;
+    if (isArray(val)) {
+        (val as string[]).forEach(key => excludeMap[key] = true);
+    } else {
+        excludeAll = val as boolean;
+    }
+    return {
+        map: excludeMap,
+        isAll: excludeAll
+    }
+}
 
 const copyTxt = (function () {
     var getFakeEle = function (): HTMLTextAreaElement {
@@ -541,15 +554,9 @@ let utils = {
         var result: string[] = [], val, enc = encodeURIComponent;
 
         //格式化excludeMap: {key1:bool,key2:bool}
-        var excludeMap = {}, excludeAll = false;
-        if (isArray(encodeEx)) {
-            (encodeEx as string[]).forEach(function (key) {
-                excludeMap[key] = true;
-            })
-        } else {
-            excludeAll = encodeEx as boolean;
-        }
-
+        var fmtEncodeEx = formatExcludeParam(encodeEx);
+        var excludeMap = fmtEncodeEx.map,
+            excludeAll = fmtEncodeEx.isAll;
 
         for (var key in params) {
             val = params[key];
@@ -576,12 +583,9 @@ let utils = {
             match,
             decode = decodeURIComponent;
 
-        var excludeMap = {}, excludeAll = false;
-        if (isArray(decodeEx)) {
-            (decodeEx as string[]).forEach(key => excludeMap[key] = true);
-        } else {
-            excludeAll = decodeEx as boolean;
-        }
+        var fmtDecodeEx = formatExcludeParam(decodeEx);
+        var excludeMap = fmtDecodeEx.map,
+            excludeAll = fmtDecodeEx.isAll;
 
         while (match = reg_parseParam.exec(paramStr)) {
             data[match[1]] = excludeAll || excludeMap[match[1]] ? match[2] : decode(match[2]);
@@ -593,7 +597,7 @@ let utils = {
     /**
      * 针对url添加查询字符串。
      * 该方法不是一个绝对安全的方法，可能会改变原url中查询字符串中参数的顺序，以及丢失无法解析的值。
-     * 例如: resolveUrl('localhost?name=wwl&abc',{sex:'male'}) 可能会返回: localhost?sex=male&name=wwl
+     * 例如: resolveUrl('localhost?name=wwl&abc&=123',{sex:'male'}) 可能会返回: localhost?sex=male&name=wwl&abc=
      * @param url {String}
      * @param param {Object} 代表查询字符串的参数对象
      * @param encodeEx {Boolean|Array} 为true，代表不进行转义。默认为false,即转义。
@@ -606,17 +610,26 @@ let utils = {
     },
 
     /**
-     *返回代表查询字符串的键值对。
+     *返回代表查询字符串的键值对。默认使用decodeURIComponent进行解密，可以通过decodeEx参数不进行解密。
      *@method getQuery
      *@param [url] 需要解析的字符串，默认为location.search
-     *@return {Object} 返回代表当前url中查询字符串的键值对对象。
+     *@param [decodeEx]
+     *@return {Object.<string,string>} 返回代表当前url中查询字符串的键值对对象。
      * 用例：
      * utils.getQuery().id 或者 utils.getQuery('localhost/indexhtml?id=idinfo').id
      */
-    getQuery: function (url?: string) {
+    getQuery: function (url?: string, decodeEx?: boolean | string[]): { [key: string]: string } {
         var q = {}, match;
+        var fmtDecodeEx = formatExcludeParam(decodeEx);
+        var decode = decodeURIComponent;
+
+        var key, val;
         while (match = reg_query.exec(url || (isBrowser && location.search) || '')) {
-            q[match[1]] = match[2];
+            key = match[1];
+            val = match[2];
+            if (!key) continue;    // ?=123&
+            if (!val) val = '';
+            q[decode(key)] = fmtDecodeEx.isAll || fmtDecodeEx.map[key] ? val : decode(val);
         }
         return q;
     },
@@ -847,8 +860,7 @@ let utils = {
                         if (cnt < max) {
                             if (wait > 0) return utils.timeout(wait, () => exec.apply(this, arguments));
                             return exec.apply(this, arguments);
-                        }
-                        else {
+                        } else {
                             cnt = 0;
                             return Promise.reject(err);
                         }

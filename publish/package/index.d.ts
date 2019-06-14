@@ -66,7 +66,9 @@ declare let result: {
     param(params: object, encodeEx?: boolean | string[] | undefined): string;
     parseParam(paramStr: string, decodeEx?: boolean | string[] | undefined): {};
     resolveUrl(url: string, param?: object | undefined, encodeEx?: boolean | string[] | undefined): string;
-    getQuery: (url?: string | undefined) => {};
+    getQuery: (url?: string | undefined, decodeEx?: boolean | string[] | undefined) => {
+        [key: string]: string;
+    };
     countStr: (txt: string, fullVal?: number, halfVal?: number, enterVal?: number) => number;
     copyTxt(txt: string): boolean;
     htmlEncode(txt: string): string;

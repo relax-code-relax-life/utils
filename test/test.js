@@ -18,6 +18,18 @@ describe("util_", function () {
         var url = 'http://wangwl.net/static/projects/visualRegex/#flags=gim&source=%5E((%5B%5E%3A%5C%2F%3F%23%5D%2B)%3A)%3F(%5C%2F%5C%2F(%5B%5E%5C%2F%3F%23%5D*))%3F(%5B%5E%3F%23%5D*)(%5C%3F(%5B%5E%23%5D*))%3F(%23(.*))%3F&match=http%3A%2F%2Fwangwl.net%2Fstatic%2Fprojects%2FvisualRegex%2F%23flags%3Dgim%26source%3D%255E((%255B%255E%253A%252F%253F%2523%255D%252B)%253A)%253F(%252F%252F(%255B%255E%252F%253F%2523%255D*))%253F(%255B%255E%253F%2523%255D*)(%255C%253F(%255B%255E%2523%255D*))%253F(%2523(.*))%253F%26match%3D%250A%25E5%2595%258A';
         expect(utils.isUrl(url)).toEqual(true);
     });
+
+    it('getQuery', function () {
+        expect(utils.getQuery('http://wangwl.com/path/?test=1')).toEqual({test: '1'})
+        expect(utils.getQuery('http://wangwl.com/path?test=true&')).toEqual({test: 'true'})
+        expect(utils.getQuery('http://wangwl.com/path?test')).toEqual({test: ''});
+        expect(utils.getQuery('http://wangwl.com/path?test&')).toEqual({test: ''});
+        expect(utils.getQuery('https://wangwl.com/?name=%2F123%20123%2F&123')).toEqual({'123': '', name: '/123 123/'})
+        expect(utils.getQuery('https://wangwl.com/?n=n=123')).toEqual({n: 'n=123'})
+        expect(utils.getQuery('https://wangwl.com/?=n=n=123')).toEqual({})
+        expect(utils.getQuery('https://wangwl.com/?%2Benc=%2Benc')).toEqual({'+enc':'+enc'})
+    });
+
     it("resolveUrl", function () {
         var host = 'http://127.0.0.1:8080';
 
@@ -63,6 +75,15 @@ describe("util_", function () {
             {
                 input: host + '?key=val&name=123#fragment',
                 output: host + '?key=val&' + paramStrEncodeEx + '#fragment',
+                encodeEx: true
+            },
+            {
+                input: host + '?key=val&123&test=%2F123%20123%2F&name=123#fragment',
+                output: host + '?123=&key=val&test=%2F123%20123%2F&' + paramStr + '#fragment'
+            },
+            {
+                input: host + '?key=val&123&test=%2F123%20123%2F&name=123#fragment',
+                output: host + '?123=&key=val&test=/123 123/&' + paramStrEncodeEx + '#fragment',
                 encodeEx: true
             }
         ];
@@ -259,9 +280,12 @@ describe("util_", function () {
         var str2 = 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.103 Safari/537.36';
         //edge
         var str3 = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; ServiceUI 9) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/52.0.2743.116 Safari/537.36 Edge/15.15063';
+        //ios safari
+        var str4 = 'Mozilla/5.0 (iPhone; CPU iPhone OS 12_3_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/12.1.1 Mobile/15E148 Safari/604.1';
         expect(utils.isSafari(str1)).toEqual('10.1.1');
         expect(utils.isSafari(str2)).toEqual(null);
         expect(utils.isSafari(str3)).toEqual(null);
+        expect(utils.isSafari(str4)).toEqual('12.1.1');
     });
     it('check browser ie version', function () {
         var ie10 = 'Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 10.0; WOW64; Trident/7.0; Touch; .NET4.0C; .NET4.0E; .NET CLR 2.0.50727; .NET CLR 3.0.30729; .NET CLR 3.5.30729; InfoPath.2)';
@@ -344,7 +368,7 @@ describe("util_", function () {
 
     it('timeout', function (done) {
 
-        var promise = utils.timeout(100,() => {
+        var promise = utils.timeout(100, () => {
             return 5
         });
 
