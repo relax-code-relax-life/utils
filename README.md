@@ -347,25 +347,12 @@ utils.param({name:'+wwl'},true);    //"name=+wwl"
 utils.param({name:'+wwl'},['name']);//"name=+wwl"
 ```
 
-## parseParam
-function parseParam(paramStr: string, decodeEx?: boolean | string[] ): {};
-
-将key=value&key1=value1形式的字符串转换成对象，param的反向操作。
-
-value默认会通过decodeURIComponent进行解密。
-
-通过设置decodeEx参数不进行解密。
-```javascript
-utils.parseParam('name=%2Bwwl')             //{name:"+wwl"}
-utils.parseParam('name=%2Bwwl',true)        //{name:"%2Bwwl"}
-utils.parseParam('name=%2Bwwl',['name'])    //{name:"%2Bwwl"}
-
-```
-
 ## resolveUrl
 function resolveUrl(url: string, param?: object , encodeEx?: boolean | string[] ): string;
 
 在指定的url上添加查询字符串。
+
+encodeEx参数默认为false，具体规则和`param()`中`encodeEx`参数规则一致。
 ```javascript
 //该方法不是一个绝对安全的方法，可能会改变原url中查询字符串中参数的顺序，以及丢失无法解析的值。
 //例如:
@@ -373,12 +360,31 @@ resolveUrl('localhost?name=wwl&abc',{sex:'male'});
 //可能会返回: localhost?sex=male&name=wwl
 ```
 
+## parseParam
+function parseParam(paramStr: string, decodeEx?: boolean | string[] ): {};
+
+将key=value&key1=value1形式的字符串转换成对象，param的反向操作。
+
+value默认会通过decodeURIComponent进行解密。
+
+通过设置decodeEx参数为true则不进行解密。或者设置为数组`[key1,key2]`指定特定的key不进行解密。
+```javascript
+utils.parseParam('name=%2Bwwl')             //{name:"+wwl"}
+utils.parseParam('name=%2Bwwl',true)        //{name:"%2Bwwl"}
+utils.parseParam('name=%2Bwwl',['name'])    //{name:"%2Bwwl"}
+
+```
+
 ## getQuery
-function getQuery(url = location.search): object;
+function getQuery(url = location.search, decodeEx?: boolean | string[] ): object;
 
 返回代表查询字符串的键值对。
 
 默认处理当前页面的url。
+
+默认会使用`decodeURIComponent`对解析到的值进行解密。
+
+可通过设置`decodeEx`不进行解密，具体规则和`parseParam()`中的`decodeEx`参数规则一致。
 ```javascript
 utils.getQuery().id;
 utils.getQuery('localhost/indexhtml?id=idinfo').id
