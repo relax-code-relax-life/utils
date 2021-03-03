@@ -5,7 +5,7 @@
 const UglifyJSPlugin = require('uglifyjs-webpack-plugin');
 const webpack = require('webpack');
 
-var isDev = false;
+const isDev = false;
 
 module.exports = {
     mode: isDev ? 'none' : 'production',

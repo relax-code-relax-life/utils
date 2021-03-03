@@ -208,7 +208,7 @@ utils.promisify(add)('abc', 2).then(
 ```javascript
 // nodejs环境
 const nodeUtil = require('util');
-const relaxUtil = require('./dist/index');
+const relaxUtil = require('relax-utils');
 
 const print = function (a, b, cb) {
     cb(null, a, b);
@@ -357,7 +357,7 @@ encodeEx参数默认为false，具体规则和`param()`中`encodeEx`参数规则
 //该方法不是一个绝对安全的方法，可能会改变原url中查询字符串中参数的顺序，以及丢失无法解析的值。
 //例如:
 resolveUrl('localhost?name=wwl&abc',{sex:'male'});
-//可能会返回: localhost?sex=male&name=wwl
+//会返回: localhost?sex=male&name=wwl
 ```
 
 ## parseParam

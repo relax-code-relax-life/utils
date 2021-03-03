@@ -12,11 +12,6 @@ interface PromiseWithAbort<T> extends Promise<T> {
     abort()
 }
 
-interface SomeObject<T> {
-    [prop: string]: T
-}
-
-
 const isBrowser = typeof window !== 'undefined' && window.document;
 
 const userAgent = isBrowser ? navigator.userAgent : '';
@@ -29,7 +24,6 @@ const reg_isUrl = /^(([^:/?#]+):)?(\/\/([^/?#]*))?([^?#]*)(\?([^#]*))?(#(.*))?/i
     reg_enterChar = /\n/g,
     reg_htmlEncode = /"|&|'|<|>|[\x00-\x20]|[\x7F-\xFF]/g,
     reg_htmlDecode = /&#(\d+);|(<br\s*\/\s*>)/g,
-    reg_htmlDecodeBrowser = /&#.+?;/g,
     //十六进制表示:
     // \x1abf4: 可以使用任意多的十六进制数字，直至不是十六进制数字为止；
     // \uAAAA: 16位的通用字符名,\u后面必须跟4个十六进制数字（不足四位前面用零补齐).
@@ -96,25 +90,27 @@ function browserVersion(reg: RegExp, ua?: string): null | string {
 const call = Function.prototype.call;
 const slice = call.bind(Array.prototype.slice);
 const tostring = call.bind(Object.prototype.toString);
-const isArray = Array.isArray || function (arr) {
+const isArray: (arr) => arr is any[] = Array.isArray || function (arr) {
     return tostring(arr) === '[object Array]'
 };
-const isFunction = function (fn) {
+const isFunction = function (fn) : fn is Function {
     return tostring(fn) === '[object Function]'
 };
-const isBoolean = function (val) {
+const isBoolean = function (val) : val is boolean {
     return typeof val === 'boolean';
 };
-const isNumber = function (val) {
+const isNumber = function (val) : val is number {
     return typeof val === 'number'
 };
-const isDate = function (val) {
+const isDate = function (val) : val is typeof Date {
     return tostring(val) === '[object Date]';
 };
-const assign: <T, U, V, W>(target: T, source1: U, source2?: V, source3?: W) => T & U & V & W = Object.assign
-    || function (tar, ...extend) {
-        extend.forEach((val, key) => {
-            tar[key] = val;
+const assign = Object.assign
+    || function assign(tar, ...extend) {
+        extend.forEach(src => {
+            for(let name in src) {
+                tar[name] = src[name];
+            }
         });
         return tar;
     };
@@ -146,12 +142,12 @@ const cache = function (fn: Function, context?: Object, predicate?: Function) {
     }
 };
 
-const formatExcludeParam = function (val: boolean | string[] | undefined) {
-    var excludeMap = {}, excludeAll = false;
+const formatExcludeParam = function (val: boolean | string[]) {
+    let excludeMap = {}, excludeAll = false;
     if (isArray(val)) {
-        (val as string[]).forEach(key => excludeMap[key] = true);
+        val.forEach(key => excludeMap[key] = true);
     } else {
-        excludeAll = val as boolean;
+        excludeAll = val;
     }
     return {
         map: excludeMap,
@@ -160,7 +156,7 @@ const formatExcludeParam = function (val: boolean | string[] | undefined) {
 }
 
 const copyTxt = (function () {
-    var getFakeEle = function (): HTMLTextAreaElement {
+    var getFakeEle = function () {
         var id = 'inner_copy_fake_ele';
 
         var ele = document.getElementById(id) as HTMLTextAreaElement;
@@ -177,7 +173,7 @@ const copyTxt = (function () {
         document.body.appendChild(ele);
         return ele;
     };
-    return function (txt) {
+    return function (txt:string): boolean{
 
         var ele = getFakeEle();
         ele.value = txt;
@@ -210,14 +206,13 @@ let utils = {
         interface NetworkInformation {
             type?: string;
         }
-
-        interface Navigator {
+        type Nav = typeof window.navigator & {
             connection?: NetworkInformation,
             mozConnection?: NetworkInformation,
             webkitConnection?: NetworkInformation
         }
 
-        const n = navigator as Navigator;
+        const n = navigator as Nav;
         var connection = n.connection || n.mozConnection || n.webkitConnection;
         if (connection) {
             // return connection.type === 'wifi';
@@ -245,7 +240,7 @@ let utils = {
      *判断是否为类数组。
      *规则：参数为object类型(Node类型除外)，且具有非负整数的、可用的(不为NaN的有限数字)、小于2^32的length属性；则视为类数组。
      */
-    isArrayLike(o: any) {
+    isArrayLike(o: any): o is ArrayLike<any>{
         return o &&                 //非null undefined
             typeof o === 'object' &&   //o为对象
             isFinite(o.length) &&           //o.length为有限数字，当传入值的valueof()不能转化为数字返回false
@@ -259,16 +254,16 @@ let utils = {
      * @param ua
      * @returns {null|string}
      */
-    isIE(ua?: string): null | string {
+    isIE(ua?: string) {
         return browserVersion(reg_ie, ua) || browserVersion(reg_ie2, ua) || browserVersion(reg_ieEdge, ua);
     },
-    isChrome(ua?: string): null | string {
+    isChrome(ua?: string) {
         return browserVersion(reg_chrome, ua);
     },
-    isFirefox(ua?: string): null | string {
+    isFirefox(ua?: string) {
         return browserVersion(reg_firefox, ua);
     },
-    isSafari(ua?: string): null | string {
+    isSafari(ua?: string) {
         return (browserVersion(reg_chrome, ua) || browserVersion(reg_ieEdge, ua)) ? null : browserVersion(reg_safari, ua);
     },
     defer(): Defer {
@@ -279,46 +274,54 @@ let utils = {
         });
         return defer;
     },
-    each<T>(
-        arrayOrObject: SomeObject<T> | T[],
-        fn: (value: T, index: number | string, obj: typeof arrayOrObject) => void,
+    each<T extends object | any[]>(
+        arrayOrObject: T,
+        fn: (value: any, index: T extends any[] ? number : string, obj: typeof arrayOrObject) => void,
         context?: any
     ): void {
         let obj = arrayOrObject;
-        if (isArray(obj)) return (obj as T[]).forEach(fn, context);
+        if (isArray(obj)) {
+            // @ts-ignore
+            return obj.forEach(fn, context);
+        }
 
         //只遍历自有可枚举属性
         Object.keys(obj).forEach(key => {
             fn.call(context, obj[key], key, obj);
         })
     },
-    map<T, N>(
-        arrayOrObject: SomeObject<T> | T[],
-        fn: (value: T, index: number | string, obj: typeof arrayOrObject) => N,
+    map<T extends any[] | object, N>(
+        arrayOrObject: T,
+        fn: (value: any, index: T extends object ? string : number, obj: typeof arrayOrObject) => N,
         context?: any
     ): N[] {
         let obj = arrayOrObject;
-        if (isArray(obj)) return (obj as T[]).map(fn, context);
+        if (isArray(obj)) {
+            // @ts-ignore
+            return obj.map(fn, context);
+        }
 
-        var result: any[] = [];
+        let result : N[] = [];
         utils.each(obj, (val, key) => {
             result.push(fn.call(context, val, key, obj));
         });
         return result;
     },
-    find<T>(
-        arrayOrObject: SomeObject<T> | T[],
-        fn: (value: T, index: number | string, obj: typeof arrayOrObject) => boolean,
+    find<T extends any[] | object>(
+        arrayOrObject: T,
+        fn: (value: any, index: T extends any[] ? number : string, obj: typeof arrayOrObject) => boolean,
         context?: any
-    ): T | undefined {
+    ): any | undefined {
         let obj = arrayOrObject;
-        if (isArray(obj)) return (obj as T[]).find(fn, context);
-        var key: string | undefined = Object.keys(obj).find(function (key) {
+        if (isArray(obj)) {
+            // @ts-ignore
+            return obj.find(fn, context);
+        }
+        let key = Object.keys(obj).find(function (key) {
             return fn.call(context, obj[key], key, obj);
         });
 
-        //@ts-ignore
-        return obj[key];
+        return key && obj[key];
 
     },
     /**
@@ -346,12 +349,12 @@ let utils = {
             return Array.from(new Set(arr));
         }
 
-        var result: T[] = [];
+        let result: T[] = [];
 
-        var mapArr = fn ? arr.map(fn, context) : arr;
+        let mapArr = fn ? arr.map(fn, context) : arr;
 
         if (isSort) {
-            var pre;
+            let pre;
             mapArr.forEach((item, i) => {
                 if (pre !== item) {
                     pre = item;
@@ -360,7 +363,7 @@ let utils = {
             });
         } else {
             //提前map
-            var mapResult: T[] = [];
+            let mapResult: T[] = [];
             mapArr.forEach(function (item, i) {
                 if (!mapResult.includes(item)) {
                     mapResult.push(item);
@@ -373,7 +376,7 @@ let utils = {
     },
     cache,
     loop(fn: Function, tick: number, immediate = false): string {
-        var key = utils.guid('loop');
+        let key = utils.guid('loop');
 
         var promiseFn = function () {
             return Promise.resolve(fn());
@@ -393,17 +396,17 @@ let utils = {
         return key;
     },
     clearLoop(key: string) {
-        var timeoutId = loopIds[key];
+        let timeoutId = loopIds[key];
         if (timeoutId) {
             clearTimeout(timeoutId);
             loopIds[key] = undefined;
         }
     },
     /**
-     * setTimeout的promise形式。缺点是无法对该任务执行clearTimeout。
+     * setTimeout的promise形式。通过返回的promise.abort执行clearTimeout
      * @param wait {number}
      * @param [fn] {function}
-     * @returns {Promise}
+     * @returns {Promise} 带abort方法的promise
      */
     timeout<T>(wait = 0, fn?: (...args) => T) {
         var defer = utils.defer();
@@ -419,14 +422,14 @@ let utils = {
         return promise;
     },
 
-    //间隔wait执行 //optional:alwaysFn,immediately,context
+    //间隔wait执行, fn阶段性的执行。在wait时间里实际只执行fn一次，多次调用则到下一个wait时间才能执行。
+    //optional:alwaysFn,immediately,context
     throttle(fn: Function, alwaysFn?: Function, immediately?: boolean, wait?: number, context?: any) {
         if (!isFunction(alwaysFn)) {
             context = wait;
             // @ts-ignore
             wait = immediately;
-            // @ts-ignore
-            immediately = alwaysFn as Function;
+            immediately = alwaysFn;
             alwaysFn = undefined;
         }
         if (!isBoolean(immediately)) {
@@ -437,8 +440,8 @@ let utils = {
         }
         if (wait == null) wait = 300;
 
-        var oriContext = context;
-        var timeoutId, args,
+        let oriContext = context;
+        let timeoutId, args,
             execFn;
 
         if (immediately) {
@@ -473,14 +476,15 @@ let utils = {
      * @param [context] {Object}
      * @returns {Function}
      */
-    //optional:alwaysFn,immediately,context
+    // immediately为false, 则如果在wait时间里一直调用，fn就一直不执行，等最后一次调用的wait时间之后，才执行fn
+    // immediately为true, 则如果在wait时间里一直调用，第一次调用的时候执行fn，之后的调用都不执行，等最后一次调用的wait时间之后再调用才会执行fn
+    // optional:alwaysFn,immediately,context
     debounce(fn: Function, alwaysFn?: Function, immediately?: boolean, wait?: number, context?: any) {
 
         if (!isFunction(alwaysFn)) {
             context = wait;
             // @ts-ignore
             wait = immediately;
-            // @ts-ignore
             immediately = alwaysFn;
             alwaysFn = undefined;
         }
@@ -493,16 +497,16 @@ let utils = {
 
         if (wait == null) wait = 300;
 
-        var oriContext = context;
+        let oriContext = context;
 
-        var timeoutId, arg;
+        let timeoutId, arg;
 
-        var setTimer = function (fn) {
+        let setTimer = function (fn) {
             clearTimeout(timeoutId);
             timeoutId = setTimeout(fn, wait)
         };
 
-        var execFn;
+        let execFn;
         if (immediately) {
 
             execFn = function () {
@@ -549,7 +553,7 @@ let utils = {
      * @param encodeEx {Boolean|Array} 不进行转义。数组形式:[key1,key2,...]，指定特定的key不进行转义
      * @returns {*}
      */
-    param(params: object, encodeEx?: boolean | string[]): string {
+    param(params: object, encodeEx: boolean | string[] = false): string {
         if (params == null || typeof params !== 'object') return params ? params + '' : '';
         var result: string[] = [], val, enc = encodeURIComponent;
 
@@ -558,7 +562,7 @@ let utils = {
         var excludeMap = fmtEncodeEx.map,
             excludeAll = fmtEncodeEx.isAll;
 
-        for (var key in params) {
+        for (let key in params) {
             val = params[key];
             if (val == null) val = '';
             else if (typeof val === 'object') val = JSON.stringify(val);
@@ -578,7 +582,7 @@ let utils = {
      * @param decodeEx {Boolean|Array}
      * @returns {{}}
      */
-    parseParam(paramStr: string, decodeEx?: boolean | string[]) {
+    parseParam(paramStr: string, decodeEx: boolean | string[] = false) {
         var data = {},
             match,
             decode = decodeURIComponent;
@@ -597,7 +601,7 @@ let utils = {
     /**
      * 针对url添加查询字符串。
      * 该方法不是一个绝对安全的方法，可能会改变原url中查询字符串中参数的顺序，以及丢失无法解析的值。
-     * 例如: resolveUrl('localhost?name=wwl&abc&=123',{sex:'male'}) 可能会返回: localhost?sex=male&name=wwl&abc=
+     * 例如: resolveUrl('localhost?name=wwl&abc&=123',{sex:'male'}) 会返回: localhost?sex=male&name=wwl&abc=
      * @param url {String}
      * @param param {Object} 代表查询字符串的参数对象
      * @param encodeEx {Boolean|Array} 为true，代表不进行转义。默认为false,即转义。
@@ -618,7 +622,7 @@ let utils = {
      * 用例：
      * utils.getQuery().id 或者 utils.getQuery('localhost/indexhtml?id=idinfo').id
      */
-    getQuery: function (url?: string, decodeEx?: boolean | string[]): { [key: string]: string } {
+    getQuery: function (url?: string, decodeEx: boolean | string[] = false): { [key: string]: string } {
         var q = {}, match;
         var fmtDecodeEx = formatExcludeParam(decodeEx);
         var decode = decodeURIComponent;
@@ -695,19 +699,12 @@ let utils = {
     },
     htmlDecode(val: string) {
         if (val == null || val === '') return '';
-        var match = val.match(reg_htmlDecodeBrowser);
-        if (match) {
-            var el = document.createElement('div');
-            el.innerHTML = match.join(',');
-            match = el.innerText.split(',');
-            //@ts-ignore
-            el = null;
-        } else match = [];
-
-        var index = 0;
-        return val.replace(reg_htmlDecodeBrowser, (result, pos) => {
-            return (match as string[])[index++];
-        });
+        let el = document.createElement('div');
+        el.innerHTML = val;
+        let text = el.innerText;
+        // @ts-ignore
+        el = null;
+        return text;
     },
 
     /**
@@ -830,9 +827,8 @@ let utils = {
     })(),
 
     // 返回只包含指定属性的对象
-    pick(tar: object, keys: string[] | string): object {
+    pick<T extends object,K extends keyof T>(tar: T, keys: string[]): Pick<T,K> | {} {
         if (!tar) return {};
-        if (typeof keys === 'string') keys = keys.split(/ +/);
         if (!Array.isArray(keys)) return {};
 
         return keys.reduce((result, key) => {
@@ -848,7 +844,7 @@ let utils = {
 
         let cnt = 0;
 
-        const exec: (...args) => Promise<T> = function () {
+        const exec = function () : Promise<T> {
             cnt++;
             return Promise.resolve(fn.apply(context, arguments))
                 .then(

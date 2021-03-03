@@ -16,7 +16,7 @@
   "scripts": {
     "test": "karma start karma.conf.js",
     "build": "webpack --config webpack.config.js",
-    "pub":"node publish/index"
+    "pub": "node publish/index"
   },
   "repository": {
     "type": "git",
