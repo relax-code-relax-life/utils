@@ -6,9 +6,6 @@ interface Defer {
 interface PromiseWithAbort<T> extends Promise<T> {
     abort(): any;
 }
-interface SomeObject<T> {
-    [prop: string]: T;
-}
 interface DateAddConfig {
     year?: number;
     month?: number;
@@ -46,15 +43,15 @@ declare let result: {
     isWindows(): boolean;
     isMac(): boolean;
     isUrl(str: string): boolean;
-    isArrayLike(o: any): boolean;
+    isArrayLike(o: any): o is ArrayLike<any>;
     isIE(ua?: string | undefined): string | null;
     isChrome(ua?: string | undefined): string | null;
     isFirefox(ua?: string | undefined): string | null;
     isSafari(ua?: string | undefined): string | null;
     defer(): Defer;
-    each<T>(arrayOrObject: SomeObject<T> | T[], fn: (value: T, index: string | number, obj: SomeObject<T> | T[]) => void, context?: any): void;
-    map<T, N>(arrayOrObject: SomeObject<T> | T[], fn: (value: T, index: string | number, obj: SomeObject<T> | T[]) => N, context?: any): N[];
-    find<T>(arrayOrObject: SomeObject<T> | T[], fn: (value: T, index: string | number, obj: SomeObject<T> | T[]) => boolean, context?: any): T | undefined;
+    each<T extends object | any[]>(arrayOrObject: T, fn: (value: any, index: T extends any[] ? number : string, obj: T) => void, context?: any): void;
+    map<T extends object | any[], N>(arrayOrObject: T, fn: (value: any, index: T extends object ? string : number, obj: T) => N, context?: any): N[];
+    find<T extends object | any[]>(arrayOrObject: T, fn: (value: any, index: T extends any[] ? number : string, obj: T) => boolean, context?: any): any;
     unique<T>(arr: T[], isSort?: boolean, fn?: ((item: T, index: number, arr: T[]) => any) | undefined, context?: any): T[];
     cache: (fn: Function, context?: Object | undefined, predicate?: Function | undefined) => (refresh: any, ...args: any[]) => any;
     loop(fn: Function, tick: number, immediate?: boolean): string;
@@ -63,10 +60,10 @@ declare let result: {
     throttle(fn: Function, alwaysFn?: Function | undefined, immediately?: boolean | undefined, wait?: number | undefined, context?: any): () => void;
     debounce(fn: Function, alwaysFn?: Function | undefined, immediately?: boolean | undefined, wait?: number | undefined, context?: any): () => void;
     download(src: string, fileName: string): void;
-    param(params: object, encodeEx?: boolean | string[] | undefined): string;
-    parseParam(paramStr: string, decodeEx?: boolean | string[] | undefined): {};
+    param(params: object, encodeEx?: boolean | string[]): string;
+    parseParam(paramStr: string, decodeEx?: boolean | string[]): {};
     resolveUrl(url: string, param?: object | undefined, encodeEx?: boolean | string[] | undefined): string;
-    getQuery: (url?: string | undefined, decodeEx?: boolean | string[] | undefined) => {
+    getQuery: (url?: string | undefined, decodeEx?: boolean | string[]) => {
         [key: string]: string;
     };
     countStr: (txt: string, fullVal?: number, halfVal?: number, enterVal?: number) => number;
@@ -77,8 +74,8 @@ declare let result: {
     kebabCase(...args: string[]): string;
     paddingLeft: (target: string | undefined, len: number, paddingChar: string) => any;
     template: (temp: string, data: object) => string;
-    pick(tar: object, keys: string | string[]): object;
-    retry<T>(fn: (...args: any[]) => Promise<T>, max: number, wait?: number, context?: object): (...args: any[]) => Promise<T>;
+    pick<T extends object, K extends keyof T>(tar: T, keys: string[]): {} | Pick<T, K>;
+    retry<T>(fn: (...args: any[]) => Promise<T>, max: number, wait?: number, context?: object): () => Promise<T>;
 } & {
     promisify: (original: Function, context?: object | undefined) => (...args: any[]) => Promise<any>;
     getCookie: (refresh?: boolean | undefined) => GetCookieResult;
