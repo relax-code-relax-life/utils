@@ -347,6 +347,9 @@ describe("util_", function () {
 
     it('htmlDecode', function () {
         expect(
+            utils.htmlDecode('&lt;123&gt;')
+        ).toEqual('<123>');
+        expect(
             utils.htmlDecode('&#60;script&#62;&#34;?&#38;&#60;/script&#62;<script>')
         ).toEqual('<script>"?&</script><script>');
     });
@@ -450,8 +453,9 @@ describe("util_", function () {
         expect(utils.pick()).toEqual({});
         expect(utils.pick(tar, [])).toEqual({});
         expect(utils.pick(tar, ['tel'])).toEqual({});
-        expect(utils.pick(tar, 'name')).toEqual({name: 'wwl'});
-        expect(utils.pick(tar, 'name sex')).toEqual({name: 'wwl', sex: 'male'});
+        // 1.0.59开始，第二个参数只支持数组
+        // expect(utils.pick(tar, 'name')).toEqual({name: 'wwl'});
+        // expect(utils.pick(tar, 'name sex')).toEqual({name: 'wwl', sex: 'male'});
         expect(utils.pick(tar, ['sex', 'name'])).toEqual({name: 'wwl', sex: 'male'});
     });
 

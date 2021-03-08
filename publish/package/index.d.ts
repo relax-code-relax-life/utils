@@ -1,7 +1,7 @@
 interface Defer {
     promise: Promise<any>;
-    resolve: (data?: any) => void;
-    reject: (error?: any) => void;
+    resolve: (data?: any) => Promise<any>;
+    reject: (error?: any) => Promise<any>;
 }
 interface PromiseWithAbort<T> extends Promise<T> {
     abort(): any;

@@ -4,8 +4,8 @@
 
 interface Defer {
     promise: Promise<any>,
-    resolve: (data?: any) => void,
-    reject: (error?: any) => void
+    resolve: (data?: any) => Promise<any>,
+    reject: (error?: any) => Promise<any>
 }
 
 interface PromiseWithAbort<T> extends Promise<T> {
@@ -24,6 +24,7 @@ const reg_isUrl = /^(([^:/?#]+):)?(\/\/([^/?#]*))?([^?#]*)(\?([^#]*))?(#(.*))?/i
     reg_enterChar = /\n/g,
     reg_htmlEncode = /"|&|'|<|>|[\x00-\x20]|[\x7F-\xFF]/g,
     reg_htmlDecode = /&#(\d+);|(<br\s*\/\s*>)/g,
+    reg_htmlDecodeBrowser = /&.+?;/g,
     //十六进制表示:
     // \x1abf4: 可以使用任意多的十六进制数字，直至不是十六进制数字为止；
     // \uAAAA: 16位的通用字符名,\u后面必须跟4个十六进制数字（不足四位前面用零补齐).
@@ -269,8 +270,14 @@ let utils = {
     defer(): Defer {
         var defer = {} as Defer;
         defer.promise = new Promise(function (resolve, reject) {
-            defer.resolve = resolve;
-            defer.reject = reject;
+            defer.resolve = (...args) => {
+                resolve(...args);
+                return defer.promise;
+            };
+            defer.reject = (...args) =>{
+                reject(...args);
+                return defer.promise;
+            };
         });
         return defer;
     },
@@ -699,12 +706,19 @@ let utils = {
     },
     htmlDecode(val: string) {
         if (val == null || val === '') return '';
-        let el = document.createElement('div');
-        el.innerHTML = val;
-        let text = el.innerText;
-        // @ts-ignore
-        el = null;
-        return text;
+        var match = val.match(reg_htmlDecodeBrowser);
+        if (match) {
+            var el = document.createElement('div');
+            el.innerHTML = match.join(',');
+            match = el.innerText.split(',');
+            //@ts-ignore
+            el = null;
+        } else match = [];
+
+        var index = 0;
+        return val.replace(reg_htmlDecodeBrowser, (result, pos) => {
+            return (match as string[])[index++];
+        });
     },
 
     /**
