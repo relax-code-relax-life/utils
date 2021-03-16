@@ -94,22 +94,22 @@ const tostring = call.bind(Object.prototype.toString);
 const isArray: (arr) => arr is any[] = Array.isArray || function (arr) {
     return tostring(arr) === '[object Array]'
 };
-const isFunction = function (fn) : fn is Function {
+const isFunction = function (fn): fn is Function {
     return tostring(fn) === '[object Function]'
 };
-const isBoolean = function (val) : val is boolean {
+const isBoolean = function (val): val is boolean {
     return typeof val === 'boolean';
 };
-const isNumber = function (val) : val is number {
+const isNumber = function (val): val is number {
     return typeof val === 'number'
 };
-const isDate = function (val) : val is typeof Date {
+const isDate = function (val): val is typeof Date {
     return tostring(val) === '[object Date]';
 };
 const assign = Object.assign
     || function assign(tar, ...extend) {
         extend.forEach(src => {
-            for(let name in src) {
+            for (let name in src) {
                 tar[name] = src[name];
             }
         });
@@ -174,7 +174,7 @@ const copyTxt = (function () {
         document.body.appendChild(ele);
         return ele;
     };
-    return function (txt:string): boolean{
+    return function (txt: string): boolean {
 
         var ele = getFakeEle();
         ele.value = txt;
@@ -207,6 +207,7 @@ let utils = {
         interface NetworkInformation {
             type?: string;
         }
+
         type Nav = typeof window.navigator & {
             connection?: NetworkInformation,
             mozConnection?: NetworkInformation,
@@ -241,7 +242,7 @@ let utils = {
      *判断是否为类数组。
      *规则：参数为object类型(Node类型除外)，且具有非负整数的、可用的(不为NaN的有限数字)、小于2^32的length属性；则视为类数组。
      */
-    isArrayLike(o: any): o is ArrayLike<any>{
+    isArrayLike(o: any): o is ArrayLike<any> {
         return o &&                 //非null undefined
             typeof o === 'object' &&   //o为对象
             isFinite(o.length) &&           //o.length为有限数字，当传入值的valueof()不能转化为数字返回false
@@ -274,7 +275,7 @@ let utils = {
                 resolve(...args);
                 return defer.promise;
             };
-            defer.reject = (...args) =>{
+            defer.reject = (...args) => {
                 reject(...args);
                 return defer.promise;
             };
@@ -308,7 +309,7 @@ let utils = {
             return obj.map(fn, context);
         }
 
-        let result : N[] = [];
+        let result: N[] = [];
         utils.each(obj, (val, key) => {
             result.push(fn.call(context, val, key, obj));
         });
@@ -429,118 +430,9 @@ let utils = {
         return promise;
     },
 
-    //间隔wait执行, fn阶段性的执行。在wait时间里实际只执行fn一次，多次调用则到下一个wait时间才能执行。
-    //optional:alwaysFn,immediately,context
-    throttle(fn: Function, alwaysFn?: Function, immediately?: boolean, wait?: number, context?: any) {
-        if (!isFunction(alwaysFn)) {
-            context = wait;
-            // @ts-ignore
-            wait = immediately;
-            immediately = alwaysFn;
-            alwaysFn = undefined;
-        }
-        if (!isBoolean(immediately)) {
-            context = wait;
-            // @ts-ignore
-            wait = immediately;
-            immediately = false;
-        }
-        if (wait == null) wait = 300;
-
-        let oriContext = context;
-        let timeoutId, args,
-            execFn;
-
-        if (immediately) {
-            execFn = function () {
-                fn.apply(context, args);
-                timeoutId = setTimeout(function () {
-                    timeoutId = undefined;
-                }, wait);
-            }
-        } else {
-            execFn = function () {
-                timeoutId = setTimeout(function () {
-                    fn.apply(context, args);
-                    timeoutId = undefined;
-                }, wait);
-            }
-        }
-
-        return function () {
-            args = arguments;
-            !oriContext && (context = this);
-            alwaysFn && alwaysFn.apply(context, args);
-            if (!timeoutId) execFn();
-        }
-    },
-    /**
-     * 防抖动
-     * @param fn {Function}
-     * @param [alwaysFn] {Function}
-     * @param [immediately] {Boolean}
-     * @param wait {Number}
-     * @param [context] {Object}
-     * @returns {Function}
-     */
-    // immediately为false, 则如果在wait时间里一直调用，fn就一直不执行，等最后一次调用的wait时间之后，才执行fn
-    // immediately为true, 则如果在wait时间里一直调用，第一次调用的时候执行fn，之后的调用都不执行，等最后一次调用的wait时间之后再调用才会执行fn
-    // optional:alwaysFn,immediately,context
-    debounce(fn: Function, alwaysFn?: Function, immediately?: boolean, wait?: number, context?: any) {
-
-        if (!isFunction(alwaysFn)) {
-            context = wait;
-            // @ts-ignore
-            wait = immediately;
-            immediately = alwaysFn;
-            alwaysFn = undefined;
-        }
-        if (!isBoolean(immediately)) {
-            context = wait;
-            // @ts-ignore
-            wait = immediately;
-            immediately = false;
-        }
-
-        if (wait == null) wait = 300;
-
-        let oriContext = context;
-
-        let timeoutId, arg;
-
-        let setTimer = function (fn) {
-            clearTimeout(timeoutId);
-            timeoutId = setTimeout(fn, wait)
-        };
-
-        let execFn;
-        if (immediately) {
-
-            execFn = function () {
-                if (!timeoutId) fn.apply(context, arg);
-                setTimer(function () {
-                    timeoutId = undefined
-                });
-            }
-        } else {
-            execFn = function () {
-                setTimer(function () {
-                    fn.apply(context, arg);
-                    timeoutId = undefined;
-                });
-            }
-        }
-
-        return function () {
-            arg = arguments;
-
-            !oriContext && (context = this);
-
-            execFn();
-
-            alwaysFn && alwaysFn.apply(context, arg);
-        }
-    },
+    // throttle/debounce 单独使用function声明，而不是放在utils对象里，是因为在ts的对象字面量语法里，不支持overload
+    throttle,
+    debounce,
 
     download(src: string, fileName: string) {
         var link = document.createElement('a');
@@ -841,7 +733,7 @@ let utils = {
     })(),
 
     // 返回只包含指定属性的对象
-    pick<T extends object,K extends keyof T>(tar: T, keys: string[]): Pick<T,K> | {} {
+    pick<T extends object, K extends keyof T>(tar: T, keys: string[]): Pick<T, K> | {} {
         if (!tar) return {};
         if (!Array.isArray(keys)) return {};
 
@@ -858,7 +750,7 @@ let utils = {
 
         let cnt = 0;
 
-        const exec = function () : Promise<T> {
+        const exec = function (): Promise<T> {
             cnt++;
             return Promise.resolve(fn.apply(context, arguments))
                 .then(
@@ -866,9 +758,9 @@ let utils = {
                         cnt = 0;
                         return data;
                     },
-                    (err) => {
+                    function (err) {
                         if (cnt < max) {
-                            if (wait > 0) return utils.timeout(wait, () => exec.apply(this, arguments));
+                            if (wait > 0) return utils.timeout(wait, (...args) => exec.apply(this, args));
                             return exec.apply(this, arguments);
                         } else {
                             cnt = 0;
@@ -882,6 +774,125 @@ let utils = {
 
 };
 
+//region throttle/debounce
+
+//间隔wait执行, fn阶段性的执行。在wait时间里实际只执行fn一次，多次调用则到下一个wait时间才能执行。
+//optional:alwaysFn,immediately,context
+function throttle(fn:Function, wait?:number, context?:any)
+function throttle(fn:Function, immediately?:boolean, wait?:number, context?:any);
+function throttle(fn:Function, alwaysFn?:Function, wait?:number, context?:any);
+function throttle(fn:Function, alwaysFn?:Function, immediately?:boolean, wait?:number, context?:any)
+function throttle(fn: Function, ...restArgs) {
+    let [alwaysFn, immediately, wait, context] = restArgs;
+    if (!isFunction(alwaysFn)) {
+        context = wait;
+        // @ts-ignore
+        wait = immediately;
+        immediately = alwaysFn;
+        alwaysFn = undefined;
+    }
+    if (!isBoolean(immediately)) {
+        context = wait;
+        // @ts-ignore
+        wait = immediately;
+        immediately = false;
+    }
+    if (wait == null) wait = 300;
+
+    let oriContext = context;
+    let timeoutId, args,
+        execFn;
+
+    if (immediately) {
+        execFn = function () {
+            fn.apply(context, args);
+            timeoutId = setTimeout(function () {
+                timeoutId = undefined;
+            }, wait);
+        }
+    } else {
+        execFn = function () {
+            timeoutId = setTimeout(function () {
+                fn.apply(context, args);
+                timeoutId = undefined;
+            }, wait);
+        }
+    }
+
+    return function () {
+        args = arguments;
+        !oriContext && (context = this);
+        alwaysFn && alwaysFn.apply(context, args);
+        if (!timeoutId) execFn();
+    }
+}
+
+// 防抖动
+// immediately为false, 则如果在wait时间里一直调用，fn就一直不执行，等最后一次调用的wait时间之后，才执行fn
+// immediately为true, 则如果在wait时间里一直调用，第一次调用的时候执行fn，之后的调用都不执行，等最后一次调用的wait时间之后再调用才会执行fn
+// optional:alwaysFn,immediately,context
+function debounce(fn: Function, wait?:number, context?:any);
+function debounce(fn: Function, immediately?:boolean, wait?:number, context?:any);
+function debounce(fn: Function, alwaysFn?: Function, wait?:number, context?:any);
+function debounce(fn: Function, alwaysFn?: Function, immediately?: boolean, wait?: number, context?: any)
+function debounce(fn: Function, ...restArgs) {
+    let [alwaysFn, immediately, wait, context ] = restArgs;
+
+    if (!isFunction(alwaysFn)) {
+        context = wait;
+        // @ts-ignore
+        wait = immediately;
+        immediately = alwaysFn;
+        alwaysFn = undefined;
+    }
+    if (!isBoolean(immediately)) {
+        context = wait;
+        // @ts-ignore
+        wait = immediately;
+        immediately = false;
+    }
+
+    if (wait == null) wait = 300;
+
+    let oriContext = context;
+
+    let timeoutId, arg;
+
+    let setTimer = function (fn) {
+        clearTimeout(timeoutId);
+        timeoutId = setTimeout(fn, wait)
+    };
+
+    let execFn;
+    if (immediately) {
+
+        execFn = function () {
+            if (!timeoutId) fn.apply(context, arg);
+            setTimer(function () {
+                timeoutId = undefined
+            });
+        }
+    } else {
+        execFn = function () {
+            setTimer(function () {
+                fn.apply(context, arg);
+                timeoutId = undefined;
+            });
+        }
+    }
+
+    return function () {
+        arg = arguments;
+
+        !oriContext && (context = this);
+
+        execFn();
+
+        alwaysFn && alwaysFn.apply(context, arg);
+    }
+}
+
+//endregion
 
 //region promisify
 var customPromisifiedSymbol = '__p$symbol__';

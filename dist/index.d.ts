@@ -6,6 +6,14 @@ interface Defer {
 interface PromiseWithAbort<T> extends Promise<T> {
     abort(): any;
 }
+declare function throttle(fn: Function, wait?: number, context?: any): any;
+declare function throttle(fn: Function, immediately?: boolean, wait?: number, context?: any): any;
+declare function throttle(fn: Function, alwaysFn?: Function, wait?: number, context?: any): any;
+declare function throttle(fn: Function, alwaysFn?: Function, immediately?: boolean, wait?: number, context?: any): any;
+declare function debounce(fn: Function, wait?: number, context?: any): any;
+declare function debounce(fn: Function, immediately?: boolean, wait?: number, context?: any): any;
+declare function debounce(fn: Function, alwaysFn?: Function, wait?: number, context?: any): any;
+declare function debounce(fn: Function, alwaysFn?: Function, immediately?: boolean, wait?: number, context?: any): any;
 interface DateAddConfig {
     year?: number;
     month?: number;
@@ -50,15 +58,15 @@ declare let result: {
     isSafari(ua?: string | undefined): string | null;
     defer(): Defer;
     each<T extends object | any[]>(arrayOrObject: T, fn: (value: any, index: T extends any[] ? number : string, obj: T) => void, context?: any): void;
-    map<T extends object | any[], N>(arrayOrObject: T, fn: (value: any, index: T extends object ? string : number, obj: T) => N, context?: any): N[];
-    find<T extends object | any[]>(arrayOrObject: T, fn: (value: any, index: T extends any[] ? number : string, obj: T) => boolean, context?: any): any;
-    unique<T>(arr: T[], isSort?: boolean, fn?: ((item: T, index: number, arr: T[]) => any) | undefined, context?: any): T[];
+    map<T_1 extends object | any[], N>(arrayOrObject: T_1, fn: (value: any, index: T_1 extends object ? string : number, obj: T_1) => N, context?: any): N[];
+    find<T_2 extends object | any[]>(arrayOrObject: T_2, fn: (value: any, index: T_2 extends any[] ? number : string, obj: T_2) => boolean, context?: any): any | undefined;
+    unique<T_3>(arr: T_3[], isSort?: boolean, fn?: ((item: T_3, index: number, arr: T_3[]) => any) | undefined, context?: any): T_3[];
     cache: (fn: Function, context?: Object | undefined, predicate?: Function | undefined) => (refresh: any, ...args: any[]) => any;
     loop(fn: Function, tick: number, immediate?: boolean): string;
     clearLoop(key: string): void;
-    timeout<T>(wait?: number, fn?: ((...args: any[]) => T) | undefined): PromiseWithAbort<T>;
-    throttle(fn: Function, alwaysFn?: Function | undefined, immediately?: boolean | undefined, wait?: number | undefined, context?: any): () => void;
-    debounce(fn: Function, alwaysFn?: Function | undefined, immediately?: boolean | undefined, wait?: number | undefined, context?: any): () => void;
+    timeout<T_4>(wait?: number, fn?: ((...args: any[]) => T_4) | undefined): PromiseWithAbort<T_4>;
+    throttle: typeof throttle;
+    debounce: typeof debounce;
     download(src: string, fileName: string): void;
     param(params: object, encodeEx?: boolean | string[]): string;
     parseParam(paramStr: string, decodeEx?: boolean | string[]): {};
@@ -74,8 +82,8 @@ declare let result: {
     kebabCase(...args: string[]): string;
     paddingLeft: (target: string | undefined, len: number, paddingChar: string) => any;
     template: (temp: string, data: object) => string;
-    pick<T extends object, K extends keyof T>(tar: T, keys: string[]): {} | Pick<T, K>;
-    retry<T>(fn: (...args: any[]) => Promise<T>, max: number, wait?: number, context?: object): () => Promise<T>;
+    pick<T_5 extends object, K extends keyof T_5>(tar: T_5, keys: string[]): {} | Pick<T_5, K>;
+    retry<T_6>(fn: (...args: any[]) => Promise<T_6>, max: number, wait?: number, context?: object): () => Promise<T_6>;
 } & {
     promisify: (original: Function, context?: object | undefined) => (...args: any[]) => Promise<any>;
     getCookie: (refresh?: boolean | undefined) => GetCookieResult;
@@ -85,7 +93,7 @@ declare let result: {
         delete: (key: string, option?: SetCookieOption | undefined) => boolean;
         del: (key: string, option?: SetCookieOption | undefined) => boolean;
         set: (key: string, value: string | object, option?: SetCookieOption | undefined) => GetCookieResultItem | undefined;
-        get(name: string, refresh?: boolean | undefined): string | undefined;
+        get(name: string, refresh?: boolean | undefined): undefined | string;
     };
 } & {
     dateFormat(date: Date, fmt?: string): string;
@@ -102,6 +110,6 @@ declare let result: {
     }[];
     weekendsCount: (startDate: Date, endDate: Date) => number;
 } & {
-    uniq: <T>(arr: T[], isSort?: boolean, fn?: ((item: T, index: number, arr: T[]) => any) | undefined, context?: any) => T[];
+    uniq: <T_3>(arr: T_3[], isSort?: boolean, fn?: ((item: T_3, index: number, arr: T_3[]) => any) | undefined, context?: any) => T_3[];
 };
 export default result;
