@@ -1,6 +1,6 @@
 {
   "name": "relax-utils",
-  "version": "1.0.61",
+  "version": "1.0.62",
   "description": "Javascript util methods.",
   "keywords": [
     "utils",
@@ -12,7 +12,7 @@
     "wwl",
     "wangweilin"
   ],
-  "main": "./dist/index",
+  "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "scripts": {
     "test": "karma start karma.conf.js",
