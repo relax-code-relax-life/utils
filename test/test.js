@@ -2,6 +2,8 @@
  * Created by wangweilin on 2017/6/9.
  */
 
+const utils = window.relaxUtils;
+
 describe('check utils exist', function () {
     it('check utils', function () {
         expect(typeof utils).toEqual('object');

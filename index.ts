@@ -490,8 +490,19 @@ let utils = {
         var excludeMap = fmtDecodeEx.map,
             excludeAll = fmtDecodeEx.isAll;
 
-        while (match = reg_parseParam.exec(paramStr)) {
-            data[match[1]] = excludeAll || excludeMap[match[1]] ? match[2] : decode(match[2]);
+        reg_parseParam.lastIndex = 0;
+
+        let key;
+        try {
+            while (match = reg_parseParam.exec(paramStr)) {
+                key = match[1];
+                data[key] = excludeAll || excludeMap[key] ? match[2] : decode(match[2]);
+            }
+        } catch (e) {
+            if (e.name === 'URIError') { //decode出错
+                e.message = `URI malformed (malformed key: ${key})`;
+            }
+            throw e
         }
 
         return data;
@@ -778,10 +789,10 @@ let utils = {
 
 //间隔wait执行, fn阶段性的执行。在wait时间里实际只执行fn一次，多次调用则到下一个wait时间才能执行。
 //optional:alwaysFn,immediately,context
-function throttle(fn:Function, wait?:number, context?:any)
-function throttle(fn:Function, immediately?:boolean, wait?:number, context?:any);
-function throttle(fn:Function, alwaysFn?:Function, wait?:number, context?:any);
-function throttle(fn:Function, alwaysFn?:Function, immediately?:boolean, wait?:number, context?:any)
+function throttle(fn: Function, wait?: number, context?: any)
+function throttle(fn: Function, immediately?: boolean, wait?: number, context?: any);
+function throttle(fn: Function, alwaysFn?: Function, wait?: number, context?: any);
+function throttle(fn: Function, alwaysFn?: Function, immediately?: boolean, wait?: number, context?: any)
 function throttle(fn: Function, ...restArgs) {
     let [alwaysFn, immediately, wait, context] = restArgs;
     if (!isFunction(alwaysFn)) {
@@ -831,12 +842,12 @@ function throttle(fn: Function, ...restArgs) {
 // immediately为false, 则如果在wait时间里一直调用，fn就一直不执行，等最后一次调用的wait时间之后，才执行fn
 // immediately为true, 则如果在wait时间里一直调用，第一次调用的时候执行fn，之后的调用都不执行，等最后一次调用的wait时间之后再调用才会执行fn
 // optional:alwaysFn,immediately,context
-function debounce(fn: Function, wait?:number, context?:any);
-function debounce(fn: Function, immediately?:boolean, wait?:number, context?:any);
-function debounce(fn: Function, alwaysFn?: Function, wait?:number, context?:any);
+function debounce(fn: Function, wait?: number, context?: any);
+function debounce(fn: Function, immediately?: boolean, wait?: number, context?: any);
+function debounce(fn: Function, alwaysFn?: Function, wait?: number, context?: any);
 function debounce(fn: Function, alwaysFn?: Function, immediately?: boolean, wait?: number, context?: any)
 function debounce(fn: Function, ...restArgs) {
-    let [alwaysFn, immediately, wait, context ] = restArgs;
+    let [alwaysFn, immediately, wait, context] = restArgs;
 
     if (!isFunction(alwaysFn)) {
         context = wait;

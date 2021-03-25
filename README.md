@@ -8,8 +8,8 @@ javascript工具函数。
 * es2015: `import utils from "relax-utils"`
 * commonjs: `var utils = require("relax-utils")`
 * amd: `define( ["/js/relax-utils.js"] , (utils)=>{ /*...*/ } )`
-* window.utils: `<script src="http://wangwl.net/static/demo/relax-utils/index.js"></script>`
-* self.utils: `importScripts("./utils.js")`
+* window.relaxUtils: `<script src="http://wangwl.net/static/demo/relax-utils/index.js"></script>`
+* self.relaxUtils: `importScripts("./utils.js")`
 
 
 # utils API
@@ -373,6 +373,16 @@ utils.parseParam('name=%2Bwwl')             //{name:"+wwl"}
 utils.parseParam('name=%2Bwwl',true)        //{name:"%2Bwwl"}
 utils.parseParam('name=%2Bwwl',['name'])    //{name:"%2Bwwl"}
 
+```
+注意，当paramStr参数不规范时候，decodeURIComponent会报错，例如:
+```javascript
+decodeURIComponent('sex=%');
+// Uncaught URIError: URI malformed
+```
+这里，utils.parseParam和decodeURIComponent保持一样的逻辑，当参数不规范时候，会抛出错误。
+```javascript
+utils.parseParam('name=wwl&sex=%');
+// Uncaught URIError: URI malformed (malformed key: sex)
 ```
 
 ## getQuery
