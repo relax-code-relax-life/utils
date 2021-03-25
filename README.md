@@ -374,12 +374,12 @@ utils.parseParam('name=%2Bwwl',true)        //{name:"%2Bwwl"}
 utils.parseParam('name=%2Bwwl',['name'])    //{name:"%2Bwwl"}
 
 ```
-注意，当paramStr参数不规范时候，decodeURIComponent会报错，例如:
+注意，当paramStr参数不规范时候，`decodeURIComponent`会报错，例如:
 ```javascript
 decodeURIComponent('sex=%');
 // Uncaught URIError: URI malformed
 ```
-这里，utils.parseParam和decodeURIComponent保持一样的逻辑，当参数不规范时候，会抛出错误。
+这里，`utils.parseParam`和`decodeURIComponent`保持一样的逻辑，当参数不规范时候，会抛出错误。
 ```javascript
 utils.parseParam('name=wwl&sex=%');
 // Uncaught URIError: URI malformed (malformed key: sex)
@@ -398,6 +398,11 @@ function getQuery(url = location.search, decodeEx?: boolean | string[] ): object
 ```javascript
 utils.getQuery().id;
 utils.getQuery('localhost/indexhtml?id=idinfo').id
+```
+类似`parseParam`，如果参数不规范，向上传递`decodeURIComponent`的报错。
+```javascript
+utils.getQuery('?name=wwl&sex=%');
+// Uncaught URIError: URI malformed (malformed key: sex)
 ```
 
 ## countStr

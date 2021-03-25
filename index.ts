@@ -183,6 +183,15 @@ const copyTxt = (function () {
     }
 })();
 
+function decodeSearchParam(value, key) {
+    try {
+        return decodeURIComponent(value);
+    } catch (e) {
+        e.message = `URI malformed (malformed key: ${key})`;
+        throw e;
+    }
+}
+
 let guidCnt = 0;
 let loopIds = {};
 
@@ -484,7 +493,7 @@ let utils = {
     parseParam(paramStr: string, decodeEx: boolean | string[] = false) {
         var data = {},
             match,
-            decode = decodeURIComponent;
+            decode = decodeSearchParam;
 
         var fmtDecodeEx = formatExcludeParam(decodeEx);
         var excludeMap = fmtDecodeEx.map,
@@ -493,16 +502,9 @@ let utils = {
         reg_parseParam.lastIndex = 0;
 
         let key;
-        try {
-            while (match = reg_parseParam.exec(paramStr)) {
-                key = match[1];
-                data[key] = excludeAll || excludeMap[key] ? match[2] : decode(match[2]);
-            }
-        } catch (e) {
-            if (e.name === 'URIError') { //decode出错
-                e.message = `URI malformed (malformed key: ${key})`;
-            }
-            throw e
+        while (match = reg_parseParam.exec(paramStr)) {
+            key = match[1];
+            data[key] = excludeAll || excludeMap[key] ? match[2] : decode(match[2], key);
         }
 
         return data;
@@ -535,7 +537,9 @@ let utils = {
     getQuery: function (url?: string, decodeEx: boolean | string[] = false): { [key: string]: string } {
         var q = {}, match;
         var fmtDecodeEx = formatExcludeParam(decodeEx);
-        var decode = decodeURIComponent;
+        var decode = decodeSearchParam;
+
+        reg_query.lastIndex = 0;
 
         var key, val;
         while (match = reg_query.exec(url || (isBrowser && location.search) || '')) {
@@ -543,7 +547,7 @@ let utils = {
             val = match[2];
             if (!key) continue;    // ?=123&
             if (!val) val = '';
-            q[decode(key)] = fmtDecodeEx.isAll || fmtDecodeEx.map[key] ? val : decode(val);
+            q[decode(key, key)] = fmtDecodeEx.isAll || fmtDecodeEx.map[key] ? val : decode(val, key);
         }
         return q;
     },
