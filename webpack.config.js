@@ -3,10 +3,11 @@
  */
 
 const TerserPlugin = require("terser-webpack-plugin");
+const { merge } = require('webpack-merge');
 
 const isDev = false;
 
-module.exports = {
+const baseConfig = {
     mode: isDev ? 'none' : 'production',
     optimization: {
         minimizer: [
@@ -41,4 +42,16 @@ module.exports = {
     resolve: {
         extensions: ['.ts', '.js']
     },
-}
+};
+
+const uncompressedConfig = merge(baseConfig, {
+    output: {
+        filename: 'index.uncompressed.js'
+    },
+    optimization: {
+        minimize: false
+    }
+});
+
+
+module.exports = isDev ? baseConfig : [baseConfig, uncompressedConfig];
