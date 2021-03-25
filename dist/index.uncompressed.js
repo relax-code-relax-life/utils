@@ -116,6 +116,15 @@ var copyTxt = (function () {
         return document.execCommand('copy');
     };
 })();
+function decodeSearchParam(value, key) {
+    try {
+        return decodeURIComponent(value);
+    }
+    catch (e) {
+        e.message = "URI malformed (malformed key: " + key + ")";
+        throw e;
+    }
+}
 var guidCnt = 0;
 var loopIds = {};
 var utils = {
@@ -329,11 +338,14 @@ var utils = {
     },
     parseParam: function (paramStr, decodeEx) {
         if (decodeEx === void 0) { decodeEx = false; }
-        var data = {}, match, decode = decodeURIComponent;
+        var data = {}, match, decode = decodeSearchParam;
         var fmtDecodeEx = formatExcludeParam(decodeEx);
         var excludeMap = fmtDecodeEx.map, excludeAll = fmtDecodeEx.isAll;
+        reg_parseParam.lastIndex = 0;
+        var key;
         while (match = reg_parseParam.exec(paramStr)) {
-            data[match[1]] = excludeAll || excludeMap[match[1]] ? match[2] : decode(match[2]);
+            key = match[1];
+            data[key] = excludeAll || excludeMap[key] ? match[2] : decode(match[2], key);
         }
         return data;
     },
@@ -346,7 +358,8 @@ var utils = {
         if (decodeEx === void 0) { decodeEx = false; }
         var q = {}, match;
         var fmtDecodeEx = formatExcludeParam(decodeEx);
-        var decode = decodeURIComponent;
+        var decode = decodeSearchParam;
+        reg_query.lastIndex = 0;
         var key, val;
         while (match = reg_query.exec(url || (isBrowser && location.search) || '')) {
             key = match[1];
@@ -355,7 +368,7 @@ var utils = {
                 continue;
             if (!val)
                 val = '';
-            q[decode(key)] = fmtDecodeEx.isAll || fmtDecodeEx.map[key] ? val : decode(val);
+            q[decode(key, key)] = fmtDecodeEx.isAll || fmtDecodeEx.map[key] ? val : decode(val, key);
         }
         return q;
     },
