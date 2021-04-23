@@ -113,3 +113,4 @@ declare let result: {
     uniq: <T_3>(arr: T_3[], isSort?: boolean, fn?: ((item: T_3, index: number, arr: T_3[]) => any) | undefined, context?: any) => T_3[];
 };
 export default result;
+export { Defer };

@@ -1519,5 +1519,6 @@ if (!isBrowser) {
 }
 
 export default result;
+export { Defer }
 
 

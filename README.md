@@ -1,16 +1,18 @@
 javascript工具函数。
 
-# 下载
+# download
 * npm: `npm install --save relax-utils`
-* 直接下载: `http://wangwl.net/static/demo/relax-utils/index.js`
+* straight download: `http://wangwl.net/static/demo/relax-utils/index.js`
 
-# 使用
+# import
 * es2015: `import utils from "relax-utils"`
 * commonjs: `var utils = require("relax-utils")`
 * amd: `define( ["/js/relax-utils.js"] , (utils)=>{ /*...*/ } )`
 * window.relaxUtils: `<script src="http://wangwl.net/static/demo/relax-utils/index.js"></script>`
 * self.relaxUtils: `importScripts("./utils.js")`
 
+# issues
+[https://wangwl.net/static/pages/mynpm_utils.html](https://wangwl.net/static/pages/mynpm_utils.html)
 
 # utils API
 ## guid
