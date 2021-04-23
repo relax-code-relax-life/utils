@@ -188,20 +188,12 @@ var utils = {
     defer: function () {
         var defer = {};
         defer.promise = new Promise(function (resolve, reject) {
-            defer.resolve = function () {
-                var args = [];
-                for (var _i = 0; _i < arguments.length; _i++) {
-                    args[_i] = arguments[_i];
-                }
-                resolve.apply(void 0, args);
+            defer.resolve = function (arg) {
+                resolve(arg);
                 return defer.promise;
             };
-            defer.reject = function () {
-                var args = [];
-                for (var _i = 0; _i < arguments.length; _i++) {
-                    args[_i] = arguments[_i];
-                }
-                reject.apply(void 0, args);
+            defer.reject = function (reason) {
+                reject(reason);
                 return defer.promise;
             };
         });

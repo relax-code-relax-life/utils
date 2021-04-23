@@ -2,10 +2,10 @@
  * Created by wangweilin on 2017/6/9.
  */
 
-interface Defer {
-    promise: Promise<any>,
-    resolve: (data?: any) => Promise<any>,
-    reject: (error?: any) => Promise<any>
+interface Defer<T> {
+    promise: Promise<T>,
+    resolve: (data?: T) => Promise<T>,
+    reject: (error?: any) => Promise<T>
 }
 
 interface PromiseWithAbort<T> extends Promise<T> {
@@ -277,15 +277,15 @@ let utils = {
     isSafari(ua?: string) {
         return (browserVersion(reg_chrome, ua) || browserVersion(reg_ieEdge, ua)) ? null : browserVersion(reg_safari, ua);
     },
-    defer(): Defer {
-        var defer = {} as Defer;
+    defer<T>(): Defer<T> {
+        var defer = {} as Defer<T>;
         defer.promise = new Promise(function (resolve, reject) {
-            defer.resolve = (...args) => {
-                resolve(...args);
+            defer.resolve = (arg: T) => {
+                resolve(arg);
                 return defer.promise;
             };
-            defer.reject = (...args) => {
-                reject(...args);
+            defer.reject = (reason?: any) => {
+                reject(reason);
                 return defer.promise;
             };
         });
@@ -1519,6 +1519,6 @@ if (!isBrowser) {
 }
 
 export default result;
-export { Defer }
+export {Defer}
 
 

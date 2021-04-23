@@ -1,7 +1,7 @@
-interface Defer {
-    promise: Promise<any>;
-    resolve: (data?: any) => Promise<any>;
-    reject: (error?: any) => Promise<any>;
+interface Defer<T> {
+    promise: Promise<T>;
+    resolve: (data?: T) => Promise<T>;
+    reject: (error?: any) => Promise<T>;
 }
 interface PromiseWithAbort<T> extends Promise<T> {
     abort(): any;
@@ -56,15 +56,15 @@ declare let result: {
     isChrome(ua?: string | undefined): string | null;
     isFirefox(ua?: string | undefined): string | null;
     isSafari(ua?: string | undefined): string | null;
-    defer(): Defer;
-    each<T extends object | any[]>(arrayOrObject: T, fn: (value: any, index: T extends any[] ? number : string, obj: T) => void, context?: any): void;
-    map<T_1 extends object | any[], N>(arrayOrObject: T_1, fn: (value: any, index: T_1 extends object ? string : number, obj: T_1) => N, context?: any): N[];
-    find<T_2 extends object | any[]>(arrayOrObject: T_2, fn: (value: any, index: T_2 extends any[] ? number : string, obj: T_2) => boolean, context?: any): any | undefined;
-    unique<T_3>(arr: T_3[], isSort?: boolean, fn?: ((item: T_3, index: number, arr: T_3[]) => any) | undefined, context?: any): T_3[];
+    defer<T>(): Defer<T>;
+    each<T_1 extends object | any[]>(arrayOrObject: T_1, fn: (value: any, index: T_1 extends any[] ? number : string, obj: T_1) => void, context?: any): void;
+    map<T_2 extends object | any[], N>(arrayOrObject: T_2, fn: (value: any, index: T_2 extends object ? string : number, obj: T_2) => N, context?: any): N[];
+    find<T_3 extends object | any[]>(arrayOrObject: T_3, fn: (value: any, index: T_3 extends any[] ? number : string, obj: T_3) => boolean, context?: any): any | undefined;
+    unique<T_4>(arr: T_4[], isSort?: boolean, fn?: ((item: T_4, index: number, arr: T_4[]) => any) | undefined, context?: any): T_4[];
     cache: (fn: Function, context?: Object | undefined, predicate?: Function | undefined) => (refresh: any, ...args: any[]) => any;
     loop(fn: Function, tick: number, immediate?: boolean): string;
     clearLoop(key: string): void;
-    timeout<T_4>(wait?: number, fn?: ((...args: any[]) => T_4) | undefined): PromiseWithAbort<T_4>;
+    timeout<T_5>(wait?: number, fn?: ((...args: any[]) => T_5) | undefined): PromiseWithAbort<T_5>;
     throttle: typeof throttle;
     debounce: typeof debounce;
     download(src: string, fileName: string): void;
@@ -82,8 +82,8 @@ declare let result: {
     kebabCase(...args: string[]): string;
     paddingLeft: (target: string | undefined, len: number, paddingChar: string) => any;
     template: (temp: string, data: object) => string;
-    pick<T_5 extends object, K extends keyof T_5>(tar: T_5, keys: string[]): {} | Pick<T_5, K>;
-    retry<T_6>(fn: (...args: any[]) => Promise<T_6>, max: number, wait?: number, context?: object): () => Promise<T_6>;
+    pick<T_6 extends object, K extends keyof T_6>(tar: T_6, keys: string[]): {} | Pick<T_6, K>;
+    retry<T_7>(fn: (...args: any[]) => Promise<T_7>, max: number, wait?: number, context?: object): () => Promise<T_7>;
 } & {
     promisify: (original: Function, context?: object | undefined) => (...args: any[]) => Promise<any>;
     getCookie: (refresh?: boolean | undefined) => GetCookieResult;
@@ -110,7 +110,7 @@ declare let result: {
     }[];
     weekendsCount: (startDate: Date, endDate: Date) => number;
 } & {
-    uniq: <T_3>(arr: T_3[], isSort?: boolean, fn?: ((item: T_3, index: number, arr: T_3[]) => any) | undefined, context?: any) => T_3[];
+    uniq: <T_4>(arr: T_4[], isSort?: boolean, fn?: ((item: T_4, index: number, arr: T_4[]) => any) | undefined, context?: any) => T_4[];
 };
 export default result;
 export { Defer };
