@@ -485,7 +485,7 @@ utils.template('hello,${firstName+secondName}',{firstName:'wang',secondName:'wl'
 ```
 
 ## pick
-function pick(tar: object, keys: string | string[]): object;
+function pick(tar: object, keys: (key: string) => boolean | string[]): object;
 
 创建只包含指定属性的对象。
 ```javascript
@@ -494,8 +494,10 @@ var tar = {
             sex: 'male',
             birth: '03'
         };
-utils.pick(tar, 'name sex'); // {name: 'wwl', sex: 'male'}
 utils.pick(tar, ['sex', 'name']) // {name: 'wwl', sex: 'male'}
+utils.pick(tar, (key) => {
+    return key === 'name'
+}); // {name: 'wwl'}
 ```
 
 ## retry

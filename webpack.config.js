@@ -8,7 +8,7 @@ const packageJson = require('./package.json');
 
 const isDev = false;
 
-const banner = `/* v${packageJson.version} http://wangwl.net/static/pages/utils.html */`
+const banner = `/* v${packageJson.version} https://wangwl.net/static/pages/utils.html */`
 
 const baseConfig = {
     mode: isDev ? 'none' : 'production',

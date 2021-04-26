@@ -748,13 +748,19 @@ let utils = {
     })(),
 
     // 返回只包含指定属性的对象
-    pick<T extends object, K extends keyof T>(tar: T, keys: string[]): Pick<T, K> | {} {
+    pick<T extends object, K extends keyof T>(tar: T, keys: (key: string) => boolean | string[]): Pick<T, K> | {} {
         if (!tar) return {};
-        if (!Array.isArray(keys)) return {};
+        let pickKeys: string[] = [];
+        if (isFunction(keys)) {
+            pickKeys = Object.keys(tar).filter(keys);
+        } else if (Array.isArray(keys)) {
+            pickKeys = keys;
+        } else return {}
 
-        return keys.reduce((result, key) => {
-            if (!(key in tar)) return result;
-            result[key] = tar[key];
+        return pickKeys.reduce((result, key) => {
+            if (key in tar) {
+                result[key] = tar[key];
+            }
             return result;
         }, {})
     },
@@ -1519,6 +1525,6 @@ if (!isBrowser) {
 }
 
 export default result;
-export {Defer}
+export {Defer, PromiseWithAbort}
 
 

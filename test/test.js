@@ -29,7 +29,7 @@ describe("util_", function () {
         expect(utils.getQuery('https://wangwl.com/?name=%2F123%20123%2F&123')).toEqual({'123': '', name: '/123 123/'})
         expect(utils.getQuery('https://wangwl.com/?n=n=123')).toEqual({n: 'n=123'})
         expect(utils.getQuery('https://wangwl.com/?=n=n=123')).toEqual({})
-        expect(utils.getQuery('https://wangwl.com/?%2Benc=%2Benc')).toEqual({'+enc':'+enc'})
+        expect(utils.getQuery('https://wangwl.com/?%2Benc=%2Benc')).toEqual({'+enc': '+enc'})
     });
 
     it("resolveUrl", function () {
@@ -455,10 +455,14 @@ describe("util_", function () {
         expect(utils.pick()).toEqual({});
         expect(utils.pick(tar, [])).toEqual({});
         expect(utils.pick(tar, ['tel'])).toEqual({});
-        // 1.0.59开始，第二个参数只支持数组
+        // 1.0.59开始，第二个参数不支持string，只支持string[]
         // expect(utils.pick(tar, 'name')).toEqual({name: 'wwl'});
         // expect(utils.pick(tar, 'name sex')).toEqual({name: 'wwl', sex: 'male'});
         expect(utils.pick(tar, ['sex', 'name'])).toEqual({name: 'wwl', sex: 'male'});
+        // 1.0.68开始，第二个参数支持 string[]和(key: string) => boolean
+        expect(utils.pick(tar, (key) => {
+            return key === 'sex'
+        })).toEqual({sex: 'male'});
     });
 
     it('retry', async function () {

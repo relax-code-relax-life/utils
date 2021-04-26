@@ -82,7 +82,7 @@ declare let result: {
     kebabCase(...args: string[]): string;
     paddingLeft: (target: string | undefined, len: number, paddingChar: string) => any;
     template: (temp: string, data: object) => string;
-    pick<T_6 extends object, K extends keyof T_6>(tar: T_6, keys: string[]): {} | Pick<T_6, K>;
+    pick<T_6 extends object, K extends keyof T_6>(tar: T_6, keys: (key: string) => boolean | string[]): {} | Pick<T_6, K>;
     retry<T_7>(fn: (...args: any[]) => Promise<T_7>, max: number, wait?: number, context?: object): () => Promise<T_7>;
 } & {
     promisify: (original: Function, context?: object | undefined) => (...args: any[]) => Promise<any>;
@@ -113,4 +113,4 @@ declare let result: {
     uniq: <T_4>(arr: T_4[], isSort?: boolean, fn?: ((item: T_4, index: number, arr: T_4[]) => any) | undefined, context?: any) => T_4[];
 };
 export default result;
-export { Defer };
+export { Defer, PromiseWithAbort };

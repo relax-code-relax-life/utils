@@ -490,12 +490,19 @@ var utils = {
     pick: function (tar, keys) {
         if (!tar)
             return {};
-        if (!Array.isArray(keys))
+        var pickKeys = [];
+        if (isFunction(keys)) {
+            pickKeys = Object.keys(tar).filter(keys);
+        }
+        else if (Array.isArray(keys)) {
+            pickKeys = keys;
+        }
+        else
             return {};
-        return keys.reduce(function (result, key) {
-            if (!(key in tar))
-                return result;
-            result[key] = tar[key];
+        return pickKeys.reduce(function (result, key) {
+            if (key in tar) {
+                result[key] = tar[key];
+            }
             return result;
         }, {});
     },
