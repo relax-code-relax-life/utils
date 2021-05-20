@@ -82,7 +82,7 @@ declare let result: {
     kebabCase(...args: string[]): string;
     paddingLeft: (target: string | undefined, len: number, paddingChar: string) => any;
     template: (temp: string, data: object) => string;
-    pick<T_6 extends object, K extends keyof T_6>(tar: T_6, keys: (key: string) => boolean | string[]): {} | Pick<T_6, K>;
+    pick<T_6 extends object, K extends keyof T_6>(tar: T_6, keys: string[] | ((key: string) => boolean)): {} | Pick<T_6, K>;
     retry<T_7>(fn: (...args: any[]) => Promise<T_7>, max: number, wait?: number, context?: object): () => Promise<T_7>;
 } & {
     promisify: (original: Function, context?: object | undefined) => (...args: any[]) => Promise<any>;

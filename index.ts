@@ -748,7 +748,7 @@ let utils = {
     })(),
 
     // 返回只包含指定属性的对象
-    pick<T extends object, K extends keyof T>(tar: T, keys: (key: string) => boolean | string[]): Pick<T, K> | {} {
+    pick<T extends object, K extends keyof T>(tar: T, keys: string[] | ((key: string) => boolean)): Pick<T, K> | {} {
         if (!tar) return {};
         let pickKeys: string[] = [];
         if (isFunction(keys)) {
