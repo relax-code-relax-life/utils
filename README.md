@@ -1,5 +1,6 @@
-JavaScript utility library. Many util methods about Date, Cookie, Function, url, detector, collection, timeout, and so
-on.
+JavaScript utility library.
+
+Many util methods about Date, Cookie, Function, url, detector, collection, timeout, and so on.
 
 Support tree shaking.
 
@@ -22,7 +23,7 @@ Support tree shaking.
 
 # Tree Shaking
 
-`relax-utils` supports tree shaking by default for JS part.
+`relax-utils` supports tree shaking by default.
 
 You just import like this:
 
