@@ -1,0 +1,11 @@
+export declare const cache: (fn: Function, context?: Object | undefined, predicate?: Function | undefined) => (refresh: any, ...args: any[]) => any;
+export declare const retry: <T>(fn: (...args: any[]) => Promise<T>, max: number, wait?: number, context?: object) => () => Promise<T>;
+declare function throttle(fn: Function, wait?: number, context?: any): any;
+declare function throttle(fn: Function, immediately?: boolean, wait?: number, context?: any): any;
+declare function throttle(fn: Function, alwaysFn?: Function, wait?: number, context?: any): any;
+declare function throttle(fn: Function, alwaysFn?: Function, immediately?: boolean, wait?: number, context?: any): any;
+declare function debounce(fn: Function, wait?: number, context?: any): any;
+declare function debounce(fn: Function, immediately?: boolean, wait?: number, context?: any): any;
+declare function debounce(fn: Function, alwaysFn?: Function, wait?: number, context?: any): any;
+declare function debounce(fn: Function, alwaysFn?: Function, immediately?: boolean, wait?: number, context?: any): any;
+export { throttle, debounce };
