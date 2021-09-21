@@ -1,49 +1,52 @@
-javascript工具函数。
+JavaScript utility library. Many util methods about Date, Cookie, Function, url, detector, collection, timeout, and so on.
 
-# download
+Support tree shaking.
+
+# Installation
 * npm: `npm install --save relax-utils`
-* straight download: `http://wangwl.net/static/demo/relax-utils/index.js`
+* straight download: `http://wangwl.net/static/demo/relax-utils/index.umd.js`
 
-# import
-* es2015: `import utils from "relax-utils"`
-* commonjs: `var utils = require("relax-utils")`
-* amd: `define( ["/js/relax-utils.js"] , (utils)=>{ /*...*/ } )`
-* window.relaxUtils: `<script src="http://wangwl.net/static/demo/relax-utils/index.js"></script>`
-* self.relaxUtils: `importScripts("./utils.js")`
+# Usage
+* ES module: `import { dateFormat } from "relax-utils"`
+* commonjs: `const { dateFormat } = require("relax-utils")`
+* AMD: `define( ["./index.umd.js"] , (utils)=>{ /*...*/ } )`
+* window.relaxUtils: `<script src="http://wangwl.net/static/demo/relax-utils/index.umd.js"></script>`
+* self.relaxUtils: `importScripts("./index.umd.js")`
 
 # issues
 [https://wangwl.net/static/pages/mynpm_utils.html](https://wangwl.net/static/pages/mynpm_utils.html)
 
 # utils API
-## guid
- function guid(preFix?: string): string;
- 
- 返回一个唯一序号。
+## tick
+function tick(preFix?: string): string;
+
+return timestamp.
+
  ```javascript
- utils.guid();          //  "1"
- utils.guid('prefix');  //  "prefix2"
+ utils.tick();          //  "1632199932127"
+ utils.tick('prefix');  //  "prefix1632199932127"
  ```
 
 ## noop
 function noop(): void;
 
-空函数，即: function(){};
+Equivalent: function(){};
 
 ## isUrl
 function isUrl(str: string): boolean;
-判断传入str是否为url格式。
 
 ## isArrayLike
 function isArrayLike(obj: any): boolean;
 
-检测是否为类数组，如果是，则该对象可以通过Array#slice或Array.from转换为数组类型。
+If `isArrayLike` return true, obj can be converted to `Array` by `Array#slice` or `Array.from`.
 
 ## isAndroid、isIos、isWeiXin
 function (ua = navigator.userAgent): boolean;
 
-根据传入的userAgent的值，判断是否是android,ios,微信。
+Detect System by `navigator.userAgent`. 
 
-默认使用当前navigator.userAgent。
+You can also pass a custom userAgent string.
+
 ```javascript
 var ua="Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1";
 utils.isIos();      //false
@@ -53,15 +56,14 @@ utils.isIos(ua);    //true
 ## isWindows、isMac
 function(): boolean
 
-检查当前操作系统是否为windows或Mac。
+Detect System by `navigator.platform`.
 
 ## isWifi
 function isWifi(): boolean | undefined;
 
-如果正确检测到联网类型，则返回布尔值，true代表当前是wifi环境。
+If network type is detected successfully, return Boolean value.
 
-如果未检测到(例如某些api不支持或出错)，则返回undefined
-
+If detecting is failed(eg: browser do not support some API), return `undefined`. 
 
 ## isIE、isChrome、isFirefox、isSafari
 function isIE(ua = navigator.userAgent): null | string;
@@ -72,7 +74,8 @@ function isFirefox(ua = navigator.userAgent): null | string;
 
 function isSafari(ua = navigator.userAgent): null | string;
 
-如果匹配，返回当前浏览器的版本号，如果不符合，返回null.
+Detect browser by `navigator.userAgent`. If matched, return the browser version. If Not matched, return `null`.
+
 ```javascript
 var ua="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/604.1.38 (KHTML, like Gecko) Version/11.0 Safari/604.1.38";
 utils.isChrome();   //null;
@@ -82,7 +85,7 @@ utils.isSafari(ua); //"604"
 ## defer
 function defer(): { promise: Promise, resolve: (data: any) => void, reject: (err: any) => void };
 
-创建一个延迟对象。
+Just return a defer-object.
 
 
 ## each
@@ -93,9 +96,9 @@ function each(
     context?: any) : void;
 ```
 
-遍历数组或者对象。
+Foreach array or object.
 
-当obj是对象时，则借助Object.keys(obj)的返回值进行遍历，即只遍历自有的可枚举属性。
+When `obj` is object, this method just foreach enumerable/self property. Because in the underlying using `Object.keys(obj)` to iterate.
 
 ## map
 ```typescript
