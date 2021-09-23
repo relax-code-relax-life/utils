@@ -103,7 +103,19 @@ export {
 } from './date';
 export {cache, retry, throttle, debounce} from './function';
 export {
-    isAndroid, isIos, isWeiXin, isWifi, isWindows, isMac, isIE, isChrome, isFirefox, isSafari, isUrl, isArrayLike
+    isAndroid,
+    isIos,
+    isWeiXin,
+    isWifi,
+    isWindows,
+    isMac,
+    isIE,
+    isEdge,
+    isChrome,
+    isFirefox,
+    isSafari,
+    isUrl,
+    isArrayLike
 } from './is';
 export {countStr, camelCase, kebabCase, paddingLeft, htmlEncode, htmlDecode, template} from './str';
 export {tick, loop, clearLoop, timeout} from './timeout';

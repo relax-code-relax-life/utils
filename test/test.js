@@ -303,7 +303,7 @@ describe("util_", function () {
         expect(utils.isIE(ie11_1)).toEqual('11');
         expect(utils.isIE(ie11_2)).toEqual('11');
         expect(utils.isIE(ie11_3)).toEqual('11');
-        expect(utils.isIE(ie_edge15)).toEqual('Edge/15');
+        expect(utils.isEdge(ie_edge15)).toEqual('15');
 
     });
 

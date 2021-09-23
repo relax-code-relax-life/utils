@@ -5,6 +5,7 @@ export declare const isWindows: () => boolean;
 export declare const isMac: () => boolean;
 export declare const isWifi: () => boolean | undefined;
 export declare const isIE: (ua?: string | undefined) => string | null;
+export declare const isEdge: (ua?: string | undefined) => string | null;
 export declare const isChrome: (ua?: string | undefined) => string | null;
 export declare const isFirefox: (ua?: string | undefined) => string | null;
 export declare const isSafari: (ua?: string | undefined) => string | null;

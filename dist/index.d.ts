@@ -7,7 +7,7 @@ export { each, map, find, unique } from './collection';
 export { getCookie, setCookie, deleteCookie, cookie } from './cookie';
 export { dateFormat, dateParse, dateAdd, firstDateInMonth, lastDateInMonth, firstWeekInMonth, lastWeekInMonth, weekRange, weekendsCount } from './date';
 export { cache, retry, throttle, debounce } from './function';
-export { isAndroid, isIos, isWeiXin, isWifi, isWindows, isMac, isIE, isChrome, isFirefox, isSafari, isUrl, isArrayLike } from './is';
+export { isAndroid, isIos, isWeiXin, isWifi, isWindows, isMac, isIE, isEdge, isChrome, isFirefox, isSafari, isUrl, isArrayLike } from './is';
 export { countStr, camelCase, kebabCase, paddingLeft, htmlEncode, htmlDecode, template } from './str';
 export { tick, loop, clearLoop, timeout } from './timeout';
 export { param, parseParam, resolveUrl, getQuery } from './url';

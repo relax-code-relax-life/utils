@@ -28,7 +28,7 @@ Support tree shaking.
 You just import like this:
 
 ```javascript
-import {dateFormat, isChrome} from 'relax-utils';
+import {dateFormat, dateParse, isSafari} from 'relax-utils';
 ```
 
 If you prefer commonjs syntax, like this:
@@ -96,9 +96,11 @@ If network type is detected successfully, return Boolean value.
 
 If detecting is failed(eg: browser do not support some API), return `undefined`.
 
-## isIE、isChrome、isFirefox、isSafari
+## isIE、isEdge、isChrome、isFirefox、isSafari
 
 function isIE(ua = navigator.userAgent): null | string;
+
+function isEdge(ua = navigator.userAgent): null | string;
 
 function isChrome(ua = navigator.userAgent): null | string;
 
