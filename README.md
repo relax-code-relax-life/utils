@@ -6,13 +6,13 @@ Support tree shaking.
 
 # Installation
 
-* npm: `npm install --save relax-utils`
-* straight download: `http://wangwl.net/static/demo/relax-utils/index.umd.js`
+* [npm](https://www.npmjs.com/package/relax-utils): `npm install --save relax-utils`
+* [straight download](http://wangwl.net/static/demo/relax-utils/index.umd.js): `http://wangwl.net/static/demo/relax-utils/index.umd.js`
 
 # Usage
 
-* ES module: `import { dateFormat } from "relax-utils"`
-* commonjs: `const { dateFormat } = require("relax-utils")`
+* ES module: `import { dateFormat } from "relax-utils"` or `import * as utils from "relax-utils"`
+* commonjs: `const { dateFormat } = require("relax-utils")` or `const utils = require("relax-utils")`
 * AMD: `define( ["./index.umd.js"] , (utils)=>{ /*...*/ } )`
 * window.relaxUtils: `<script src="http://wangwl.net/static/demo/relax-utils/index.umd.js"></script>`
 * self.relaxUtils: `importScripts("./index.umd.js")`
@@ -48,7 +48,7 @@ function tick(preFix?: string): string;
 return timestamp.
 
  ```javascript
- utils.tick();          //  "1632199932127"
+utils.tick();          //  "1632199932127"
 utils.tick('prefix');  //  "prefix1632199932127"
  ```
 

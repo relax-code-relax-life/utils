@@ -8,12 +8,14 @@ const utilTick = tick;
 let loopIds = {};
 export const loop = function (fn: Function, tick: number, immediate = false): string {
     let key = utilTick('loop');
+    loopIds[key] = '_init';
 
     var promiseFn = function () {
         return Promise.resolve(fn());
     };
 
     var delayExec = function () {
+        if(!loopIds[key]) return; //如果执行过clearLoop，则loopIds[key]为undefined
         loopIds[key] = setTimeout(wrap, tick);
     };
 
