@@ -11,11 +11,30 @@ Support tree shaking.
 
 # Usage
 
-* ES module: `import { dateFormat } from "relax-utils"` or `import * as utils from "relax-utils"`
-* commonjs: `const { dateFormat } = require("relax-utils")` or `const utils = require("relax-utils")`
-* AMD: `define( ["./index.umd.js"] , (utils)=>{ /*...*/ } )`
-* window.relaxUtils: `<script src="http://wangwl.net/static/demo/relax-utils/index.umd.js"></script>`
-* self.relaxUtils: `importScripts("./index.umd.js")`
+* ES module:
+```javascript
+import { dateFormat } from "relax-utils";
+// or:
+import * as utils from "relax-utils";
+```
+* commonjs:
+```javascript
+const { dateFormat } = require("relax-utils");
+// or:
+const utils = require("relax-utils");
+```
+* AMD:
+```javascript
+define( ["./index.umd.js"] , (utils)=>{ /*...*/ } )
+```
+* window.relaxUtils: 
+```html
+<script src="http://wangwl.net/static/demo/relax-utils/index.umd.js"></script>
+```
+* self.relaxUtils: 
+```javascript
+importScripts("./index.umd.js")
+```
 
 # Issue
 
