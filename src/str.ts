@@ -155,13 +155,7 @@ export const htmlDecode = function (val: string) {
 }
 
 const reg_template = /\$\{\s*(.+?)\s*\}/g;
-/**
- * 模板函数，计算表达式生成字符串。支持ES6模板字符串语法。 eg: template('hello,${firstName+secondName}',{firstName:'wang',secondName:'wl'});
- * @param temp
- * @param data
- * @returns {string}
- */
-export const template = (function (): (temp: string, data: object) => string {
+const createTemplateFn: () => (temp: string, data: object) => string = function () {
 
     let supportTempStr = true;
     try {
@@ -215,4 +209,17 @@ export const template = (function (): (temp: string, data: object) => string {
         };
     }
 
-})();
+}
+
+let _cacheTemplateFn;
+/**
+ * 模板函数，计算表达式生成字符串。支持ES6模板字符串语法。 eg: template('hello,${firstName+secondName}',{firstName:'wang',secondName:'wl'});
+ * @param temp
+ * @param data
+ * @returns {string}
+ */
+export const template = (temp: string, data: object) => {
+    if(!_cacheTemplateFn) _cacheTemplateFn = createTemplateFn();
+    return _cacheTemplateFn(temp,data);
+}
+
