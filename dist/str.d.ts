@@ -4,4 +4,4 @@ export declare const kebabCase: (...args: string[]) => string;
 export declare const paddingLeft: (target: string | undefined, len: number, paddingChar: string) => any;
 export declare const htmlEncode: (txt: string) => string;
 export declare const htmlDecode: (val: string) => any;
-export declare const template: (temp: string, data: object) => string;
+export declare const template: (temp: string, data: object) => any;

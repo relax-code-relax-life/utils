@@ -1,6 +1,6 @@
 {
   "name": "relax-utils",
-  "version": "2.1.3",
+  "version": "2.1.5",
   "description": "Javascript util methods.",
   "files": ["dist/"],
   "keywords": [
