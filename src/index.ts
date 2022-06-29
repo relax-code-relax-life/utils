@@ -89,7 +89,7 @@ export {
 } from './promise';
 
 export {each, map, find, unique} from './collection';
-export {getCookie, setCookie, deleteCookie, cookie} from './cookie'
+export {parseCookie, getCookie, setCookie, deleteCookie, cookie} from './cookie'
 export {
     dateFormat,
     dateParse,

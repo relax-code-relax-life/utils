@@ -488,4 +488,27 @@ describe("util_", function () {
 
     });
 
+    it('parseCookie', function (){
+        var str = "test=cookie\'s value&one=6&two=2; 2=cookie2; empty; ; mu lti=multiValue&name1=value1&name2=values2";
+        expect(utils.parseCookie(str)).toEqual({
+            "test": {
+                "value": "cookie's value&one=6&two=2",
+                "values": {
+                    "one": "6",
+                    "two": "2"
+                }
+            },
+            "2": {
+                "value": "cookie2",
+                "values": null
+            },
+            "mu lti": {
+                "value": "multiValue&name1=value1&name2=values2",
+                "values": {
+                    "name1": "value1",
+                    "name2": "values2"
+                }
+            }
+        })
+    });
 });

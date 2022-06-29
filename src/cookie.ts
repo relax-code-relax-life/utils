@@ -30,18 +30,15 @@ interface SetCookieOption {
     expires?: Date | { day?: number, hour?: number, min?: number, sec?: number }
 }
 
-export const getCookie: (refresh?: boolean) => GetCookieResult = cache(function () {
+export const parseCookie = (cookie: string): GetCookieResult => {
     //str:用于测试的模仿cookie的值,包含多种可能的情况
     //var str = "test=cookie\'s value&one=6&two=2; 2=cookie2; empty; ; mu lti=multiValue&name1=value1&name2=values2";
-
-    if (!isBrowser()) return;
 
     //将忽略名为空或值为空的cookie
     var c = {},
         reg = /(?:;\s|^)([^;]*?)=([^;]*)/g,
         subReg = /([^&]+)=([^&]+)(?:&|$)/g,
-        m, subm,
-        cookie = document.cookie;
+        m, subm;
     while (m = reg.exec(cookie)) { //解析cookie //key:m[1]  value:m[2]
         c[m[1]] = {value: unescape(m[2]), values: null};
         while (subm = subReg.exec(m[2])) { //存在多值cookie,忽略没有名称的子value
@@ -50,6 +47,11 @@ export const getCookie: (refresh?: boolean) => GetCookieResult = cache(function 
         }
     }
     return c;
+}
+
+export const getCookie: (refresh?: boolean) => GetCookieResult = cache(function () {
+    if (!isBrowser()) return;
+    return parseCookie(document.cookie);
 });
 /**
  *设置或添加一个cookie
