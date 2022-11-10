@@ -1,10 +1,8 @@
 import {isArray} from "./util";
 
-export const each = function <T extends object | any[]>(
-    arrayOrObject: T,
-    fn: (value: any, index: T extends any[] ? number : string, obj: typeof arrayOrObject) => void,
-    context?: any
-): void {
+export function each<T extends unknown[]>(arr: T, fn: (value: T[number], index: number, arr: T) => void, context?: any): void;
+export function each<T extends object>(obj: T, fn: (value: T[keyof T], key: keyof T, obj: T) => void, context?: any): void;
+export function each<T>(arrayOrObject: T, fn: any, context?: any): void {
     let obj = arrayOrObject;
     if (isArray(obj)) {
         // @ts-ignore
