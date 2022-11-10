@@ -1,12 +1,12 @@
-import {isFunction,isBoolean} from "./util";
+import {isFunction, isBoolean} from "./util";
 import {timeout} from "./timeout";
 
 //缓存函数。  将函数结果缓存，函数实际只执行一次。
 //predicate 判断在refresh为false时，是否使用缓存
-export const cache = function (fn: Function, context?: Object, predicate?: Function) {
+export const cache = function <T extends (...args: unknown[]) => unknown>(fn: T, context?: any, predicate?: (...args: Parameters<T>) => boolean) {
     var result,
         isExecute; //判断是否执行过fn，不能通过result判断，因为fn有可能返回undefined
-    return function (refresh, ...args) { //第一个参数为 是否强制刷新
+    return function (refresh, ...args: Parameters<T>): ReturnType<T> { //第一个参数为 是否强制刷新
 
         !context && (context = this);
 

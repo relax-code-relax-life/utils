@@ -16,7 +16,8 @@ interface SetCookieOption {
         sec?: number;
     };
 }
-export declare const getCookie: (refresh?: boolean) => GetCookieResult;
+export declare const parseCookie: (cookie: string) => GetCookieResult;
+export declare const getCookie: (refresh: any) => GetCookieResult;
 export declare const setCookie: (key: string, value: string | object, option?: SetCookieOption | undefined) => GetCookieResultItem | undefined;
 export declare const deleteCookie: (key: string, option?: SetCookieOption | undefined) => boolean;
 export declare const cookie: {

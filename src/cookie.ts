@@ -49,8 +49,12 @@ export const parseCookie = (cookie: string): GetCookieResult => {
     return c;
 }
 
-export const getCookie: (refresh?: boolean) => GetCookieResult = cache(function () {
-    if (!isBrowser()) return;
+/**
+ * 在非浏览器环境下，会返回空对象。
+ * 在非浏览器环境下，例如SSR时，需要解析cookie，请使用`parseCookie`
+ */
+export const getCookie = cache(function () {
+    if (!isBrowser()) return {};
     return parseCookie(document.cookie);
 });
 /**

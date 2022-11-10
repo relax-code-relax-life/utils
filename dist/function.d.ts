@@ -1,4 +1,4 @@
-export declare const cache: (fn: Function, context?: Object | undefined, predicate?: Function | undefined) => (refresh: any, ...args: any[]) => any;
+export declare const cache: <T extends (...args: unknown[]) => unknown>(fn: T, context?: any, predicate?: ((...args: Parameters<T>) => boolean) | undefined) => (refresh: any, ...args: Parameters<T>) => ReturnType<T>;
 export declare const retry: <T>(fn: (...args: any[]) => Promise<T>, max: number, wait?: number, context?: object) => () => Promise<T>;
 declare function throttle(fn: Function, wait?: number, context?: any): any;
 declare function throttle(fn: Function, immediately?: boolean, wait?: number, context?: any): any;

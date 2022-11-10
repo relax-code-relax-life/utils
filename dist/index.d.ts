@@ -4,7 +4,7 @@ export declare const copyTxt: (txt: string) => boolean;
 export declare const pick: <T extends object, K extends keyof T>(tar: T, keys: string[] | ((key: string) => boolean)) => {} | Pick<T, K>;
 export { PromiseWithAbort, Defer, defer, promisify } from './promise';
 export { each, map, find, unique } from './collection';
-export { getCookie, setCookie, deleteCookie, cookie } from './cookie';
+export { parseCookie, getCookie, setCookie, deleteCookie, cookie } from './cookie';
 export { dateFormat, dateParse, dateAdd, firstDateInMonth, lastDateInMonth, firstWeekInMonth, lastWeekInMonth, weekRange, weekendsCount } from './date';
 export { cache, retry, throttle, debounce } from './function';
 export { isAndroid, isIos, isWeiXin, isWifi, isWindows, isMac, isIE, isEdge, isChrome, isFirefox, isSafari, isUrl, isArrayLike } from './is';

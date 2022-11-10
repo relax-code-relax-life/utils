@@ -57,20 +57,25 @@ export const find = function <T extends any[] | object>(
  * @param arr {Array}
  * @param [isSort] {Boolean} 默认false.
  *          如果已排序，则和前一个值作恒等比较，如果未排序，则通过includes是否存在。
- * @param [fn] {Function} map函数。根据fn返回的值做比较。 fn(item,index,arr);
+ * @param [mapFn] {Function} map函数。根据fn返回的值做比较。 fn(item,index,arr);
  * @param [context] {Object} map函数的this值。
  * @return {Array} 返回新数组。
  */
-export const unique = function <T>(
-    arr: T[],
-    isSort = false,
-    fn?: (item: T, index: number, arr: T[]) => any,
-    context?: any): T[] {
+type uniqueMapFn<T> = (item: T, index: number, arr: T[]) => any;
 
-    if (typeof isSort === 'function') {
-        context = fn;
-        fn = isSort;
+export function unique<T>(arr: T[], mapFn?: uniqueMapFn<T>, context?: any): T[];
+export function unique<T>(arr: T[], isSort?: boolean, mapFn?: uniqueMapFn<T>, context?: any): T[];
+export function unique<T>(arr: T[], isSortOrFn?: boolean | uniqueMapFn<T>, mapFnOrContext?: uniqueMapFn<T> | any, context?: any): T[] {
+
+    let isSort: boolean | undefined, fn: uniqueMapFn<T>, ctx: any;
+    if (typeof isSortOrFn === 'function') {
+        fn = isSortOrFn;
+        ctx = mapFnOrContext;
         isSort = false;
+    } else {
+        isSort = isSortOrFn;
+        fn = mapFnOrContext;
+        ctx = context
     }
 
     if (typeof Set === 'function' && !fn) {
@@ -79,7 +84,7 @@ export const unique = function <T>(
 
     let result: T[] = [];
 
-    let mapArr = fn ? arr.map(fn, context) : arr;
+    let mapArr = fn ? arr.map(fn, ctx) : arr;
 
     if (isSort) {
         let pre;
