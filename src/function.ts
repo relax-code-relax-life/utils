@@ -19,13 +19,13 @@ export const cache = function <T extends (...args: unknown[]) => unknown>(fn: T,
     }
 };
 
-export const retry = function <T>(fn: (...args) => Promise<T>, max: number, wait = 0, context: object = this) {
+export const retry = function <T extends (...args: any[]) => any>(fn: T, max: number, wait = 0, context: object = this) {
 
     if (typeof max !== 'number') throw new TypeError('the parameter max is not a number');
 
     let cnt = 0;
 
-    const exec = function (): Promise<T> {
+    const exec: (...args: Parameters<T>) => Promise<ReturnType<T>> = function () {
         cnt++;
         return Promise.resolve(fn.apply(context, arguments))
             .then(
@@ -46,7 +46,6 @@ export const retry = function <T>(fn: (...args) => Promise<T>, max: number, wait
     };
     return exec;
 }
-
 
 //间隔wait执行, fn阶段性的执行。在wait时间里实际只执行fn一次，多次调用则到下一个wait时间才能执行。
 //optional:alwaysFn,immediately,context

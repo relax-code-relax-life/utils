@@ -123,7 +123,7 @@ export const setCookie = function (key: string, value: string | object, option?:
  */
 export const deleteCookie = function (key: string, option?: SetCookieOption): boolean {
     if (!isBrowser()) return false;
-    setCookie(key, '', assign(option, {expires: {day: -30}}));
+    setCookie(key, '', assign(option || {}, {expires: {day: -30}}));
     return !(key in getCookie(true));
 };
 

@@ -123,7 +123,7 @@ export const htmlEncode = function (txt: string) {
 
 const htmlDecodeInBrowser = function (val: string) {
     if (val == null || val === '') return '';
-    var match = val.match(reg_htmlDecodeBrowser);
+    var match = val.match(reg_htmlDecodeBrowser) as string[] | null;
     if (match) {
         var el = document.createElement('div');
         el.innerHTML = match.join(',');
@@ -219,7 +219,7 @@ let _cacheTemplateFn;
  * @returns {string}
  */
 export const template = (temp: string, data: object) => {
-    if(!_cacheTemplateFn) _cacheTemplateFn = createTemplateFn();
-    return _cacheTemplateFn(temp,data);
+    if (!_cacheTemplateFn) _cacheTemplateFn = createTemplateFn();
+    return _cacheTemplateFn(temp, data);
 }
 

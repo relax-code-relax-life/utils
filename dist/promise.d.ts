@@ -8,5 +8,5 @@ interface PromiseWithAbort<T> extends Promise<T> {
 }
 export { Defer, PromiseWithAbort };
 export declare const defer: <T>() => Defer<T>;
-declare let promisify: (original: Function, context?: object | undefined) => (...args: any[]) => Promise<any>;
+declare let promisify: (original: Function, context?: object) => (...args: any[]) => Promise<any>;
 export { promisify };

@@ -10,6 +10,7 @@ export function each<T>(arrayOrObject: T, fn: any, context?: any): void {
     }
 
     //只遍历自有可枚举属性
+    // @ts-ignore
     Object.keys(obj).forEach(key => {
         fn.call(context, obj[key], key, obj);
     })
