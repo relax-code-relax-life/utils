@@ -19,24 +19,24 @@ export const cache = function <T extends (...args: unknown[]) => unknown>(fn: T,
     }
 };
 
-export const retry = function <T extends (...args: any[]) => any>(fn: T, max: number, wait = 0, context: object = this) {
+export const retry = function <T extends (...args: any[]) => any>(fn: T, max: number, wait = 0, context?: object) {
 
     if (typeof max !== 'number') throw new TypeError('the parameter max is not a number');
 
     let cnt = 0;
 
-    const exec: (...args: Parameters<T>) => Promise<ReturnType<T>> = function () {
+    const exec: (...args: Parameters<T>) => Promise<ReturnType<T>> = function (...args) {
         cnt++;
-        return Promise.resolve(fn.apply(context, arguments))
+        return Promise.resolve(fn.apply(context || this, args))
             .then(
                 (data) => {
                     cnt = 0;
                     return data;
                 },
-                function (err) {
+                (err) => {
                     if (cnt < max) {
-                        if (wait > 0) return timeout(wait, (...args) => exec.apply(this, args));
-                        return exec.apply(this, arguments);
+                        if (wait > 0) return timeout(wait, () => exec.apply(context || this, args));
+                        return exec.apply(context || this, args);
                     } else {
                         cnt = 0;
                         return Promise.reject(err);

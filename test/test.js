@@ -471,24 +471,25 @@ describe("util_", function () {
         var max = 3;
         const context = {name: 'context'};
         let isReject = true;
-        var fn = function () {
+        var fn = function (...args) {
             console.log('wwl =======', execCnt, isReject);
             expect(this).toEqual(context);
+            expect(args).toEqual(['1', 2])
             execCnt++;
             if (isReject) return Promise.reject();
             else return Promise.resolve();
         };
         var decorateFn = utils.retry(fn, max, 300, context);
-        await decorateFn().catch(() => expect(execCnt).toEqual(3));
+        await decorateFn('1', 2).catch(() => expect(execCnt).toEqual(3));
 
         // 判断第二次执行,retry内部的计数会清零 并且 执行正确情况下，只执行一次
         execCnt = 0;
         isReject = false;
-        decorateFn().then(() => expect(execCnt).toEqual(1));
+        decorateFn('1', 2).then(() => expect(execCnt).toEqual(1));
 
     });
 
-    it('parseCookie', function (){
+    it('parseCookie', function () {
         var str = "test=cookie\'s value&one=6&two=2; 2=cookie2; empty; ; mu lti=multiValue&name1=value1&name2=values2";
         expect(utils.parseCookie(str)).toEqual({
             "test": {
