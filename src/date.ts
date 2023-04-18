@@ -36,7 +36,7 @@ const isDate = function (val): val is typeof Date {
  * @param fmt{String} 格式化字符串
  * @return {string}
  * */
-export const dateFormat = function (date: Date, fmt = 'yyyy-MM-dd hh:mm:ss') {
+export const dateFormat = function (date: Date, fmt = 'yyyy-MM-dd HH:mm:ss') {
     if (!isDate(date)) return '';
     // if (!fmt) fmt = 'yyyy-MM-dd hh:mm:ss';
 
@@ -69,7 +69,7 @@ export const dateFormat = function (date: Date, fmt = 'yyyy-MM-dd hh:mm:ss') {
 }
 
 export const dateParse = function (str: string, fmt ?: string) {
-    if (!fmt) fmt = 'yyyy-MM-dd hh:mm:ss';
+    if (!fmt) fmt = 'yyyy-MM-dd HH:mm:ss';
 
     var arg: {
         'y': undefined | number,
