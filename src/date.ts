@@ -28,6 +28,9 @@ const isDate = function (val): val is typeof Date {
     return tostring(val) === '[object Date]';
 };
 
+
+
+
 /**
  * 格式化时间。 支持：年y,月M,天d,24小时H,12小时h,分m,秒s,毫秒S,am/pm a
  * 年份根据y的数量截取，其他值，只补齐不截取。
@@ -36,7 +39,7 @@ const isDate = function (val): val is typeof Date {
  * @param fmt{String} 格式化字符串
  * @return {string}
  * */
-export const dateFormat = function (date: Date, fmt = 'yyyy-MM-dd hh:mm:ss') {
+export const dateFormat = function (date: Date, fmt = 'yyyy-MM-dd HH:mm:ss') {
     if (!isDate(date)) return '';
     // if (!fmt) fmt = 'yyyy-MM-dd hh:mm:ss';
 
@@ -68,8 +71,7 @@ export const dateFormat = function (date: Date, fmt = 'yyyy-MM-dd hh:mm:ss') {
     })
 }
 
-export const dateParse = function (str: string, fmt ?: string) {
-    if (!fmt) fmt = 'yyyy-MM-dd hh:mm:ss';
+export const dateParse = function (str: string, fmt = 'yyyy-MM-dd HH:mm:ss', timezone?: string) {
 
     var arg: {
         'y': undefined | number,
@@ -148,7 +150,7 @@ export const dateParse = function (str: string, fmt ?: string) {
     }
 
     if (arg['M'] === undefined) arg['M'] = 0;
-    else arg['M']! -= 1;
+    else arg['M'] -= 1;
 
     if (!arg['h']) {
         arg['a'] = 'am';    //跳过下面的+12判断
@@ -162,7 +164,11 @@ export const dateParse = function (str: string, fmt ?: string) {
         arg['h']! += 12;
     }
 
-    return new Date(arg.y, arg.M!, arg.d, arg.h, arg.m, arg.s, arg.S);
+    if (!timezone) {
+        return new Date(arg.y, arg.M, arg.d, arg.h, arg.m, arg.s, arg.S);
+    }
+
+
 
 };
 
